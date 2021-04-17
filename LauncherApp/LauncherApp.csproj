@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <RootNamespace>launcher_app</RootNamespace>
+    <UseWPF>true</UseWPF>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="launcher-bg.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CefSharp.Wpf" Version="89.0.170" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LauncherManagement\LauncherManagement.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="launcher-bg.jpg" />
+  </ItemGroup>
+
+</Project>
