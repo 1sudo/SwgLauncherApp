@@ -9,6 +9,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="discord-active.png" />
+    <None Remove="discord.png" />
+    <None Remove="donate.png" />
+    <None Remove="images\discord-active.png" />
+    <None Remove="images\discord.png" />
+    <None Remove="images\donate-active.png" />
+    <None Remove="images\donate.png" />
+    <None Remove="images\launcher-bg.jpg" />
+    <None Remove="images\mantis-active.png" />
+    <None Remove="images\mantis.png" />
+    <None Remove="images\resources-active.png" />
+    <None Remove="images\resources.png" />
+    <None Remove="images\skillplanner-active.png" />
+    <None Remove="images\skillplanner.png" />
+    <None Remove="images\vote-active.png" />
+    <None Remove="images\vote.png" />
     <None Remove="launcher-bg.jpg" />
   </ItemGroup>
 
@@ -21,7 +37,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="launcher-bg.jpg" />
+    <Resource Include="images\discord-active.png" />
+    <Resource Include="images\discord.png" />
+    <Resource Include="images\donate-active.png" />
+    <Resource Include="images\donate.png" />
+    <Resource Include="images\launcher-bg.jpg" />
+    <Resource Include="images\mantis-active.png" />
+    <Resource Include="images\mantis.png" />
+    <Resource Include="images\resources-active.png" />
+    <Resource Include="images\resources.png" />
+    <Resource Include="images\skillplanner-active.png" />
+    <Resource Include="images\skillplanner.png" />
+    <Resource Include="images\vote-active.png" />
+    <Resource Include="images\vote.png" />
   </ItemGroup>
 
 </Project>
