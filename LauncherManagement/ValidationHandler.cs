@@ -2,12 +2,14 @@
 using System.IO;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema;
 
 namespace LauncherManagement
 {
     public class ValidationHandler : DownloadHandler
     {
-        internal static async Task<Dictionary<string, string>> GetBadFiles(List<DownloadableFile> fileList, bool isFullScan = false)
+        internal static async Task<Dictionary<string, string>> GetBadFiles(string downloadLocation, List<DownloadableFile> fileList, bool isFullScan = false)
         {
             var newFileList = new Dictionary<string, string>();
 
@@ -19,7 +21,7 @@ namespace LauncherManagement
                     {
                         using (var md5 = MD5.Create())
                         {
-                            using (var stream = File.OpenRead(file.name))
+                            using (var stream = File.OpenRead(Path.Join(downloadLocation, file.name)))
                             {
                                 var result = await Task.Run(() => System.BitConverter.ToString(md5.ComputeHash(stream))
                                     .Replace("-", "").ToLowerInvariant());
@@ -43,7 +45,7 @@ namespace LauncherManagement
                     try
                     {
                         // If file is wrong size, add to download list
-                        if (new FileInfo(file.name).Length != file.size)
+                        if (new FileInfo(Path.Join(downloadLocation, file.name)).Length != file.size)
                         {
                             newFileList.Add(file.name, file.url);
                         }
@@ -59,11 +61,11 @@ namespace LauncherManagement
             return newFileList;
         }
 
-        internal static (bool flag, string reason) CheckValidInstallation(string location)
+        internal static bool CheckValidInstallation(string location)
         {
             if (!Directory.Exists(location))
             {
-                return (false, "Missing SWG directory! Please select a valid SWG installation location!");
+                return false;
             }
 
             // Files that are required to exist
@@ -74,7 +76,7 @@ namespace LauncherManagement
             };
 
             // Files in supposed SWG directory
-            string[] files = Directory.GetFiles(location);
+            string[] files = Directory.GetFiles(location, "*.*", SearchOption.AllDirectories);
 
             int numRequiredFiles = 0;
 
@@ -82,7 +84,7 @@ namespace LauncherManagement
             {
                 foreach (string file in files)
                 {
-                    if (fileToCheck == file.Split("\\")[1].Trim())
+                    if (fileToCheck == file.Split(location + "\\")[1].Trim())
                     {
                         numRequiredFiles++;
                     }
@@ -91,10 +93,52 @@ namespace LauncherManagement
 
             if (numRequiredFiles == 3)
             {
-                return (true, "");
+                return true;
             }
 
-            return (false, "Invalid SWG installation directory! Please select a directory with valid SWG game files!");
+            return false;
+        }
+
+        internal static bool CheckValidConfig()
+        {
+            JObject json = new JObject();
+
+            string schemaJson = @"{
+              'SWGLocation': 'location',
+              'DarknaughtLocation': 'location'
+            }";
+
+            JSchema schema = JSchema.Parse(schemaJson);
+
+            try
+            {
+                json = JObject.Parse(File.ReadAllText(Path.Join(Directory.GetCurrentDirectory(), "config.json")));
+            }
+            catch
+            {
+                return false;
+            }
+            
+            bool validSchema = json.IsValid(schema);
+
+            int keysContained = 0;
+
+            if (json.ContainsKey("SWGLocation"))
+            {
+                keysContained++;
+            }
+
+            if (json.ContainsKey("DarknaughtLocation"))
+            {
+                keysContained++;
+            }
+
+            if (validSchema && keysContained >= 2)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

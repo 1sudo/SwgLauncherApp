@@ -18,7 +18,7 @@ namespace LauncherManagement
             return JsonHandler.GetFileList(System.Text.Encoding.UTF8.GetString(contents));
         }
 
-        internal static async Task DownloadFilesFromList(Dictionary<string, string> fileList)
+        internal static async Task DownloadFilesFromList(Dictionary<string, string> fileList, string downloadLocation)
         {
             // Key == name, Value == url
             foreach (KeyValuePair<string, string> file in fileList)
@@ -29,9 +29,9 @@ namespace LauncherManagement
                 var contents = await Task.Run(() => Download(file.Value));
 
                 // Create directory before writing to file if it doesn't exist
-                new FileInfo(file.Key).Directory.Create();
+                new FileInfo(Path.Join(downloadLocation, file.Key)).Directory.Create();
 
-                await File.WriteAllBytesAsync(file.Key, contents); 
+                await File.WriteAllBytesAsync(Path.Join(downloadLocation, file.Key), contents); 
             }
 
             onDownloadCompleted?.Invoke();

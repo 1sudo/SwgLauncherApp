@@ -4,9 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LauncherApp" xmlns:wpf="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
-    x:Class="LauncherApp.MainWindow"
+        x:Class="LauncherApp.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="610" Width="1130" WindowStyle="None" MouseDown="Window_MouseDown" ResizeMode="NoResize">
+        Title="MainWindow" Height="610" Width="1130" WindowStyle="None" MouseDown="Window_MouseDown" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <Style x:Key="FocusVisual">
             <Setter Property="Control.Template">
@@ -23,9 +23,9 @@
         <SolidColorBrush x:Key="Button.MouseOver.Border" Color="#FF3C7FB1"/>
         <SolidColorBrush x:Key="Button.Pressed.Background" Color="#FFC4E5F6"/>
         <SolidColorBrush x:Key="Button.Pressed.Border" Color="#FF2C628B"/>
-        <SolidColorBrush x:Key="Button.Disabled.Background" Color="#FFF4F4F4"/>
-        <SolidColorBrush x:Key="Button.Disabled.Border" Color="#FFADB2B5"/>
-        <SolidColorBrush x:Key="Button.Disabled.Foreground" Color="#FF838383"/>
+        <SolidColorBrush x:Key="Button.Disabled.Background" Color="#FFB4B4B4"/>
+        <SolidColorBrush x:Key="Button.Disabled.Border" Color="#FFB4B4B4"/>
+        <SolidColorBrush x:Key="Button.Disabled.Foreground" Color="#FF686868"/>
         <Style x:Key="RoundedButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
             <Setter Property="Background" Value="{StaticResource Button.Static.Background}"/>
@@ -174,7 +174,23 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        
+        <Style x:Key="minimizeImage" TargetType="{x:Type Image}">
+            <Setter Property="Source" Value="/images/minimize.png" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="true">
+                    <Setter Property="Source" Value="/images/minimize-active.png" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="closeImage" TargetType="{x:Type Image}">
+            <Setter Property="Source" Value="/images/close.png" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="true">
+                    <Setter Property="Source" Value="/images/close-active.png" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
         <Style x:Key="NavButton" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
@@ -227,7 +243,8 @@
             <ColumnDefinition Width="20" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="20" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="30" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="20" />
             <RowDefinition Height="*" />
@@ -241,7 +258,21 @@
             <RowDefinition Height="20" />
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" CornerRadius="4" Background="#19898989" BorderBrush="#19898989" BorderThickness="1">
+        <Grid Grid.Row="1" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            <Button x:Name="minimizeButton" Style="{DynamicResource NavButton}" Grid.Column="0" Width="25" HorizontalAlignment="Right" Click="minimizeButton_Click">
+                <Image Style="{DynamicResource minimizeImage}" />
+            </Button>
+            <Button x:Name="closeButton" Style="{DynamicResource NavButton}" Grid.Column="1" Width="25" HorizontalAlignment="Right" Click="closeButton_Click">
+                <Image Style="{DynamicResource closeImage}" />
+            </Button>
+        </Grid>
+
+        <Border Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" CornerRadius="4" Background="#19898989" BorderBrush="#19898989" BorderThickness="1">
             <Grid Width="1090" Height="75">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="20" />
@@ -257,39 +288,39 @@
                 </Grid.ColumnDefinitions>
 
                 <TextBlock x:Name="Logo" Text="Logo" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" />
-                <Button Style="{DynamicResource NavButton}" x:Name="Discord" Grid.Column="3">
+                <Button Style="{DynamicResource NavButton}" x:Name="Discord" Click="discordButton_Click" Grid.Column="3">
                     <Image Style="{DynamicResource DiscordImage}" />
                 </Button>
-                <Button Style="{DynamicResource NavButton}" x:Name="Resources" Grid.Column="4">
+                <Button Style="{DynamicResource NavButton}" x:Name="Resources" Click="resourcesButton_Click" Grid.Column="4">
                     <Image Style="{DynamicResource ResourcesImage}" />
                 </Button>
-                <Button Style="{DynamicResource NavButton}" x:Name="Mantis" Grid.Column="5">
+                <Button Style="{DynamicResource NavButton}" x:Name="Mantis" Click="mantisButton_Click" Grid.Column="5">
                     <Image Style="{DynamicResource MantisImage}" />
                 </Button>
-                <Button Style="{DynamicResource NavButton}" x:Name="Skillplanner" Grid.Column="6">
+                <Button Style="{DynamicResource NavButton}" x:Name="Skillplanner" Click="skillplannerButton_Click" Grid.Column="6">
                     <Image Style="{DynamicResource SkillplannerImage}" />
                 </Button>
-                <Button Style="{DynamicResource NavButton}" x:Name="Vote" Grid.Column="7">
+                <Button Style="{DynamicResource NavButton}" x:Name="Vote" Click="voteButton_Click" Grid.Column="7">
                     <Image Style="{DynamicResource VoteImage}" />
                 </Button>
-                <Button Style="{DynamicResource NavButton}" x:Name="Donate" Grid.Column="8">
+                <Button Style="{DynamicResource NavButton}" x:Name="Donate" Click="donateButton_Click" Grid.Column="8">
                     <Image Style="{DynamicResource DonateImage}" />
                 </Button>
             </Grid>
         </Border>
 
-        <wpf:ChromiumWebBrowser x:Name="Browser" Grid.Row="3" Grid.Column="1" Grid.RowSpan="6" Width="920" Address="http://localhost/" HorizontalAlignment="Left"/>
-        <TextBlock Grid.Row="4" Grid.Column="3" Text="GAME SETUP AND CONFIGURATION" FontWeight="Bold" FontFamily="Bahnschrift SemiBold Condensed" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="13" />
-        <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="configButton" Grid.Row="5" Grid.Column="3" Width="70" Height="18" FontFamily="Bahnschrift SemiBold Condensed" Foreground="White" BorderThickness="0" Background="#006fb2" FontSize="14" Click="configButton_Click"  Content="CONFIG" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-        <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="modsButton" Grid.Row="5" Grid.Column="3" Width="70" Height="18" FontFamily="Bahnschrift SemiBold Condensed" Foreground="White" BorderThickness="0" Background="#006fb2" FontSize="14" Click="modsButton_Click"  Content="MODS" HorizontalAlignment="Right" VerticalAlignment="Top"/>
-        <TextBlock Grid.Row="6" Grid.Column="3" Text="ACCOUNT AND CHARACTER SELECT" FontWeight="Bold" FontFamily="Bahnschrift SemiBold Condensed" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="13" />
-        <ComboBox x:Name="AccountNameComboBox" Height="25" Grid.Row="7" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Text="Account Name" />
-        <ComboBox x:Name="CharacterNameComboBox" Height="25" Grid.Row="8" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Center" Text="Character Name" />
+        <wpf:ChromiumWebBrowser x:Name="Browser" Grid.Row="4" Grid.Column="1" Grid.RowSpan="6" Width="920" Address="http://localhost/" HorizontalAlignment="Left"/>
+        <TextBlock Grid.Row="5" Grid.Column="3" Text="GAME SETUP AND CONFIGURATION" FontWeight="Bold" FontFamily="Bahnschrift SemiBold Condensed" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="13" />
+        <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="configButton" Grid.Row="6" Grid.Column="3" Width="70" Height="18" FontFamily="Bahnschrift SemiBold Condensed" Foreground="White" BorderThickness="0" Background="#006fb2" FontSize="14" Click="configButton_Click"  Content="CONFIG" HorizontalAlignment="Left" VerticalAlignment="Top" IsEnabled="False"/>
+        <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="modsButton" Grid.Row="6" Grid.Column="3" Width="70" Height="18" FontFamily="Bahnschrift SemiBold Condensed" Foreground="White" BorderThickness="0" Background="#006fb2" FontSize="14" Click="modsButton_Click"  Content="MODS" HorizontalAlignment="Right" VerticalAlignment="Top" IsEnabled="False"/>
+        <TextBlock Grid.Row="7" Grid.Column="3" Text="ACCOUNT AND CHARACTER SELECT" FontWeight="Bold" FontFamily="Bahnschrift SemiBold Condensed" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="13" />
+        <ComboBox x:Name="AccountNameComboBox" Height="25" Grid.Row="8" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Text="Account Name" />
+        <ComboBox x:Name="CharacterNameComboBox" Height="25" Grid.Row="9" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Center" Text="Character Name" />
 
-        <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="fullScanButton" Grid.Row="9" Grid.Column="3" Height="18" Foreground="White" BorderThickness="0" Background="#006fb2" FontFamily="Bahnschrift SemiBold Condensed" FontSize="14" Click="fullScanButton_Click"  Content="FULL SCAN" VerticalAlignment="Top"/>
-        <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="button1" Grid.Row="10" Grid.Column="3" Width="146" Height="55" Foreground="White" BorderThickness="0" FontFamily="Bahnschrift SemiBold Condensed" Background="#006fb2" FontSize="24" Click="button1_Click"  Content="PLAY"/>
+        <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="fullScanButton" Grid.Row="10" Grid.Column="3" Height="18" Foreground="White" BorderThickness="0" Background="#006fb2" FontFamily="Bahnschrift SemiBold Condensed" FontSize="14" Click="fullScanButton_Click"  Content="FULL SCAN" VerticalAlignment="Top" IsEnabled="False"/>
+        <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="playButton" Grid.Row="11" Grid.Column="3" Width="146" Height="55" Foreground="White" BorderThickness="0" FontFamily="Bahnschrift SemiBold Condensed" Background="#006fb2" FontSize="24" Click="playButton_Click"  Content="PLAY" IsEnabled="False"/>
 
-        <Border x:Name="statusBar" Visibility="Visible" Grid.Row="10" Grid.Column="1" CornerRadius="4" Height="30" Width="925" Background="#19898989" BorderBrush="#19898989" BorderThickness="1" VerticalAlignment="Bottom" HorizontalAlignment="Left">
+        <Border x:Name="statusBar" Visibility="Visible" Grid.Row="11" Grid.Column="1" CornerRadius="4" Height="30" Width="925" Background="#19898989" BorderBrush="#19898989" BorderThickness="1" VerticalAlignment="Bottom" HorizontalAlignment="Left">
             <Grid VerticalAlignment="Center" HorizontalAlignment="Left" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="20" />
@@ -316,7 +347,7 @@
             </Grid>
         </Border>
 
-        <Grid x:Name="ProgressGrid" Grid.Row="10" Grid.Column="1" Height="30" Width="925" Visibility="Collapsed" VerticalAlignment="Bottom" HorizontalAlignment="Left">
+        <Grid x:Name="ProgressGrid" Grid.Row="11" Grid.Column="1" Height="30" Width="925" Visibility="Collapsed" VerticalAlignment="Bottom" HorizontalAlignment="Left">
             <ProgressBar Style="{DynamicResource RoundedProgressBar}" x:Name="DownloadProgress" BorderThickness="0" Foreground="#39b54a" Background="#19898989" />
             <TextBlock x:Name="DownloadProgressText" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
         </Grid>

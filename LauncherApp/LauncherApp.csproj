@@ -5,6 +5,7 @@
     <TargetFramework>net5.0-windows</TargetFramework>
     <RootNamespace>launcher_app</RootNamespace>
     <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
@@ -12,6 +13,8 @@
     <None Remove="discord-active.png" />
     <None Remove="discord.png" />
     <None Remove="donate.png" />
+    <None Remove="images\close-active.png" />
+    <None Remove="images\close.png" />
     <None Remove="images\discord-active.png" />
     <None Remove="images\discord.png" />
     <None Remove="images\donate-active.png" />
@@ -19,6 +22,9 @@
     <None Remove="images\launcher-bg.jpg" />
     <None Remove="images\mantis-active.png" />
     <None Remove="images\mantis.png" />
+    <None Remove="images\minimize-active.png" />
+    <None Remove="images\minimize.png" />
+    <None Remove="images\minimize_active.png" />
     <None Remove="images\resources-active.png" />
     <None Remove="images\resources.png" />
     <None Remove="images\skillplanner-active.png" />
@@ -37,6 +43,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="images\close-active.png" />
+    <Resource Include="images\close.png" />
     <Resource Include="images\discord-active.png" />
     <Resource Include="images\discord.png" />
     <Resource Include="images\donate-active.png" />
@@ -44,6 +52,8 @@
     <Resource Include="images\launcher-bg.jpg" />
     <Resource Include="images\mantis-active.png" />
     <Resource Include="images\mantis.png" />
+    <Resource Include="images\minimize-active.png" />
+    <Resource Include="images\minimize.png" />
     <Resource Include="images\resources-active.png" />
     <Resource Include="images\resources.png" />
     <Resource Include="images\skillplanner-active.png" />
