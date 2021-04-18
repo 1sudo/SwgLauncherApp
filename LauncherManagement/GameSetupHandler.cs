@@ -30,11 +30,14 @@ namespace LauncherManagement
             catch { }
 
             JToken location;
-
-            if (json.TryGetValue("DarknaughtLocation", out location))
+            try
             {
-                return location.ToString();
+                if (json.TryGetValue("DarknaughtLocation", out location))
+                {
+                    return location.ToString();
+                }
             }
+            catch { }
 
             return string.Empty;
         }

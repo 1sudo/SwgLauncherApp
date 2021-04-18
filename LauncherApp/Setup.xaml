@@ -79,6 +79,22 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+        <Style x:Key="setupImage" TargetType="{x:Type Image}">
+            <Setter Property="Source" Value="/images/setup.png" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="true">
+                    <Setter Property="Source" Value="/images/setup-active.png" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="setupAdvancedImage" TargetType="{x:Type Image}">
+            <Setter Property="Source" Value="/images/setup-advanced.png" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="true">
+                    <Setter Property="Source" Value="/images/setup-advanced-active.png" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
 
         <Style x:Key="NavButton" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="Transparent"/>
@@ -138,7 +154,63 @@
         <TextBlock Grid.Row="1" Grid.Column="1" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="Bahnschrift SemiBold Condensed" FontWeight="Bold" FontSize="16">
             GAME SETUP
         </TextBlock>
-        
+
+        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30" />
+                <RowDefinition Height="70" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Column="0" Grid.Row="0" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center">
+                EASY SETUP
+            </TextBlock>
+
+            <Button Style="{DynamicResource NavButton}" Grid.Column="0" Grid.Row="1">
+                <Image Style="{DynamicResource setupImage}" />
+            </Button>
+
+            <TextBlock Grid.Column="1" Grid.Row="0" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center">
+                ADVANCED SETUP
+            </TextBlock>
+            
+            <Button Style="{DynamicResource NavButton}" Grid.Column="1" Grid.Row="1">
+                <Image Style="{DynamicResource setupAdvancedImage}" />
+            </Button>
+        </Grid>
+
+        <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+            
+            <TextBlock Grid.Column="0" Grid.Row="0" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="10,0,10,0" FontFamily="Bahnschrift SemiLight">
+                The "Just Make It Work" option. This defaults the Darknaught installation to the "C" drive.
+            </TextBlock>
+
+            <TextBlock Grid.Column="0" Grid.Row="2" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="5,0,5,0" FontFamily="Bahnschrift SemiLight">
+                Click the folder to select this option.
+            </TextBlock>
+            <TextBlock Grid.Column="1" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="10,0,10,0" FontFamily="Bahnschrift SemiLight">
+                The "Advanced" setup option. This option allows you to select the hard drive you wish to install Darknaught game files to.
+            </TextBlock>
+
+            <TextBlock Grid.Column="1" Grid.Row="2" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="5,0,5,0" FontFamily="Bahnschrift SemiLight">
+                Click the folder to select this option.
+            </TextBlock>
+        </Grid>
+
         <Grid Grid.Row="1" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Top">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />

@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using LauncherManagement;
+using NAudio.Wave;
 using Newtonsoft.Json.Linq;
 
 namespace LauncherApp
@@ -15,6 +16,8 @@ namespace LauncherApp
         bool GamePathValidated;
         string CurrentFile;
         string darknaughtPath;
+        private WaveOutEvent outputDevice;
+        private AudioFileReader audioFile;
 
         public MainWindow()
         {
@@ -25,6 +28,7 @@ namespace LauncherApp
             DownloadHandler.onCurrentFileDownloading += ShowFileBeingDownloaded;
             DownloadHandler.onDownloadCompleted += OnDownloadCompleted;
             FileDownloader.onServerError += CaughtServerError;
+            DownloadHandler.onFullScanFileCheck += OnFullScanFileCheck;
         }
 
         private async void PreLaunchChecks()
@@ -167,61 +171,64 @@ namespace LauncherApp
 
         private void minimizeButton_Click(object sender, RoutedEventArgs e)
         {
+            PlayClickSound();
             this.WindowState = WindowState.Minimized;
         }
 
         private void closeButton_Click(object sender, RoutedEventArgs e)
         {
+            PlayClickSound();
             this.Close();
         }
 
         private void discordButton_Click(object sender, RoutedEventArgs e)
         {
-
+            PlayClickSound();
         }
 
         private void resourcesButton_Click(object sender, RoutedEventArgs e)
         {
-
+            PlayClickSound();
         }
 
         private void mantisButton_Click(object sender, RoutedEventArgs e)
         {
-
+            PlayClickSound();
         }
 
         private void skillplannerButton_Click(object sender, RoutedEventArgs e)
         {
-
+            PlayClickSound();
         }
 
         private void voteButton_Click(object sender, RoutedEventArgs e)
         {
-
+            PlayClickSound();
         }
 
         private void donateButton_Click(object sender, RoutedEventArgs e)
         {
-
+            PlayClickSound();
         }
 
         private void playButton_Click(object sender, RoutedEventArgs e)
         {
-            
+            PlayClickSound();
         }
 
         private void modsButton_Click(object sender, RoutedEventArgs e)
         {
-            
+            PlayClickSound();
         }
 
         private void configButton_Click(object sender, RoutedEventArgs e)
         {
-
+            PlayClickSound();
         }
 
         private async void fullScanButton_Click(object sender, RoutedEventArgs e)
         {
+            PlayClickSound();
             await GameSetupHandler.CheckFiles(darknaughtPath, true);
         }
 
@@ -240,6 +247,14 @@ namespace LauncherApp
                 DownloadProgressText.Text = $"{ CurrentFile } - " + 
                     $"{ UnitConversion.ToSize(bytesReceived, UnitConversion.SizeUnits.MB) }MB / " +
                     $"{ UnitConversion.ToSize(totalBytesToReceive, UnitConversion.SizeUnits.MB) }MB";
+            });
+        }
+
+        private void OnFullScanFileCheck(string message)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                DownloadProgressText.Text = message;
             });
         }
 
@@ -264,6 +279,46 @@ namespace LauncherApp
             {
                 CurrentFile = $"Downloading { file }";
             });
+        }
+
+        private void PlayHoverSound(object sender, MouseEventArgs e)
+        {
+            if (outputDevice == null)
+            {
+                outputDevice = new WaveOutEvent();
+                outputDevice.PlaybackStopped += OnPlaybackStopped;
+            }
+            if (audioFile == null)
+            {
+                audioFile = new AudioFileReader(Path.Join(Directory.GetCurrentDirectory(), "audio/select.wav"));
+                outputDevice.Init(audioFile);
+            }
+            outputDevice.Volume = 0.35f;
+            outputDevice.Play();
+        }
+
+        private void PlayClickSound()
+        {
+            if (outputDevice == null)
+            {
+                outputDevice = new WaveOutEvent();
+                outputDevice.PlaybackStopped += OnPlaybackStopped;
+            }
+            if (audioFile == null)
+            {
+                audioFile = new AudioFileReader(Path.Join(Directory.GetCurrentDirectory(), "audio/click.wav"));
+                outputDevice.Init(audioFile);
+            }
+            outputDevice.Volume = 0.35f;
+            outputDevice.Play();
+        }
+
+        private void OnPlaybackStopped(object sender, StoppedEventArgs args)
+        {
+            outputDevice.Dispose();
+            outputDevice = null;
+            audioFile.Dispose();
+            audioFile = null;
         }
     }
 }

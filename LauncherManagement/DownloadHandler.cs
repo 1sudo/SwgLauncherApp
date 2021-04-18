@@ -10,6 +10,7 @@ namespace LauncherManagement
     {
         public static Action onDownloadCompleted;
         public static Action<string> onCurrentFileDownloading;
+        public static Action<string> onFullScanFileCheck;
 
         internal static async Task<List<DownloadableFile>> DownloadManifest(string manifestUrl)
         {

@@ -2,14 +2,22 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
-    <RootNamespace>launcher_app</RootNamespace>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>LauncherApp</RootNamespace>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <Platforms>AnyCPU;x64</Platforms>
+    <SignAssembly>false</SignAssembly>
+    <Authors>Zac Jones</Authors>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Copyright>Darknaught</Copyright>
+    <Description>SWG Darknaught Game Launcher</Description>
+    <Company />
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="audio\click.wav" />
+    <None Remove="audio\select.wav" />
     <None Remove="discord-active.png" />
     <None Remove="discord.png" />
     <None Remove="donate.png" />
@@ -27,6 +35,10 @@
     <None Remove="images\minimize_active.png" />
     <None Remove="images\resources-active.png" />
     <None Remove="images\resources.png" />
+    <None Remove="images\setup-active.png" />
+    <None Remove="images\setup-advanced-active.png" />
+    <None Remove="images\setup-advanced.png" />
+    <None Remove="images\setup.png" />
     <None Remove="images\skillplanner-active.png" />
     <None Remove="images\skillplanner.png" />
     <None Remove="images\vote-active.png" />
@@ -36,6 +48,7 @@
 
   <ItemGroup>
     <PackageReference Include="CefSharp.Wpf" Version="89.0.170" />
+    <PackageReference Include="NAudio" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -43,6 +56,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="audio\click.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="audio\select.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Resource Include="images\close-active.png" />
     <Resource Include="images\close.png" />
     <Resource Include="images\discord-active.png" />
@@ -56,6 +75,10 @@
     <Resource Include="images\minimize.png" />
     <Resource Include="images\resources-active.png" />
     <Resource Include="images\resources.png" />
+    <Resource Include="images\setup-active.png" />
+    <Resource Include="images\setup-advanced-active.png" />
+    <Resource Include="images\setup-advanced.png" />
+    <Resource Include="images\setup.png" />
     <Resource Include="images\skillplanner-active.png" />
     <Resource Include="images\skillplanner.png" />
     <Resource Include="images\vote-active.png" />

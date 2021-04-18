@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
@@ -19,6 +20,8 @@ namespace LauncherManagement
                 {
                     try
                     {
+                        onFullScanFileCheck?.Invoke($"Checking File { file.name }...");
+
                         using (var md5 = MD5.Create())
                         {
                             using (var stream = File.OpenRead(Path.Join(downloadLocation, file.name)))
