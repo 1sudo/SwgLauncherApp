@@ -227,8 +227,6 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
-
     </Window.Resources>
     <Grid>
         <Grid.Background>
@@ -264,10 +262,10 @@
                 <ColumnDefinition Width="auto" />
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
-            <Button x:Name="minimizeButton" Style="{DynamicResource NavButton}" Grid.Column="0" Width="25" HorizontalAlignment="Right" Click="minimizeButton_Click">
+            <Button x:Name="MinimizeButton" Style="{DynamicResource NavButton}" Grid.Column="0" Width="25" HorizontalAlignment="Right" Click="MinimizeButton_Click">
                 <Image Style="{DynamicResource minimizeImage}" />
             </Button>
-            <Button x:Name="closeButton" Style="{DynamicResource NavButton}" Grid.Column="1" Width="25" HorizontalAlignment="Right" Click="closeButton_Click">
+            <Button x:Name="CloseButton" Style="{DynamicResource NavButton}" Grid.Column="1" Width="25" HorizontalAlignment="Right" Click="CloseButton_Click">
                 <Image Style="{DynamicResource closeImage}" />
             </Button>
         </Grid>
@@ -288,22 +286,22 @@
                 </Grid.ColumnDefinitions>
 
                 <TextBlock x:Name="Logo" Text="Logo" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" />
-                <Button Style="{DynamicResource NavButton}" x:Name="Discord" Click="discordButton_Click" Grid.Column="3" MouseEnter="PlayHoverSound">
+                <Button Style="{DynamicResource NavButton}" x:Name="Discord" Click="DiscordButton_Click" Grid.Column="3" MouseEnter="PlayHoverSound">
                     <Image Style="{DynamicResource DiscordImage}" />
                 </Button>
-                <Button Style="{DynamicResource NavButton}" x:Name="Resources" Click="resourcesButton_Click" Grid.Column="4" MouseEnter="PlayHoverSound">
+                <Button Style="{DynamicResource NavButton}" x:Name="Resources" Click="ResourcesButton_Click" Grid.Column="4" MouseEnter="PlayHoverSound">
                     <Image Style="{DynamicResource ResourcesImage}" />
                 </Button>
-                <Button Style="{DynamicResource NavButton}" x:Name="Mantis" Click="mantisButton_Click" Grid.Column="5" MouseEnter="PlayHoverSound">
+                <Button Style="{DynamicResource NavButton}" x:Name="Mantis" Click="MantisButton_Click" Grid.Column="5" MouseEnter="PlayHoverSound">
                     <Image Style="{DynamicResource MantisImage}" />
                 </Button>
-                <Button Style="{DynamicResource NavButton}" x:Name="Skillplanner" Click="skillplannerButton_Click" Grid.Column="6" MouseEnter="PlayHoverSound">
+                <Button Style="{DynamicResource NavButton}" x:Name="Skillplanner" Click="SkillplannerButton_Click" Grid.Column="6" MouseEnter="PlayHoverSound">
                     <Image Style="{DynamicResource SkillplannerImage}" />
                 </Button>
-                <Button Style="{DynamicResource NavButton}" x:Name="Vote" Click="voteButton_Click" Grid.Column="7" MouseEnter="PlayHoverSound">
+                <Button Style="{DynamicResource NavButton}" x:Name="Vote" Click="VoteButton_Click" Grid.Column="7" MouseEnter="PlayHoverSound">
                     <Image Style="{DynamicResource VoteImage}" />
                 </Button>
-                <Button Style="{DynamicResource NavButton}" x:Name="Donate" Click="donateButton_Click" Grid.Column="8" MouseEnter="PlayHoverSound">
+                <Button Style="{DynamicResource NavButton}" x:Name="Donate" Click="DonateButton_Click" Grid.Column="8" MouseEnter="PlayHoverSound">
                     <Image Style="{DynamicResource DonateImage}" />
                 </Button>
             </Grid>
@@ -311,14 +309,14 @@
 
         <wpf:ChromiumWebBrowser x:Name="Browser" Grid.Row="4" Grid.Column="1" Grid.RowSpan="6" Width="920" Address="http://localhost/" HorizontalAlignment="Left"/>
         <TextBlock Grid.Row="5" Grid.Column="3" Text="GAME SETUP AND CONFIGURATION" FontWeight="Bold" FontFamily="Bahnschrift SemiBold Condensed" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="13" />
-        <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="configButton" Grid.Row="6" Grid.Column="3" Width="70" Height="18" FontFamily="Bahnschrift SemiBold Condensed" Foreground="White" BorderThickness="0" Background="#006fb2" FontSize="14" Click="configButton_Click"  Content="CONFIG" HorizontalAlignment="Left" VerticalAlignment="Top" IsEnabled="False" MouseEnter="PlayHoverSound" />
-        <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="modsButton" Grid.Row="6" Grid.Column="3" Width="70" Height="18" FontFamily="Bahnschrift SemiBold Condensed" Foreground="White" BorderThickness="0" Background="#006fb2" FontSize="14" Click="modsButton_Click"  Content="MODS" HorizontalAlignment="Right" VerticalAlignment="Top" IsEnabled="False" MouseEnter="PlayHoverSound" />
+        <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="ConfigButton" Grid.Row="6" Grid.Column="3" Width="70" Height="18" FontFamily="Bahnschrift SemiBold Condensed" Foreground="White" BorderThickness="0" Background="#006fb2" FontSize="14" Click="ConfigButton_Click"  Content="CONFIG" HorizontalAlignment="Left" VerticalAlignment="Top" IsEnabled="False" MouseEnter="PlayHoverSound" />
+        <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="ModsButton" Grid.Row="6" Grid.Column="3" Width="70" Height="18" FontFamily="Bahnschrift SemiBold Condensed" Foreground="White" BorderThickness="0" Background="#006fb2" FontSize="14" Click="ModsButton_Click"  Content="MODS" HorizontalAlignment="Right" VerticalAlignment="Top" IsEnabled="False" MouseEnter="PlayHoverSound" />
         <TextBlock Grid.Row="7" Grid.Column="3" Text="ACCOUNT AND CHARACTER SELECT" FontWeight="Bold" FontFamily="Bahnschrift SemiBold Condensed" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="13" />
         <ComboBox x:Name="AccountNameComboBox" Height="25" Grid.Row="8" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Text="Account Name" />
         <ComboBox x:Name="CharacterNameComboBox" Height="25" Grid.Row="9" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Center" Text="Character Name" />
 
-        <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="fullScanButton" Grid.Row="10" Grid.Column="3" Height="18" Foreground="White" BorderThickness="0" Background="#006fb2" FontFamily="Bahnschrift SemiBold Condensed" FontSize="14" Click="fullScanButton_Click"  Content="FULL SCAN" VerticalAlignment="Top" IsEnabled="False" MouseEnter="PlayHoverSound" />
-        <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="playButton" Grid.Row="11" Grid.Column="3" Width="146" Height="55" Foreground="White" BorderThickness="0" FontFamily="Bahnschrift SemiBold Condensed" Background="#006fb2" FontSize="24" Click="playButton_Click"  Content="PLAY" IsEnabled="False" MouseEnter="PlayHoverSound" />
+        <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="FullScanButton" Grid.Row="10" Grid.Column="3" Height="18" Foreground="White" BorderThickness="0" Background="#006fb2" FontFamily="Bahnschrift SemiBold Condensed" FontSize="14" Click="FullScanButton_Click"  Content="FULL SCAN" VerticalAlignment="Top" IsEnabled="False" MouseEnter="PlayHoverSound" />
+        <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="PlayButton" Grid.Row="11" Grid.Column="3" Width="146" Height="55" Foreground="White" BorderThickness="0" FontFamily="Bahnschrift SemiBold Condensed" Background="#006fb2" FontSize="24" Click="PlayButton_Click"  Content="PLAY" IsEnabled="False" MouseEnter="PlayHoverSound" />
 
         <Border x:Name="statusBar" Visibility="Visible" Grid.Row="11" Grid.Column="1" CornerRadius="4" Height="30" Width="925" Background="#19898989" BorderBrush="#19898989" BorderThickness="1" VerticalAlignment="Bottom" HorizontalAlignment="Left">
             <Grid VerticalAlignment="Center" HorizontalAlignment="Left" >

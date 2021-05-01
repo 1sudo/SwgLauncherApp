@@ -6,8 +6,8 @@ namespace LauncherManagement
 {
     public abstract class FileDownloader
     {
-        public static Action<long, long, int> onDownloadProgressUpdated;
-        public static Action<string> onServerError;
+        public static Action<long, long, int> OnDownloadProgressUpdated;
+        public static Action<string> OnServerError;
 
         internal static async Task<byte[]> Download(string url)
         {
@@ -27,15 +27,15 @@ namespace LauncherManagement
                 // If the download server is unavailable
                 catch (Exception e)
                 {
-                    onServerError?.Invoke(e.ToString());
+                    OnServerError?.Invoke(e.ToString());
                     return new byte[0];
                 }
             }
         }
 
-        private static void OnDownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        static void OnDownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            onDownloadProgressUpdated?.Invoke(e.BytesReceived, e.TotalBytesToReceive, e.ProgressPercentage);
+            OnDownloadProgressUpdated?.Invoke(e.BytesReceived, e.TotalBytesToReceive, e.ProgressPercentage);
         }
     }
 }

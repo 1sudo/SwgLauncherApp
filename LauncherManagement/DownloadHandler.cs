@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -8,9 +7,9 @@ namespace LauncherManagement
 {
     public class DownloadHandler : FileDownloader
     {
-        public static Action onDownloadCompleted;
-        public static Action<string> onCurrentFileDownloading;
-        public static Action<string> onFullScanFileCheck;
+        public static Action OnDownloadCompleted;
+        public static Action<string> OnCurrentFileDownloading;
+        public static Action<string> OnFullScanFileCheck;
 
         internal static async Task<List<DownloadableFile>> DownloadManifest(string manifestUrl)
         {
@@ -25,7 +24,7 @@ namespace LauncherManagement
             foreach (KeyValuePair<string, string> file in fileList)
             {
                 // Notify UI of filename
-                onCurrentFileDownloading?.Invoke(file.Key);
+                OnCurrentFileDownloading?.Invoke(file.Key);
 
                 var contents = await Task.Run(() => Download(file.Value));
 
@@ -35,7 +34,7 @@ namespace LauncherManagement
                 await File.WriteAllBytesAsync(Path.Join(downloadLocation, file.Key), contents); 
             }
 
-            onDownloadCompleted?.Invoke();
+            OnDownloadCompleted?.Invoke();
         }
     }
 }

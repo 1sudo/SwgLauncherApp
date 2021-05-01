@@ -20,7 +20,7 @@ namespace LauncherManagement
             await DownloadFilesFromList(fileList, downloadLocation);
         }
 
-        public static string GetDarknaughtPath()
+        public static string GetServerPath()
         {
             JObject json = new JObject();
             try
@@ -32,7 +32,7 @@ namespace LauncherManagement
             JToken location;
             try
             {
-                if (json.TryGetValue("DarknaughtLocation", out location))
+                if (json.TryGetValue("ServerLocation", out location))
                 {
                     return location.ToString();
                 }

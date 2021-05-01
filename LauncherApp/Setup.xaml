@@ -166,20 +166,30 @@
                 <RowDefinition Height="70" />
             </Grid.RowDefinitions>
 
-            <TextBlock Grid.Column="0" Grid.Row="0" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock x:Name="SelectDirectoryText" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed">
+                SELECT GAME DIRECTORY
+            </TextBlock>
+            
+            <TextBlock x:Name="EasySetupText" Grid.Column="0" Grid.Row="0" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center">
                 EASY SETUP
             </TextBlock>
 
-            <Button Style="{DynamicResource NavButton}" Grid.Column="0" Grid.Row="1">
+            <Button Style="{DynamicResource NavButton}" x:Name="EasySetupButton" Grid.Column="0" Grid.Row="1" Click="EasySetupButton_Click" Visibility="Visible">
                 <Image Style="{DynamicResource setupImage}" />
             </Button>
 
-            <TextBlock Grid.Column="1" Grid.Row="0" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBox x:Name="SelectDirectoryTextbox" IsReadOnly="True" Grid.Column="0" Grid.Row="1" Width="200" Height="35" Visibility="Collapsed"/>
+
+            <TextBlock x:Name="AdvancedSetupText" Grid.Column="1" Grid.Row="0" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center">
                 ADVANCED SETUP
             </TextBlock>
-            
-            <Button Style="{DynamicResource NavButton}" Grid.Column="1" Grid.Row="1">
+
+            <Button Style="{DynamicResource NavButton}" x:Name="AdvancedSetupButton" Grid.Column="1" Grid.Row="1" Click="AdvancedSetupButton_Click" Visibility="Visible">
                 <Image Style="{DynamicResource setupAdvancedImage}" />
+            </Button>
+
+            <Button x:Name="SelectDirectoryButton" Style="{DynamicResource RoundedButtonStyle}" Grid.Column="1" Grid.Row="1" Width="175" Height="35" Background="#FF006FB2" Foreground="White" FontFamily="Bahnschrift SemiBold Condensed" FontSize="16" HorizontalAlignment="Right" Visibility="Collapsed" Click="SelectDirectoryButton_Click">
+                SELECT DIRECTORY
             </Button>
         </Grid>
 
@@ -194,21 +204,30 @@
                 <RowDefinition Height="20" />
                 <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
-            
-            <TextBlock Grid.Column="0" Grid.Row="0" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="10,0,10,0" FontFamily="Bahnschrift SemiLight">
+
+            <TextBlock x:Name="EasySetupDescription" Grid.Column="0" Grid.Row="0" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="10,0,10,0" FontFamily="Bahnschrift SemiLight">
                 The "Just Make It Work" option. This defaults the Darknaught installation to the "C" drive.
             </TextBlock>
 
-            <TextBlock Grid.Column="0" Grid.Row="2" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="5,0,5,0" FontFamily="Bahnschrift SemiLight">
+            <TextBlock x:Name="EasySetupCaption" Grid.Column="0" Grid.Row="2" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="5,0,5,0" FontFamily="Bahnschrift SemiLight">
                 Click the folder to select this option.
             </TextBlock>
-            <TextBlock Grid.Column="1" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="10,0,10,0" FontFamily="Bahnschrift SemiLight">
+            
+            <TextBlock x:Name="AdvancedSetupDescription" Grid.Column="1" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="10,0,10,0" FontFamily="Bahnschrift SemiLight">
                 The "Advanced" setup option. This option allows you to select the hard drive you wish to install Darknaught game files to.
             </TextBlock>
 
-            <TextBlock Grid.Column="1" Grid.Row="2" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="5,0,5,0" FontFamily="Bahnschrift SemiLight">
+            <TextBlock x:Name="AdvancedSetupCaption" Grid.Column="1" Grid.Row="2" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="5,0,5,0" FontFamily="Bahnschrift SemiLight">
                 Click the folder to select this option.
             </TextBlock>
+
+            <TextBlock x:Name="SelectDirectoryDescription" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Height="57" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="5,0,5,0" FontFamily="Bahnschrift SemiLight" Visibility="Collapsed">
+                Select the directory you wish for your new game files to be stored. This is normally in a directory such as (C:/ServerName).
+            </TextBlock>
+
+            <Button x:Name="OkayDirectoryButton" Style="{DynamicResource RoundedButtonStyle}" Grid.Column="0" Grid.Row="1" Grid.RowSpan="2" Grid.ColumnSpan="2" Width="175" Height="35" Background="#FF006FB2" Foreground="White" FontFamily="Bahnschrift SemiBold Condensed" FontSize="16" HorizontalAlignment="Center" Visibility="Collapsed" VerticalAlignment="Center" Click="OkayDirectoryButton_Click">
+                CONTINUE
+            </Button>
         </Grid>
 
         <Grid Grid.Row="1" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Top">
@@ -217,14 +236,12 @@
                 <ColumnDefinition Width="auto" />
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
-            <Button x:Name="minimizeButton" Style="{DynamicResource NavButton}" Grid.Column="0" Width="25" HorizontalAlignment="Right" Click="minimizeButton_Click">
+            <Button x:Name="MinimizeButton" Style="{DynamicResource NavButton}" Grid.Column="0" Width="25" HorizontalAlignment="Right" Click="MinimizeButton_Click">
                 <Image Style="{DynamicResource minimizeImage}" />
             </Button>
-            <Button x:Name="closeButton" Style="{DynamicResource NavButton}" Grid.Column="1" Width="25" HorizontalAlignment="Right" Click="closeButton_Click">
+            <Button x:Name="CloseButton" Style="{DynamicResource NavButton}" Grid.Column="1" Width="25" HorizontalAlignment="Right" Click="CloseButton_Click">
                 <Image Style="{DynamicResource closeImage}" />
             </Button>
         </Grid>
-        
-        
     </Grid>
 </Window>

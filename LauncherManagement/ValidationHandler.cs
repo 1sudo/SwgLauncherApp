@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
@@ -20,19 +19,19 @@ namespace LauncherManagement
                 {
                     try
                     {
-                        onFullScanFileCheck?.Invoke($"Checking File { file.name }...");
+                        OnFullScanFileCheck?.Invoke($"Checking File { file.Name }...");
 
                         using (var md5 = MD5.Create())
                         {
-                            using (var stream = File.OpenRead(Path.Join(downloadLocation, file.name)))
+                            using (var stream = File.OpenRead(Path.Join(downloadLocation, file.Name)))
                             {
                                 var result = await Task.Run(() => System.BitConverter.ToString(md5.ComputeHash(stream))
                                     .Replace("-", "").ToLowerInvariant());
 
                                 // If checksum doesn't match, add to download list
-                                if (result != file.md5)
+                                if (result != file.Md5)
                                 {
-                                    newFileList.Add(file.name, file.url);
+                                    newFileList.Add(file.Name, file.Url);
                                 }
                             }
                         }
@@ -40,7 +39,7 @@ namespace LauncherManagement
                     // If file doesn't exist, add to download list
                     catch
                     {
-                        newFileList.Add(file.name, file.url);
+                        newFileList.Add(file.Name, file.Url);
                     }
                 }
                 else
@@ -48,15 +47,15 @@ namespace LauncherManagement
                     try
                     {
                         // If file is wrong size, add to download list
-                        if (new FileInfo(Path.Join(downloadLocation, file.name)).Length != file.size)
+                        if (new FileInfo(Path.Join(downloadLocation, file.Name)).Length != file.Size)
                         {
-                            newFileList.Add(file.name, file.url);
+                            newFileList.Add(file.Name, file.Url);
                         }
                     }
                     // If file doesn't exist, add to download list
                     catch
                     {
-                        newFileList.Add(file.name, file.url);
+                        newFileList.Add(file.Name, file.Url);
                     }
                 }
             }
@@ -108,7 +107,7 @@ namespace LauncherManagement
 
             string schemaJson = @"{
               'SWGLocation': 'location',
-              'DarknaughtLocation': 'location'
+              'ServerLocation': 'location'
             }";
 
             JSchema schema = JSchema.Parse(schemaJson);
@@ -131,7 +130,7 @@ namespace LauncherManagement
                 keysContained++;
             }
 
-            if (json.ContainsKey("DarknaughtLocation"))
+            if (json.ContainsKey("ServerLocation"))
             {
                 keysContained++;
             }

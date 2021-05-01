@@ -13,114 +13,123 @@ namespace LauncherApp
     /// </summary>
     public partial class MainWindow : Window
     {
-        bool GamePathValidated;
-        string CurrentFile;
-        string darknaughtPath;
-        private WaveOutEvent outputDevice;
-        private AudioFileReader audioFile;
+        string _serverName = "Legacy";
+        bool _gamePathValidated;
+        string _currentFile;
+        string _gamePath;
+        string _serverPath;
+        WaveOutEvent _outputDevice;
+        AudioFileReader _audioFile;
 
         public MainWindow()
         {
             InitializeComponent();
             PreLaunchChecks();
 
-            FileDownloader.onDownloadProgressUpdated += DownloadProgressUpdated;
-            DownloadHandler.onCurrentFileDownloading += ShowFileBeingDownloaded;
-            DownloadHandler.onDownloadCompleted += OnDownloadCompleted;
-            FileDownloader.onServerError += CaughtServerError;
-            DownloadHandler.onFullScanFileCheck += OnFullScanFileCheck;
+            FileDownloader.OnDownloadProgressUpdated += DownloadProgressUpdated;
+            DownloadHandler.OnCurrentFileDownloading += ShowFileBeingDownloaded;
+            DownloadHandler.OnDownloadCompleted += OnDownloadCompleted;
+            FileDownloader.OnServerError += CaughtServerError;
+            DownloadHandler.OnFullScanFileCheck += OnFullScanFileCheck;
         }
 
-        private async void PreLaunchChecks()
+        public async void PreLaunchChecks()
         {
-            int locationSelected = 0;
+            bool locationSelected = false;
             bool configValidated = false;
             bool gameValidated = false;
-            bool darknaughtPathValidated = false;
+            bool serverPathValidated = false;
 
             // Ensure config exists
             if (!File.Exists(Path.Join(Directory.GetCurrentDirectory(), "config.json")))
             {
-                locationSelected++;
+                locationSelected = true;
                 gameValidated = ValidateGamePath(SelectSWGLocation());
             }
             // If it exists, validate it
             else
             {
                 configValidated = GameSetupHandler.ValidateConfig();
-            }
 
-            // If config is validated and keys exist, get the swg location
-            if (configValidated)
-            {
-                JObject json = new JObject();
-                try
+                // If config is validated and keys exist, get the swg location
+                if (configValidated)
                 {
-                    json = JObject.Parse(File.ReadAllText(Path.Join(Directory.GetCurrentDirectory(), "config.json")));
-                }
-                catch
-                {
-                    MessageBox.Show("Error getting JSON data, please report this to staff!", "JSON Error");
-                }
-
-                JToken location;
-
-                if (json.TryGetValue("SWGLocation", out location))
-                {
-                    if (locationSelected > 0)
+                    JObject json = new JObject();
+                    try
                     {
-                        // Validate the game path
-                        gameValidated = ValidateGamePath(location.ToString(), true, true);
+                        json = JObject.Parse(File.ReadAllText(Path.Join(Directory.GetCurrentDirectory(), "config.json")));
                     }
-                    // If not validated and location hasn't been selected yet, give the user that option
-                    else
+                    catch
                     {
-                        gameValidated = ValidateGamePath(location.ToString(), false, true);
+                        MessageBox.Show("Error getting JSON data, please report this to staff!", "JSON Error");
+                    }
+
+                    JToken location;
+
+                    if (json.TryGetValue("SWGLocation", out location))
+                    {
+                        if (locationSelected)
+                        {
+                            // Validate the game path
+                            gameValidated = ValidateGamePath(location.ToString(), true, true);
+                        }
+                        // If not validated and location hasn't been selected yet, give the user that option
+                        else
+                        {
+                            gameValidated = ValidateGamePath(location.ToString(), false, true);
+                        }
                     }
                 }
-            }
-            // If not validated, select swg location and validate game path
-            else
-            {
-                gameValidated = ValidateGamePath(SelectSWGLocation());
+                // If not validated, select swg location and validate game path
+                else
+                {
+                    gameValidated = ValidateGamePath(SelectSWGLocation());
+                }
             }
 
             if (configValidated && gameValidated)
             {
-                darknaughtPathValidated = ValidateDarknaughtPath();
+                serverPathValidated = ValidateServerPath();
+
+                if (!serverPathValidated)
+                {
+                    Setup setupForm = new Setup(_gamePath, configValidated, _serverName, this);
+                    setupForm.Show();
+                    this.Hide();
+                }
             }
-                
-            if (configValidated && gameValidated && darknaughtPathValidated)
+
+            if (configValidated && gameValidated && serverPathValidated)
             {
-                await GameSetupHandler.CheckFiles(darknaughtPath);
+                await GameSetupHandler.CheckFiles(_serverPath);
             }
         }
 
-        private bool ValidateDarknaughtPath()
+        bool ValidateServerPath()
         {
-            string path = GameSetupHandler.GetDarknaughtPath();
-            
+            string path = GameSetupHandler.GetServerPath();
+
             if (!string.IsNullOrEmpty(path) && Directory.Exists(path))
             {
-                darknaughtPath = path;
+                _serverPath = path;
                 return true;
             }
             return false;
         }
 
-        private bool ValidateGamePath(string location, bool locationProvided = true, bool configValidated = false)
+        bool ValidateGamePath(string location, bool locationProvided = true, bool configValidated = false)
         {
-            Trace.WriteLine(location);
-            GamePathValidated = GameSetupHandler.ValidateGamePath(location);
+            _gamePathValidated = GameSetupHandler.ValidateGamePath(location);
 
-            if (GamePathValidated && configValidated)
+            if (_gamePathValidated && configValidated)
             {
+                _gamePath = location;
                 return true;
             }
 
-            if (GamePathValidated)
+            if (_gamePathValidated)
             {
-                Setup setupForm = new Setup();
+                Setup setupForm = new Setup(_gamePath, configValidated, _serverName, this);
                 setupForm.Show();
                 this.Hide();
                 return true;
@@ -139,11 +148,11 @@ namespace LauncherApp
                     this.Close();
                 }
             }
-            
+
             return false;
         }
 
-        private string SelectSWGLocation()
+        string SelectSWGLocation()
         {
             MessageBox.Show("Please select your SWG installation location.", "Select SWG Location");
             using var dialog = new System.Windows.Forms.FolderBrowserDialog();
@@ -155,13 +164,14 @@ namespace LauncherApp
             }
             else if (result.ToString().Trim() == "OK")
             {
-                return dialog.SelectedPath;
+                _gamePath = dialog.SelectedPath.Replace("\\", "/");
+                return dialog.SelectedPath.Replace("\\", "/");
             }
 
             return "";
         }
 
-        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
             {
@@ -169,88 +179,112 @@ namespace LauncherApp
             }
         }
 
-        private void minimizeButton_Click(object sender, RoutedEventArgs e)
+        void MinimizeButton_Click(object sender, RoutedEventArgs e)
         {
             PlayClickSound();
             this.WindowState = WindowState.Minimized;
         }
 
-        private void closeButton_Click(object sender, RoutedEventArgs e)
+        void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             PlayClickSound();
             this.Close();
         }
 
-        private void discordButton_Click(object sender, RoutedEventArgs e)
+        void DiscordButton_Click(object sender, RoutedEventArgs e)
         {
             PlayClickSound();
         }
 
-        private void resourcesButton_Click(object sender, RoutedEventArgs e)
+        void ResourcesButton_Click(object sender, RoutedEventArgs e)
         {
             PlayClickSound();
         }
 
-        private void mantisButton_Click(object sender, RoutedEventArgs e)
+        void MantisButton_Click(object sender, RoutedEventArgs e)
         {
             PlayClickSound();
         }
 
-        private void skillplannerButton_Click(object sender, RoutedEventArgs e)
+        void SkillplannerButton_Click(object sender, RoutedEventArgs e)
         {
             PlayClickSound();
         }
 
-        private void voteButton_Click(object sender, RoutedEventArgs e)
+        void VoteButton_Click(object sender, RoutedEventArgs e)
         {
             PlayClickSound();
         }
 
-        private void donateButton_Click(object sender, RoutedEventArgs e)
+        void DonateButton_Click(object sender, RoutedEventArgs e)
         {
             PlayClickSound();
         }
 
-        private void playButton_Click(object sender, RoutedEventArgs e)
+        void PlayButton_Click(object sender, RoutedEventArgs e)
+        {
+            PlayClickSound();
+
+            var startInfo = new ProcessStartInfo();
+
+            startInfo.EnvironmentVariables["SWGCLIENT_MEMORY_SIZE_MB"] = "4096";
+            startInfo.UseShellExecute = false;
+            startInfo.WorkingDirectory = _serverPath;
+            startInfo.FileName = Path.Join(_serverPath, "SWGEmu.exe");
+
+            Process.Start(startInfo);
+        }
+
+        void ModsButton_Click(object sender, RoutedEventArgs e)
         {
             PlayClickSound();
         }
 
-        private void modsButton_Click(object sender, RoutedEventArgs e)
+        void ConfigButton_Click(object sender, RoutedEventArgs e)
         {
             PlayClickSound();
+
+            var startInfo = new ProcessStartInfo();
+
+            startInfo.UseShellExecute = true;
+            startInfo.WorkingDirectory = _serverPath;
+            startInfo.FileName = Path.Join(_serverPath, "SWGEmu_Setup.exe");
+
+            Process.Start(startInfo);
         }
 
-        private void configButton_Click(object sender, RoutedEventArgs e)
+        async void FullScanButton_Click(object sender, RoutedEventArgs e)
         {
             PlayClickSound();
+
+            ProgressGrid.Visibility = Visibility.Visible;
+            statusBar.Visibility = Visibility.Collapsed;
+            PlayButton.IsEnabled = false;
+            FullScanButton.IsEnabled = false;
+            ModsButton.IsEnabled = false;
+            ConfigButton.IsEnabled = false;
+            await GameSetupHandler.CheckFiles(_serverPath, true);
         }
 
-        private async void fullScanButton_Click(object sender, RoutedEventArgs e)
-        {
-            PlayClickSound();
-            await GameSetupHandler.CheckFiles(darknaughtPath, true);
-        }
-
-        private void LogManifestData(string data)
+        void LogManifestData(string data)
         {
             Debug.WriteLine(data);
         }
 
-        private void DownloadProgressUpdated(long bytesReceived, long totalBytesToReceive, int progressPercentage)
+        void DownloadProgressUpdated(long bytesReceived, long totalBytesToReceive, int progressPercentage)
         {
             this.Dispatcher.Invoke(() =>
             {
                 ProgressGrid.Visibility = Visibility.Visible;
                 statusBar.Visibility = Visibility.Hidden;
                 DownloadProgress.Value = progressPercentage;
-                DownloadProgressText.Text = $"{ CurrentFile } - " + 
+                DownloadProgressText.Text = $"{ _currentFile } - " +
                     $"{ UnitConversion.ToSize(bytesReceived, UnitConversion.SizeUnits.MB) }MB / " +
                     $"{ UnitConversion.ToSize(totalBytesToReceive, UnitConversion.SizeUnits.MB) }MB";
             });
         }
 
-        private void OnFullScanFileCheck(string message)
+        void OnFullScanFileCheck(string message)
         {
             this.Dispatcher.Invoke(() =>
             {
@@ -258,67 +292,67 @@ namespace LauncherApp
             });
         }
 
-        private void CaughtServerError(string error)
+        void CaughtServerError(string error)
         {
             MessageBox.Show(error, "Cannot Connect To Server!", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
-        private void OnDownloadCompleted()
+        void OnDownloadCompleted()
         {
             ProgressGrid.Visibility = Visibility.Collapsed;
             statusBar.Visibility = Visibility.Visible;
-            playButton.IsEnabled = true;
-            fullScanButton.IsEnabled = true;
-            modsButton.IsEnabled = true;
-            configButton.IsEnabled = true;
+            PlayButton.IsEnabled = true;
+            FullScanButton.IsEnabled = true;
+            ModsButton.IsEnabled = true;
+            ConfigButton.IsEnabled = true;
         }
 
-        private void ShowFileBeingDownloaded(string file)
+        void ShowFileBeingDownloaded(string file)
         {
             this.Dispatcher.Invoke(() =>
             {
-                CurrentFile = $"Downloading { file }";
+                _currentFile = $"Downloading { file }";
             });
         }
 
-        private void PlayHoverSound(object sender, MouseEventArgs e)
+        void PlayHoverSound(object sender, MouseEventArgs e)
         {
-            if (outputDevice == null)
+            if (_outputDevice == null)
             {
-                outputDevice = new WaveOutEvent();
-                outputDevice.PlaybackStopped += OnPlaybackStopped;
+                _outputDevice = new WaveOutEvent();
+                _outputDevice.PlaybackStopped += OnPlaybackStopped;
             }
-            if (audioFile == null)
+            if (_audioFile == null)
             {
-                audioFile = new AudioFileReader(Path.Join(Directory.GetCurrentDirectory(), "audio/select.wav"));
-                outputDevice.Init(audioFile);
+                _audioFile = new AudioFileReader(Path.Join(Directory.GetCurrentDirectory(), "audio/select.wav"));
+                _outputDevice.Init(_audioFile);
             }
-            outputDevice.Volume = 0.35f;
-            outputDevice.Play();
+            _outputDevice.Volume = 0.35f;
+            _outputDevice.Play();
         }
 
-        private void PlayClickSound()
+        void PlayClickSound()
         {
-            if (outputDevice == null)
+            if (_outputDevice == null)
             {
-                outputDevice = new WaveOutEvent();
-                outputDevice.PlaybackStopped += OnPlaybackStopped;
+                _outputDevice = new WaveOutEvent();
+                _outputDevice.PlaybackStopped += OnPlaybackStopped;
             }
-            if (audioFile == null)
+            if (_audioFile == null)
             {
-                audioFile = new AudioFileReader(Path.Join(Directory.GetCurrentDirectory(), "audio/click.wav"));
-                outputDevice.Init(audioFile);
+                _audioFile = new AudioFileReader(Path.Join(Directory.GetCurrentDirectory(), "audio/click.wav"));
+                _outputDevice.Init(_audioFile);
             }
-            outputDevice.Volume = 0.35f;
-            outputDevice.Play();
+            _outputDevice.Volume = 0.35f;
+            _outputDevice.Play();
         }
 
-        private void OnPlaybackStopped(object sender, StoppedEventArgs args)
+        void OnPlaybackStopped(object sender, StoppedEventArgs args)
         {
-            outputDevice.Dispose();
-            outputDevice = null;
-            audioFile.Dispose();
-            audioFile = null;
+            _outputDevice.Dispose();
+            _outputDevice = null;
+            _audioFile.Dispose();
+            _audioFile = null;
         }
     }
 }
