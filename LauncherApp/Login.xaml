@@ -76,12 +76,12 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="10" />
             <RowDefinition Height="auto" />
-            <RowDefinition Height="30" />
+            <RowDefinition Height="20" />
             <RowDefinition Height="20" />
             <RowDefinition Height="10" />
             <RowDefinition Height="20" />
             <RowDefinition Height="30" />
-            <RowDefinition Height="20" />
+            <RowDefinition Height="40" />
             <RowDefinition Height="*" />
             <RowDefinition Height="20" />
         </Grid.RowDefinitions>
@@ -98,14 +98,16 @@
                 Username: 
         </TextBlock>
 
-        <TextBox x:Name="UsernameTextbox" Grid.Column="1" Grid.Row="3" Width="145" HorizontalAlignment="Right"></TextBox>
+        <TextBox x:Name="UsernameTextbox" Grid.Column="1" Grid.Row="3" Width="145" HorizontalAlignment="Right" TabIndex="1"></TextBox>
 
         <TextBlock x:Name="PasswordText" Grid.Column="1" Grid.Row="5" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Left" VerticalAlignment="Center">
                 Password:
         </TextBlock>
 
-        <PasswordBox x:Name="PasswordTextbox" Grid.Column="1" Grid.Row="5" Width="145" HorizontalAlignment="Right"></PasswordBox>
+        <CheckBox x:Name="AutoLoginCheckbox" Grid.Column="1" Grid.Row="6" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center" TabIndex="3">Auto Login</CheckBox>
 
-        <Button x:Name="LoginButton" Style="{DynamicResource RoundedButtonStyle}" Grid.Column="1" Grid.Row="7" Width="150" Background="#FF006FB2" Foreground="White" Click="LoginButton_Click">Login</Button>
+        <PasswordBox x:Name="PasswordTextbox" Grid.Column="1" Grid.Row="5" Width="145" HorizontalAlignment="Right" TabIndex="2"></PasswordBox>
+
+        <Button x:Name="LoginButton" Style="{DynamicResource RoundedButtonStyle}" Grid.Column="1" Grid.Row="7" Width="150" Height="20" Background="#FF006FB2" Foreground="White" Click="LoginButton_Click" TabIndex="4">Login</Button>
     </Grid>
 </Window>

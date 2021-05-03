@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
@@ -17,8 +16,9 @@ namespace LauncherApp
         string _serverName = "SWGLegacy";
         string apiUrl = "http://127.0.0.1:5000";
         bool _gamePathValidated;
-        bool _isLoggedIn;
         string _currentFile;
+        double _currentFileStatus;
+        double _totalFileStatus;
         string _gamePath;
         string _serverPath;
         WaveOutEvent _outputDevice;
@@ -27,26 +27,19 @@ namespace LauncherApp
         public MainWindow()
         {
             InitializeComponent();
-            PreLaunchChecks();
+            CheckLoggedIn();
 
-            FileDownloader.OnDownloadProgressUpdated += DownloadProgressUpdated;
             DownloadHandler.OnCurrentFileDownloading += ShowFileBeingDownloaded;
+            FileDownloader.OnDownloadProgressUpdated += DownloadProgressUpdated;
             DownloadHandler.OnDownloadCompleted += OnDownloadCompleted;
             FileDownloader.OnServerError += CaughtServerError;
             DownloadHandler.OnFullScanFileCheck += OnFullScanFileCheck;
-            Login.OnLoggedIn += OnAccountLoggedIn;
         }
 
         void CheckLoggedIn()
         {
-            Login login = new Login(this, apiUrl);
-            login.Show();
-            this.Hide();
-        }
-
-        void OnAccountLoggedIn()
-        {
-            _isLoggedIn = true;
+            Login login = new Login(apiUrl);
+            login.ShowDialog();
             PreLaunchChecks();
         }
 
@@ -110,19 +103,13 @@ namespace LauncherApp
 
                 if (!serverPathValidated)
                 {
-                    Setup setupForm = new Setup(_gamePath, configValidated, _serverName, this);
-                    setupForm.Show();
-                    this.Hide();
+                    Setup setupForm = new Setup(_gamePath, configValidated, _serverName);
+                    setupForm.ShowDialog();
                 }
             }
 
             if (configValidated && gameValidated && serverPathValidated)
             {
-                if (!_isLoggedIn)
-                {
-                    CheckLoggedIn();
-                }
-
                 await GameSetupHandler.CheckFiles(_serverPath);
             }
         }
@@ -151,9 +138,8 @@ namespace LauncherApp
 
             if (_gamePathValidated)
             {
-                Setup setupForm = new Setup(_gamePath, configValidated, _serverName, this);
-                setupForm.Show();
-                this.Hide();
+                Setup setupForm = new Setup(_gamePath, configValidated, _serverName);
+                setupForm.ShowDialog();
                 return true;
             }
             else
@@ -302,9 +288,25 @@ namespace LauncherApp
         {
             this.Dispatcher.Invoke(() =>
             {
+                if (_currentFileStatus == 0)
+                {
+                    _currentFileStatus = 0.01;
+                }
+
+                if (_totalFileStatus == 0)
+                {
+                    _totalFileStatus = 0.01;
+                }
+
+                double status = (_currentFileStatus / _totalFileStatus) * 100;
+
                 ProgressGrid.Visibility = Visibility.Visible;
+                ProgressGrid2.Visibility = Visibility.Visible;
                 statusBar.Visibility = Visibility.Hidden;
                 DownloadProgress.Value = progressPercentage;
+                DownloadProgress2.Value = status;
+                
+                DownloadProgressText2.Text = $"Currently downloading file { _currentFileStatus } / { _totalFileStatus }";
                 DownloadProgressText.Text = $"{ _currentFile } - " +
                     $"{ UnitConversion.ToSize(bytesReceived, UnitConversion.SizeUnits.MB) }MB / " +
                     $"{ UnitConversion.ToSize(totalBytesToReceive, UnitConversion.SizeUnits.MB) }MB";
@@ -327,6 +329,7 @@ namespace LauncherApp
         void OnDownloadCompleted()
         {
             ProgressGrid.Visibility = Visibility.Collapsed;
+            ProgressGrid2.Visibility = Visibility.Collapsed;
             statusBar.Visibility = Visibility.Visible;
             PlayButton.IsEnabled = true;
             FullScanButton.IsEnabled = true;
@@ -334,10 +337,12 @@ namespace LauncherApp
             ConfigButton.IsEnabled = true;
         }
 
-        void ShowFileBeingDownloaded(string file)
+        void ShowFileBeingDownloaded(string file, double current, double total)
         {
             this.Dispatcher.Invoke(() =>
             {
+                _currentFileStatus = current;
+                _totalFileStatus = total;
                 _currentFile = $"Downloading { file }";
             });
         }

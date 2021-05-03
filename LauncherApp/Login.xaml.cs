@@ -1,12 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Net.Http;
-using System.Threading.Tasks;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
+using LauncherManagement;
 
 namespace LauncherApp
 {
@@ -15,15 +12,18 @@ namespace LauncherApp
     /// </summary>
     public partial class Login : Window
     {
-        public static Action OnLoggedIn;
-        MainWindow _mainWindow;
         string _url;
 
-        public Login(MainWindow mainWindow, string url)
+        public Login(string url)
         {
             InitializeComponent();
-            _mainWindow = mainWindow;
             _url = url;
+            ConfigJsonHandler.OnJsonReadError += OnJsonReadError;
+        }
+
+        void OnJsonReadError(string error)
+        {
+            MessageBox.Show(error, "JSON Error!");
         }
 
         void Window_MouseDown(object sender, MouseButtonEventArgs e)
@@ -34,65 +34,23 @@ namespace LauncherApp
             }
         }
 
-        async Task<LoginProperties> AccountLogin(string url, string username, string password)
-        {
-            var client = new HttpClient();
-            var request = new HttpRequestMessage
-            {
-                Method = HttpMethod.Post,
-                RequestUri = new Uri($"{url}/account/login/{username}"),
-                Headers =
-                {
-                    { "Accept", "application/json" },
-                },
-                Content = new FormUrlEncodedContent(new Dictionary<string, string>
-                {
-                    { "Password", password },
-                })
-            };
-
-            try
-            {
-                using (var response = await client.SendAsync(request))
-                {
-                    response.EnsureSuccessStatusCode();
-                    var body = await response.Content.ReadAsStringAsync();
-
-                    JToken token = JToken.Parse(body);
-                    JObject json = JObject.Parse((string)token);
-
-                    LoginProperties loginProperties = JsonConvert.DeserializeObject<LoginProperties>(json.ToString());
-
-                    return loginProperties;
-                }
-            } 
-            catch
-            {
-                return new LoginProperties
-                {
-                    Result = "ServerDown",
-                    Username = ""
-                };
-            }
-        }
-
         async void LoginButton_Click(object sender, RoutedEventArgs e)
         {
-            LoginProperties loginProperties = await AccountLogin(_url, UsernameTextbox.Text, PasswordTextbox.Password.ToString());
+            ApiHandler apiHandler = new ApiHandler();
 
-            if (loginProperties.Result == "Success")
+            LoginProperties loginProperties = await apiHandler.AccountLogin(_url, UsernameTextbox.Text, PasswordTextbox.Password.ToString());
+
+            switch (loginProperties.Result)
             {
-                OnLoggedIn?.Invoke();
-                _mainWindow.Show();
-                this.Close();
+                case "Success": this.Close(); break;
+                case "ServerDown": ResultText.Text = "API server down!"; break;
+                case "InvalidCredentials": ResultText.Text = "Invalid username or password!"; break;
             }
-            else if (loginProperties.Result == "ServerDown")
+
+            if ((bool)AutoLoginCheckbox.IsChecked)
             {
-                ResultText.Text = "API server down!";
-            }
-            else if (loginProperties.Result == "InvalidCredentials")
-            {
-                ResultText.Text = "Invalid username or password!";
+                ConfigJsonHandler config = new ConfigJsonHandler();
+                await config.EnableAutoLoginAsync();
             }
         }
     }

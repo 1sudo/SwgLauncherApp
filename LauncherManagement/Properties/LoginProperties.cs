@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace LauncherApp
+namespace LauncherManagement
 {
     public class LoginProperties
     {

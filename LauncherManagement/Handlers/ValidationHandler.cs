@@ -107,7 +107,8 @@ namespace LauncherManagement
 
             string schemaJson = @"{
               'SWGLocation': 'location',
-              'ServerLocation': 'location'
+              'ServerLocation': 'location',
+              'AutoLogin': false
             }";
 
             JSchema schema = JSchema.Parse(schemaJson);
@@ -135,7 +136,12 @@ namespace LauncherManagement
                 keysContained++;
             }
 
-            if (validSchema && keysContained >= 2)
+            if (json.ContainsKey("AutoLogin"))
+            {
+                keysContained++;
+            }
+
+            if (validSchema && keysContained >= 3)
             {
                 return true;
             }

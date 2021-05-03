@@ -1,10 +1,7 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
+﻿using System;
 using System.Windows;
 using System.Windows.Input;
+using LauncherManagement;
 
 namespace LauncherApp
 {
@@ -14,18 +11,21 @@ namespace LauncherApp
     public partial class Setup : Window
     {
         string _gamePath;
-        string _serverPath;
         bool _configValidated;
         string _serverName;
-        MainWindow _mainWindow;
 
-        public Setup(string gamePath, bool configValidated, string serverName, MainWindow mainWindow)
+        public Setup(string gamePath, bool configValidated, string serverName)
         {
             InitializeComponent();
             _gamePath = gamePath;
             _configValidated = configValidated;
             _serverName = serverName;
-            _mainWindow = mainWindow;
+            ConfigJsonHandler.OnJsonReadError += OnJsonReadError;
+        }
+
+        void OnJsonReadError(string error)
+        {
+            MessageBox.Show(error, "JSON Error!");
         }
 
         void Window_MouseDown(object sender, MouseButtonEventArgs e)
@@ -48,7 +48,9 @@ namespace LauncherApp
 
         async void EasySetupButton_Click(object sender, RoutedEventArgs e)
         {
-            await ConfigureLocations($"C:/{_serverName}");
+            ConfigJsonHandler config = new ConfigJsonHandler();
+            await config.ConfigureLocations($"C:/{_serverName}", _configValidated, _gamePath);
+            this.Close();
         }
 
         void AdvancedSetupButton_Click(object sender, RoutedEventArgs e)
@@ -68,49 +70,6 @@ namespace LauncherApp
             OkayDirectoryButton.Visibility = Visibility.Visible;
         }
 
-        async Task ConfigureLocations(string serverPath)
-        {
-            string configLocation = Path.Join(Directory.GetCurrentDirectory(), "config.json");
-            
-            JObject json;
-
-            if (_configValidated)
-            {
-                json = new JObject();
-                try
-                {
-                    json = JObject.Parse(File.ReadAllText(configLocation));
-                }
-                catch
-                {
-                    MessageBox.Show("Error getting JSON data, please report this to staff!", "JSON Error");
-                }
-
-                foreach (JProperty property in json.Properties())
-                {
-                    if (property.Name == "SWGLocation")
-                    {
-                        property.Value = _gamePath;
-                    }
-                    if (property.Name == "ServerLocation")
-                    {
-                        property.Value = serverPath;
-                    }
-                }
-            }
-            else
-            {
-                json = JObject.Parse(@"{'SWGLocation': '" + _gamePath + "','ServerLocation': '" + serverPath + "'}");
-            }
-
-            await File.WriteAllTextAsync(configLocation, json.ToString());
-            Directory.CreateDirectory($"{ serverPath }");
-
-            _mainWindow.Show();
-            _mainWindow.PreLaunchChecks();
-            this.Close();
-        }
-
         void SelectDirectoryButton_Click(object sender, RoutedEventArgs e)
         {
             using var dialog = new System.Windows.Forms.FolderBrowserDialog();
@@ -128,7 +87,9 @@ namespace LauncherApp
 
         async void OkayDirectoryButton_Click(object sender, RoutedEventArgs e)
         {
-            await ConfigureLocations(SelectDirectoryTextbox.Text);
+            ConfigJsonHandler config = new ConfigJsonHandler();
+            await config.ConfigureLocations(SelectDirectoryTextbox.Text, _configValidated, _gamePath);
+            this.Close();
         }
     }
 }
