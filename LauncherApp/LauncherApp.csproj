@@ -16,33 +16,33 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="audio\click.wav" />
-    <None Remove="audio\select.wav" />
+    <None Remove="Audio\click.wav" />
+    <None Remove="Audio\select.wav" />
     <None Remove="discord-active.png" />
     <None Remove="discord.png" />
     <None Remove="donate.png" />
-    <None Remove="images\close-active.png" />
-    <None Remove="images\close.png" />
-    <None Remove="images\discord-active.png" />
-    <None Remove="images\discord.png" />
-    <None Remove="images\donate-active.png" />
-    <None Remove="images\donate.png" />
-    <None Remove="images\launcher-bg.jpg" />
-    <None Remove="images\mantis-active.png" />
-    <None Remove="images\mantis.png" />
-    <None Remove="images\minimize-active.png" />
-    <None Remove="images\minimize.png" />
-    <None Remove="images\minimize_active.png" />
-    <None Remove="images\resources-active.png" />
-    <None Remove="images\resources.png" />
-    <None Remove="images\setup-active.png" />
-    <None Remove="images\setup-advanced-active.png" />
-    <None Remove="images\setup-advanced.png" />
-    <None Remove="images\setup.png" />
-    <None Remove="images\skillplanner-active.png" />
-    <None Remove="images\skillplanner.png" />
-    <None Remove="images\vote-active.png" />
-    <None Remove="images\vote.png" />
+    <None Remove="Images\close-active.png" />
+    <None Remove="Images\close.png" />
+    <None Remove="Images\discord-active.png" />
+    <None Remove="Images\discord.png" />
+    <None Remove="Images\donate-active.png" />
+    <None Remove="Images\donate.png" />
+    <None Remove="Images\launcher-bg.jpg" />
+    <None Remove="Images\mantis-active.png" />
+    <None Remove="Images\mantis.png" />
+    <None Remove="Images\minimize-active.png" />
+    <None Remove="Images\minimize.png" />
+    <None Remove="Images\minimize_active.png" />
+    <None Remove="Images\resources-active.png" />
+    <None Remove="Images\resources.png" />
+    <None Remove="Images\setup-active.png" />
+    <None Remove="Images\setup-advanced-active.png" />
+    <None Remove="Images\setup-advanced.png" />
+    <None Remove="Images\setup.png" />
+    <None Remove="Images\skillplanner-active.png" />
+    <None Remove="Images\skillplanner.png" />
+    <None Remove="Images\vote-active.png" />
+    <None Remove="Images\vote.png" />
     <None Remove="launcher-bg.jpg" />
   </ItemGroup>
 
@@ -56,33 +56,33 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="audio\click.wav">
+    <Content Include="Audio\click.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="audio\select.wav">
+    <Content Include="Audio\select.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Resource Include="images\close-active.png" />
-    <Resource Include="images\close.png" />
-    <Resource Include="images\discord-active.png" />
-    <Resource Include="images\discord.png" />
-    <Resource Include="images\donate-active.png" />
-    <Resource Include="images\donate.png" />
-    <Resource Include="images\launcher-bg.jpg" />
-    <Resource Include="images\mantis-active.png" />
-    <Resource Include="images\mantis.png" />
-    <Resource Include="images\minimize-active.png" />
-    <Resource Include="images\minimize.png" />
-    <Resource Include="images\resources-active.png" />
-    <Resource Include="images\resources.png" />
-    <Resource Include="images\setup-active.png" />
-    <Resource Include="images\setup-advanced-active.png" />
-    <Resource Include="images\setup-advanced.png" />
-    <Resource Include="images\setup.png" />
-    <Resource Include="images\skillplanner-active.png" />
-    <Resource Include="images\skillplanner.png" />
-    <Resource Include="images\vote-active.png" />
-    <Resource Include="images\vote.png" />
+    <Resource Include="Images\close-active.png" />
+    <Resource Include="Images\close.png" />
+    <Resource Include="Images\discord-active.png" />
+    <Resource Include="Images\discord.png" />
+    <Resource Include="Images\donate-active.png" />
+    <Resource Include="Images\donate.png" />
+    <Resource Include="Images\launcher-bg.jpg" />
+    <Resource Include="Images\mantis-active.png" />
+    <Resource Include="Images\mantis.png" />
+    <Resource Include="Images\minimize-active.png" />
+    <Resource Include="Images\minimize.png" />
+    <Resource Include="Images\resources-active.png" />
+    <Resource Include="Images\resources.png" />
+    <Resource Include="Images\setup-active.png" />
+    <Resource Include="Images\setup-advanced-active.png" />
+    <Resource Include="Images\setup-advanced.png" />
+    <Resource Include="Images\setup.png" />
+    <Resource Include="Images\skillplanner-active.png" />
+    <Resource Include="Images\skillplanner.png" />
+    <Resource Include="Images\vote-active.png" />
+    <Resource Include="Images\vote.png" />
   </ItemGroup>
 
 </Project>

@@ -49,7 +49,7 @@ namespace LauncherApp
         async void EasySetupButton_Click(object sender, RoutedEventArgs e)
         {
             ConfigJsonHandler config = new ConfigJsonHandler();
-            await config.ConfigureLocations($"C:/{_serverName}", _configValidated, _gamePath);
+            await config.ConfigureLocationsAsync($"C:/{_serverName}", _configValidated, _gamePath);
             this.Close();
         }
 
@@ -88,7 +88,7 @@ namespace LauncherApp
         async void OkayDirectoryButton_Click(object sender, RoutedEventArgs e)
         {
             ConfigJsonHandler config = new ConfigJsonHandler();
-            await config.ConfigureLocations(SelectDirectoryTextbox.Text, _configValidated, _gamePath);
+            await config.ConfigureLocationsAsync(SelectDirectoryTextbox.Text, _configValidated, _gamePath);
             this.Close();
         }
     }

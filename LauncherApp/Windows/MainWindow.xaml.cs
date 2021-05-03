@@ -21,11 +21,17 @@ namespace LauncherApp
         double _totalFileStatus;
         string _gamePath;
         string _serverPath;
-        WaveOutEvent _outputDevice;
-        AudioFileReader _audioFile;
+        AudioHandler _audioHandler;
+        AppHandler _appHandler;
 
         public MainWindow()
         {
+            AudioHandler audioHandler = new AudioHandler();
+            _audioHandler = audioHandler;
+
+            AppHandler appHandler = new AppHandler();
+            _appHandler = appHandler;
+
             InitializeComponent();
             CheckLoggedIn();
 
@@ -110,7 +116,7 @@ namespace LauncherApp
 
             if (configValidated && gameValidated && serverPathValidated)
             {
-                await GameSetupHandler.CheckFiles(_serverPath);
+                await GameSetupHandler.CheckFilesAsync(_serverPath);
             }
         }
 
@@ -189,91 +195,71 @@ namespace LauncherApp
 
         void MinimizeButton_Click(object sender, RoutedEventArgs e)
         {
-            PlayClickSound();
+            _audioHandler.PlayClickSound();
             this.WindowState = WindowState.Minimized;
         }
 
         void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            PlayClickSound();
+            _audioHandler.PlayClickSound();
             this.Close();
         }
 
         void DiscordButton_Click(object sender, RoutedEventArgs e)
         {
-            PlayClickSound();
+            _audioHandler.PlayClickSound();
         }
 
         void ResourcesButton_Click(object sender, RoutedEventArgs e)
         {
-            PlayClickSound();
+            _audioHandler.PlayClickSound();
         }
 
         void MantisButton_Click(object sender, RoutedEventArgs e)
         {
-            PlayClickSound();
+            _audioHandler.PlayClickSound();
         }
 
         void SkillplannerButton_Click(object sender, RoutedEventArgs e)
         {
-            PlayClickSound();
+            _audioHandler.PlayClickSound();
         }
 
         void VoteButton_Click(object sender, RoutedEventArgs e)
         {
-            PlayClickSound();
+            _audioHandler.PlayClickSound();
         }
 
         void DonateButton_Click(object sender, RoutedEventArgs e)
         {
-            PlayClickSound();
+            _audioHandler.PlayClickSound();
         }
 
         void PlayButton_Click(object sender, RoutedEventArgs e)
         {
-            PlayClickSound();
+            _audioHandler.PlayClickSound();
+            _appHandler.StartGame(_serverPath);
+        }
 
-            try
-            {
-                var startInfo = new ProcessStartInfo();
-
-                startInfo.EnvironmentVariables["SWGCLIENT_MEMORY_SIZE_MB"] = "4096";
-                startInfo.UseShellExecute = false;
-                startInfo.WorkingDirectory = _serverPath;
-                startInfo.FileName = Path.Join(_serverPath, "SWGEmu.exe");
-
-                Process.Start(startInfo);
-            }
-            catch
-            { }
+        void PlayHoverSound(object sender, RoutedEventArgs e)
+        {
+            _audioHandler.PlayHoverSound();
         }
 
         void ModsButton_Click(object sender, RoutedEventArgs e)
         {
-            PlayClickSound();
+            _audioHandler.PlayClickSound();
         }
 
         void ConfigButton_Click(object sender, RoutedEventArgs e)
         {
-            PlayClickSound();
-
-            try
-            {
-                var startInfo = new ProcessStartInfo();
-
-                startInfo.UseShellExecute = true;
-                startInfo.WorkingDirectory = _serverPath;
-                startInfo.FileName = Path.Join(_serverPath, "SWGEmu_Setup.exe");
-
-                Process.Start(startInfo);
-            }
-            catch 
-            { }
+            _audioHandler.PlayClickSound();
+            _appHandler.StartGameConfig(_serverPath);
         }
 
         async void FullScanButton_Click(object sender, RoutedEventArgs e)
         {
-            PlayClickSound();
+            _audioHandler.PlayClickSound();
 
             ProgressGrid.Visibility = Visibility.Visible;
             statusBar.Visibility = Visibility.Collapsed;
@@ -281,7 +267,7 @@ namespace LauncherApp
             FullScanButton.IsEnabled = false;
             ModsButton.IsEnabled = false;
             ConfigButton.IsEnabled = false;
-            await GameSetupHandler.CheckFiles(_serverPath, true);
+            await GameSetupHandler.CheckFilesAsync(_serverPath, true);
         }
 
         void DownloadProgressUpdated(long bytesReceived, long totalBytesToReceive, int progressPercentage)
@@ -313,11 +299,36 @@ namespace LauncherApp
             });
         }
 
-        void OnFullScanFileCheck(string message)
+        void OnFullScanFileCheck(string message, double current, double total)
         {
             this.Dispatcher.Invoke(() =>
             {
+                if (current == 0)
+                {
+                    current = 0.01;
+                }
+
+                if (total == 0)
+                {
+                    total = 0.01;
+                }
+
+                double status = (current / total) * 100;
+                double filesLeft = total - current;
+
+                DownloadProgress2.Value = status;
+                DownloadProgressText2.Text = $"Files left to check: { filesLeft }";
                 DownloadProgressText.Text = message;
+            });
+        }
+
+        void ShowFileBeingDownloaded(string file, double current, double total)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                _currentFileStatus = current;
+                _totalFileStatus = total;
+                _currentFile = $"Downloading { file }";
             });
         }
 
@@ -335,56 +346,6 @@ namespace LauncherApp
             FullScanButton.IsEnabled = true;
             ModsButton.IsEnabled = true;
             ConfigButton.IsEnabled = true;
-        }
-
-        void ShowFileBeingDownloaded(string file, double current, double total)
-        {
-            this.Dispatcher.Invoke(() =>
-            {
-                _currentFileStatus = current;
-                _totalFileStatus = total;
-                _currentFile = $"Downloading { file }";
-            });
-        }
-
-        void PlayHoverSound(object sender, MouseEventArgs e)
-        {
-            if (_outputDevice == null)
-            {
-                _outputDevice = new WaveOutEvent();
-                _outputDevice.PlaybackStopped += OnPlaybackStopped;
-            }
-            if (_audioFile == null)
-            {
-                _audioFile = new AudioFileReader(Path.Join(Directory.GetCurrentDirectory(), "audio/select.wav"));
-                _outputDevice.Init(_audioFile);
-            }
-            _outputDevice.Volume = 0.35f;
-            _outputDevice.Play();
-        }
-
-        void PlayClickSound()
-        {
-            if (_outputDevice == null)
-            {
-                _outputDevice = new WaveOutEvent();
-                _outputDevice.PlaybackStopped += OnPlaybackStopped;
-            }
-            if (_audioFile == null)
-            {
-                _audioFile = new AudioFileReader(Path.Join(Directory.GetCurrentDirectory(), "audio/click.wav"));
-                _outputDevice.Init(_audioFile);
-            }
-            _outputDevice.Volume = 0.35f;
-            _outputDevice.Play();
-        }
-
-        void OnPlaybackStopped(object sender, StoppedEventArgs args)
-        {
-            _outputDevice.Dispose();
-            _outputDevice = null;
-            _audioFile.Dispose();
-            _audioFile = null;
         }
     }
 }

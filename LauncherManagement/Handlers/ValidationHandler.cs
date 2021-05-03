@@ -9,17 +9,20 @@ namespace LauncherManagement
 {
     public class ValidationHandler : DownloadHandler
     {
-        internal static async Task<Dictionary<string, string>> GetBadFiles(string downloadLocation, List<DownloadableFile> fileList, bool isFullScan = false)
+        internal static async Task<Dictionary<string, string>> GetBadFilesAsync(string downloadLocation, List<DownloadableFile> fileList, bool isFullScan = false)
         {
             var newFileList = new Dictionary<string, string>();
 
+            double listLength = fileList.Count;
+
+            double i = 1;
             foreach (var file in fileList)
             {
                 if (isFullScan)
                 {
                     try
                     {
-                        OnFullScanFileCheck?.Invoke($"Checking File { file.Name }...");
+                        OnFullScanFileCheck?.Invoke($"Checking File { file.Name }...", i, listLength);
 
                         using (var md5 = MD5.Create())
                         {
@@ -41,6 +44,7 @@ namespace LauncherManagement
                     {
                         newFileList.Add(file.Name, file.Url);
                     }
+                    ++i;
                 }
                 else
                 {

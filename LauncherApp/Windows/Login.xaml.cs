@@ -38,7 +38,7 @@ namespace LauncherApp
         {
             ApiHandler apiHandler = new ApiHandler();
 
-            LoginProperties loginProperties = await apiHandler.AccountLogin(_url, UsernameTextbox.Text, PasswordTextbox.Password.ToString());
+            LoginProperties loginProperties = await apiHandler.AccountLoginAsync(_url, UsernameTextbox.Text, PasswordTextbox.Password.ToString());
 
             switch (loginProperties.Result)
             {

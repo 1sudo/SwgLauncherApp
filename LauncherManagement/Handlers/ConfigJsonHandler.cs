@@ -11,7 +11,7 @@ namespace LauncherManagement
         public object MessageBox { get; private set; }
         public static Action<string> OnJsonReadError;
 
-        public async System.Threading.Tasks.Task EnableAutoLoginAsync()
+        public async Task EnableAutoLoginAsync()
         {
             string configLocation = Path.Join(Directory.GetCurrentDirectory(), "config.json");
 
@@ -34,7 +34,7 @@ namespace LauncherManagement
             await File.WriteAllTextAsync(configLocation, newJson.ToString());
         }
 
-        public async Task ConfigureLocations(string serverPath, bool configValidated, string gamePath)
+        public async Task ConfigureLocationsAsync(string serverPath, bool configValidated, string gamePath)
         {
             string configLocation = Path.Join(Directory.GetCurrentDirectory(), "config.json");
 

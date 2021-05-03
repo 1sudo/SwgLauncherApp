@@ -9,7 +9,7 @@ namespace LauncherManagement
 {
     public class ApiHandler
     {
-        public async Task<LoginProperties> AccountLogin(string url, string username, string password)
+        public async Task<LoginProperties> AccountLoginAsync(string url, string username, string password)
         {
             var client = new HttpClient();
             var request = new HttpRequestMessage

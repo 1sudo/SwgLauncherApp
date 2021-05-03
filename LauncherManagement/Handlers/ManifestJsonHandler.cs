@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace LauncherManagement
 {
-    class JsonHandler
+    class ManifestJsonHandler
     {
         internal static List<DownloadableFile> GetFileList(string listData)
         {

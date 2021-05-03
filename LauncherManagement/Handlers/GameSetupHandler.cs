@@ -7,17 +7,17 @@ namespace LauncherManagement
 {
     public class GameSetupHandler : ValidationHandler
     {
-        public static async Task CheckFiles(string downloadLocation, bool isFullScan = false)
+        public static async Task CheckFilesAsync(string downloadLocation, bool isFullScan = false)
         {
-            var downloadableFiles = await DownloadManifest("http://localhost/required.json");
+            var downloadableFiles = await DownloadManifestAsync("http://localhost/required.json");
 
             Dictionary<string, string> fileList;
             if (isFullScan)
-                fileList = await Task.Run(() => GetBadFiles(downloadLocation, downloadableFiles, true));
+                fileList = await Task.Run(() => GetBadFilesAsync(downloadLocation, downloadableFiles, true));
             else
-                fileList = await Task.Run(() => GetBadFiles(downloadLocation, downloadableFiles));
+                fileList = await Task.Run(() => GetBadFilesAsync(downloadLocation, downloadableFiles));
 
-            await DownloadFilesFromList(fileList, downloadLocation);
+            await DownloadFilesFromListAsync(fileList, downloadLocation);
         }
 
         public static string GetServerPath()

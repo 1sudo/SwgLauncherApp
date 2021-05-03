@@ -9,7 +9,7 @@ namespace LauncherManagement
         public static Action<long, long, int> OnDownloadProgressUpdated;
         public static Action<string> OnServerError;
 
-        internal static async Task<byte[]> Download(string url)
+        internal static async Task<byte[]> DownloadAsync(string url)
         {
             byte[] data;
 
