@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
@@ -13,8 +14,10 @@ namespace LauncherApp
     /// </summary>
     public partial class MainWindow : Window
     {
-        string _serverName = "Legacy";
+        string _serverName = "SWGLegacy";
+        string apiUrl = "http://127.0.0.1:5000";
         bool _gamePathValidated;
+        bool _isLoggedIn;
         string _currentFile;
         string _gamePath;
         string _serverPath;
@@ -31,6 +34,20 @@ namespace LauncherApp
             DownloadHandler.OnDownloadCompleted += OnDownloadCompleted;
             FileDownloader.OnServerError += CaughtServerError;
             DownloadHandler.OnFullScanFileCheck += OnFullScanFileCheck;
+            Login.OnLoggedIn += OnAccountLoggedIn;
+        }
+
+        void CheckLoggedIn()
+        {
+            Login login = new Login(this, apiUrl);
+            login.Show();
+            this.Hide();
+        }
+
+        void OnAccountLoggedIn()
+        {
+            _isLoggedIn = true;
+            PreLaunchChecks();
         }
 
         public async void PreLaunchChecks()
@@ -101,6 +118,11 @@ namespace LauncherApp
 
             if (configValidated && gameValidated && serverPathValidated)
             {
+                if (!_isLoggedIn)
+                {
+                    CheckLoggedIn();
+                }
+
                 await GameSetupHandler.CheckFiles(_serverPath);
             }
         }
@@ -225,14 +247,19 @@ namespace LauncherApp
         {
             PlayClickSound();
 
-            var startInfo = new ProcessStartInfo();
+            try
+            {
+                var startInfo = new ProcessStartInfo();
 
-            startInfo.EnvironmentVariables["SWGCLIENT_MEMORY_SIZE_MB"] = "4096";
-            startInfo.UseShellExecute = false;
-            startInfo.WorkingDirectory = _serverPath;
-            startInfo.FileName = Path.Join(_serverPath, "SWGEmu.exe");
+                startInfo.EnvironmentVariables["SWGCLIENT_MEMORY_SIZE_MB"] = "4096";
+                startInfo.UseShellExecute = false;
+                startInfo.WorkingDirectory = _serverPath;
+                startInfo.FileName = Path.Join(_serverPath, "SWGEmu.exe");
 
-            Process.Start(startInfo);
+                Process.Start(startInfo);
+            }
+            catch
+            { }
         }
 
         void ModsButton_Click(object sender, RoutedEventArgs e)
@@ -244,13 +271,18 @@ namespace LauncherApp
         {
             PlayClickSound();
 
-            var startInfo = new ProcessStartInfo();
+            try
+            {
+                var startInfo = new ProcessStartInfo();
 
-            startInfo.UseShellExecute = true;
-            startInfo.WorkingDirectory = _serverPath;
-            startInfo.FileName = Path.Join(_serverPath, "SWGEmu_Setup.exe");
+                startInfo.UseShellExecute = true;
+                startInfo.WorkingDirectory = _serverPath;
+                startInfo.FileName = Path.Join(_serverPath, "SWGEmu_Setup.exe");
 
-            Process.Start(startInfo);
+                Process.Start(startInfo);
+            }
+            catch 
+            { }
         }
 
         async void FullScanButton_Click(object sender, RoutedEventArgs e)
@@ -264,11 +296,6 @@ namespace LauncherApp
             ModsButton.IsEnabled = false;
             ConfigButton.IsEnabled = false;
             await GameSetupHandler.CheckFiles(_serverPath, true);
-        }
-
-        void LogManifestData(string data)
-        {
-            Debug.WriteLine(data);
         }
 
         void DownloadProgressUpdated(long bytesReceived, long totalBytesToReceive, int progressPercentage)
