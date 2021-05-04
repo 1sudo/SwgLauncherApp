@@ -20,7 +20,7 @@ namespace LauncherApp
             _gamePath = gamePath;
             _configValidated = configValidated;
             _serverName = serverName;
-            ConfigJsonHandler.OnJsonReadError += OnJsonReadError;
+            JsonConfigHandler.OnJsonReadError += OnJsonReadError;
         }
 
         void OnJsonReadError(string error)
@@ -48,7 +48,7 @@ namespace LauncherApp
 
         async void EasySetupButton_Click(object sender, RoutedEventArgs e)
         {
-            ConfigJsonHandler config = new ConfigJsonHandler();
+            JsonConfigHandler config = new JsonConfigHandler();
             await config.ConfigureLocationsAsync($"C:/{_serverName}", _configValidated, _gamePath);
             this.Close();
         }
@@ -87,7 +87,7 @@ namespace LauncherApp
 
         async void OkayDirectoryButton_Click(object sender, RoutedEventArgs e)
         {
-            ConfigJsonHandler config = new ConfigJsonHandler();
+            JsonConfigHandler config = new JsonConfigHandler();
             await config.ConfigureLocationsAsync(SelectDirectoryTextbox.Text, _configValidated, _gamePath);
             this.Close();
         }

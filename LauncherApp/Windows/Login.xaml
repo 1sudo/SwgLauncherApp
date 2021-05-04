@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LauncherApp"
         mc:Ignorable="d"
-        Title="Login" Height="175" Width="250" WindowStyle="None" MouseDown="Window_MouseDown" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="#FF142735">
+        Title="Login" Height="175" Width="250" WindowStyle="None" MouseDown="Window_MouseDown" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="#FF142735" Activated="Window_Activated">
 
     <Window.Resources>
         <Style x:Key="FocusVisual">

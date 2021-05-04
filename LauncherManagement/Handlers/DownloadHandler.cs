@@ -16,7 +16,7 @@ namespace LauncherManagement
         {
             var contents = await Task.Run(() => DownloadAsync(manifestUrl).Result);
 
-            return ManifestJsonHandler.GetFileList(System.Text.Encoding.UTF8.GetString(contents));
+            return JsonManifestHandler.GetFileList(System.Text.Encoding.UTF8.GetString(contents));
         }
 
         internal static async Task DownloadFilesFromListAsync(Dictionary<string, string> fileList, string downloadLocation)

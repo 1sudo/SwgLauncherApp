@@ -6,8 +6,8 @@ namespace LauncherManagement
 {
     public class ConfigProperties
     {
-        public string SWGLocation;
-        public string ServerLocation;
-        public bool AutoLogin;
+        public string SWGLocation { get; set; }
+        public string ServerLocation { get; set; }
+        public bool AutoLogin { get; set; }
     }
 }

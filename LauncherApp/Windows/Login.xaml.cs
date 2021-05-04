@@ -1,9 +1,8 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.IO;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
 using LauncherManagement;
+using System.Threading.Tasks;
+using System;
 
 namespace LauncherApp
 {
@@ -18,7 +17,7 @@ namespace LauncherApp
         {
             InitializeComponent();
             _url = url;
-            ConfigJsonHandler.OnJsonReadError += OnJsonReadError;
+            JsonConfigHandler.OnJsonReadError += OnJsonReadError;
         }
 
         void OnJsonReadError(string error)
@@ -34,11 +33,51 @@ namespace LauncherApp
             }
         }
 
+        async Task<bool> CheckAutoLogin()
+        {
+            JsonAccountHandler accountHandler = new JsonAccountHandler();
+            AccountProperties account = accountHandler.GetAccountCredentials();
+            JsonConfigHandler configHandler = new JsonConfigHandler();
+
+            if (accountHandler.ValidateAccountConfig())
+            {
+                if (configHandler.CheckAutoLoginEnabled())
+                {
+                    if (account != null)
+                    {
+                        if (account.Username != "" && account.Password != "")
+                        {
+                            ApiHandler apiHandler = new ApiHandler();
+
+                            LoginProperties loginProperties = await apiHandler.AccountLoginAsync(_url, account.Username, account.Password);
+
+                            switch (loginProperties.Result)
+                            {
+                                case "Success": return true;
+                                case "ServerDown": ResultText.Text = "API server down!"; break;
+                                case "InvalidCredentials": ResultText.Text = "Invalid username or password!"; break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
         async void LoginButton_Click(object sender, RoutedEventArgs e)
         {
             ApiHandler apiHandler = new ApiHandler();
+            JsonAccountHandler accountHandler = new JsonAccountHandler();
 
             LoginProperties loginProperties = await apiHandler.AccountLoginAsync(_url, UsernameTextbox.Text, PasswordTextbox.Password.ToString());
+
+            if ((bool)AutoLoginCheckbox.IsChecked && loginProperties.Result == "Success")
+            {
+                JsonConfigHandler config = new JsonConfigHandler();
+                await config.EnableAutoLoginAsync();
+                await accountHandler.SaveCredentials(UsernameTextbox.Text, PasswordTextbox.Password.ToString());
+            }
 
             switch (loginProperties.Result)
             {
@@ -46,11 +85,15 @@ namespace LauncherApp
                 case "ServerDown": ResultText.Text = "API server down!"; break;
                 case "InvalidCredentials": ResultText.Text = "Invalid username or password!"; break;
             }
+        }
 
-            if ((bool)AutoLoginCheckbox.IsChecked)
+        private async void Window_Activated(object sender, EventArgs e)
+        {
+            var loggedIn = await CheckAutoLogin();
+
+            if (loggedIn)
             {
-                ConfigJsonHandler config = new ConfigJsonHandler();
-                await config.EnableAutoLoginAsync();
+                this.Close();
             }
         }
     }
