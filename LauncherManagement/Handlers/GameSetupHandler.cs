@@ -13,9 +13,15 @@ namespace LauncherManagement
 
             Dictionary<string, string> fileList;
             if (isFullScan)
+            {
                 fileList = await Task.Run(() => GetBadFilesAsync(downloadLocation, downloadableFiles, true));
+            }
             else
+            {
                 fileList = await Task.Run(() => GetBadFilesAsync(downloadLocation, downloadableFiles));
+                await Task.Run(() => AttemptCopyFilesFromListAsync(fileList, downloadLocation));
+                fileList = await Task.Run(() => GetBadFilesAsync(downloadLocation, downloadableFiles));
+            }
 
             await DownloadFilesFromListAsync(fileList, downloadLocation);
         }

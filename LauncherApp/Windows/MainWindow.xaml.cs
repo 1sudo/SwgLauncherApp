@@ -3,7 +3,6 @@ using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using LauncherManagement;
-using NAudio.Wave;
 using Newtonsoft.Json.Linq;
 
 namespace LauncherApp
@@ -322,13 +321,23 @@ namespace LauncherApp
             });
         }
 
-        void ShowFileBeingDownloaded(string file, double current, double total)
+        void ShowFileBeingDownloaded(string transferType, string file, double current, double total)
         {
             this.Dispatcher.Invoke(() =>
             {
                 _currentFileStatus = current;
                 _totalFileStatus = total;
-                _currentFile = $"Downloading { file }";
+                if (transferType == "download")
+                {
+                    _currentFile = $"Downloading { file }";
+                }
+                else
+                {
+                    _currentFile = $"Copying { file }";
+                    DownloadProgressText2.Text = _currentFile;
+                    DownloadProgress2.Value = (current / total) * 100;
+                    DownloadProgressText.Text = "File copy in progress...";
+                }
             });
         }
 
@@ -346,6 +355,30 @@ namespace LauncherApp
             FullScanButton.IsEnabled = true;
             ModsButton.IsEnabled = true;
             ConfigButton.IsEnabled = true;
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) &&
+                Keyboard.IsKeyDown(Key.LeftShift) &&
+                Keyboard.IsKeyDown(Key.OemTilde) &&
+                Keyboard.IsKeyDown(Key.F12))
+            {
+                using var dialog = new System.Windows.Forms.FolderBrowserDialog();
+                System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+                string generateFromFolder = "";
+
+                if (result.ToString().Trim() == "Cancel")
+                {
+                    this.Close();
+                }
+                else if (result.ToString().Trim() == "OK")
+                {
+                    generateFromFolder = dialog.SelectedPath.Replace("\\", "/");
+                }
+
+                ManifestGenerator.GenerateManifestAsync(generateFromFolder);
+            }
         }
     }
 }
