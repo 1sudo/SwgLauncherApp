@@ -5,11 +5,16 @@ namespace LauncherManagement
 {
     public class AppHandler
     {
-        public void StartGame(string serverPath)
+        public void StartGame(string serverPath, string password = "", string username = "", string charactername = "", bool autoLogin = false)
         {
             try
             {
                 var startInfo = new ProcessStartInfo();
+
+                if (autoLogin)
+                {
+                    startInfo.Arguments = $"-- -s ClientGame loginClientPassword={password} autoConnectToLoginServer=1 loginClientID={username} avatarName={charactername} autoConnectToGameServer=1 -s Station -s SwgClient allowMultipleInstances=true";
+                }
 
                 startInfo.EnvironmentVariables["SWGCLIENT_MEMORY_SIZE_MB"] = "4096";
                 startInfo.UseShellExecute = false;

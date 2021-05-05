@@ -13,11 +13,14 @@ namespace LauncherApp
     {
         string _url;
 
-        public Login(string url)
+        MainWindow _mainWindow;
+
+        public Login(string url, MainWindow mainWindow)
         {
             InitializeComponent();
             _url = url;
             JsonConfigHandler.OnJsonReadError += OnJsonReadError;
+            _mainWindow = mainWindow;
         }
 
         void OnJsonReadError(string error)
@@ -51,6 +54,9 @@ namespace LauncherApp
 
                             LoginProperties loginProperties = await apiHandler.AccountLoginAsync(_url, account.Username, account.Password);
 
+                            _mainWindow.loginProperties = loginProperties;
+                            _mainWindow.gamePassword = account.Password;
+
                             switch (loginProperties.Result)
                             {
                                 case "Success": return true;
@@ -71,6 +77,9 @@ namespace LauncherApp
             JsonAccountHandler accountHandler = new JsonAccountHandler();
 
             LoginProperties loginProperties = await apiHandler.AccountLoginAsync(_url, UsernameTextbox.Text, PasswordTextbox.Password.ToString());
+
+            _mainWindow.loginProperties = loginProperties;
+            _mainWindow.gamePassword = PasswordTextbox.Password.ToString();
 
             if ((bool)AutoLoginCheckbox.IsChecked && loginProperties.Result == "Success")
             {

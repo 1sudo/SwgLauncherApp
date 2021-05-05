@@ -313,7 +313,9 @@
         <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="ModsButton" Grid.Row="6" Grid.Column="3" Width="70" Height="18" FontFamily="Bahnschrift SemiBold Condensed" Foreground="White" BorderThickness="0" Background="#006fb2" FontSize="14" Click="ModsButton_Click"  Content="MODS" HorizontalAlignment="Right" VerticalAlignment="Top" IsEnabled="False" MouseEnter="PlayHoverSound" />
         <TextBlock Grid.Row="7" Grid.Column="3" Text="ACCOUNT AND CHARACTER SELECT" FontWeight="Bold" FontFamily="Bahnschrift SemiBold Condensed" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="13" />
         <ComboBox x:Name="AccountNameComboBox" Height="25" Grid.Row="8" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Text="Account Name" />
-        <ComboBox x:Name="CharacterNameComboBox" Height="25" Grid.Row="9" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Center" Text="Character Name" />
+        <ComboBox x:Name="CharacterNameComboBox" Height="25" Grid.Row="9" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Center" SelectedIndex="0">
+            <ComboBoxItem Content="None" />
+        </ComboBox>
 
         <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="FullScanButton" Grid.Row="10" Grid.Column="3" Height="18" Foreground="White" BorderThickness="0" Background="#006fb2" FontFamily="Bahnschrift SemiBold Condensed" FontSize="14" Click="FullScanButton_Click"  Content="FULL SCAN" VerticalAlignment="Top" IsEnabled="False" MouseEnter="PlayHoverSound" />
         <Button Style="{DynamicResource RoundedButtonStyle}" x:Name="PlayButton" Grid.Row="11" Grid.Column="3" Width="146" Height="55" Foreground="White" BorderThickness="0" FontFamily="Bahnschrift SemiBold Condensed" Background="#006fb2" FontSize="24" Click="PlayButton_Click"  Content="PLAY" IsEnabled="False" MouseEnter="PlayHoverSound" />

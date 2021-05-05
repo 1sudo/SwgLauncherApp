@@ -22,6 +22,8 @@ namespace LauncherApp
         string _serverPath;
         AudioHandler _audioHandler;
         AppHandler _appHandler;
+        internal LoginProperties loginProperties = new LoginProperties();
+        internal string gamePassword;
 
         public MainWindow()
         {
@@ -43,9 +45,14 @@ namespace LauncherApp
 
         void CheckLoggedIn()
         {
-            Login login = new Login(apiUrl);
+            Login login = new Login(apiUrl, this);
             login.ShowDialog();
             PreLaunchChecks();
+
+            foreach (string character in loginProperties.Characters)
+            {
+                CharacterNameComboBox.Items.Add(character);
+            }
         }
 
         public async void PreLaunchChecks()
@@ -131,12 +138,17 @@ namespace LauncherApp
             return false;
         }
 
-        bool ValidateGamePath(string location, bool locationProvided = true, bool configValidated = false)
+        bool ValidateGamePath(string location, bool locationProvided = true, bool configValidated = false, bool looped = false)
         {
             _gamePathValidated = GameSetupHandler.ValidateGamePath(location);
 
             if (_gamePathValidated && configValidated)
             {
+                if (looped)
+                {
+                    Setup setupForm = new Setup(_gamePath, configValidated, _serverName);
+                    setupForm.ShowDialog();
+                }
                 _gamePath = location;
                 return true;
             }
@@ -153,7 +165,7 @@ namespace LauncherApp
                 // and re-run this method
                 if (!locationProvided)
                 {
-                    ValidateGamePath(SelectSWGLocation());
+                    return ValidateGamePath(SelectSWGLocation(), true, configValidated, true);
                 }
                 else
                 {
@@ -237,7 +249,18 @@ namespace LauncherApp
         void PlayButton_Click(object sender, RoutedEventArgs e)
         {
             _audioHandler.PlayClickSound();
-            _appHandler.StartGame(_serverPath);
+
+            var selectedValue = CharacterNameComboBox.SelectedValue.ToString();
+            
+            if (selectedValue != "System.Windows.Controls.ComboBoxItem: None")
+            {
+                Trace.WriteLine(gamePassword);
+                _appHandler.StartGame(_serverPath, gamePassword, loginProperties.Username, selectedValue, true);
+            }
+            else
+            {
+                _appHandler.StartGame(_serverPath);
+            }
         }
 
         void PlayHoverSound(object sender, RoutedEventArgs e)
