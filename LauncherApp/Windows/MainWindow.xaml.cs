@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
@@ -52,6 +53,23 @@ namespace LauncherApp
             foreach (string character in loginProperties.Characters)
             {
                 CharacterNameComboBox.Items.Add(character);
+            }
+
+            string file = Path.Join(Directory.GetCurrentDirectory(), "character.json");
+
+            if (File.Exists(file))
+            {
+                JsonCharacterHandler characterHandler = new JsonCharacterHandler();
+
+                characterHandler.GetLastSavedCharacter();
+
+                for (int i = 0; i < CharacterNameComboBox.Items.Count; i++)
+                {                    
+                    if (characterHandler.GetLastSavedCharacter() == CharacterNameComboBox.Items[i].ToString())
+                    {
+                        CharacterNameComboBox.SelectedIndex = i;
+                    }
+                }
             }
         }
 
@@ -246,21 +264,38 @@ namespace LauncherApp
             _audioHandler.PlayClickSound();
         }
 
-        void PlayButton_Click(object sender, RoutedEventArgs e)
+        async void PlayButton_Click(object sender, RoutedEventArgs e)
         {
             _audioHandler.PlayClickSound();
+            PlayButton.IsEnabled = false;
+            FullScanButton.IsEnabled = false;
+            ModsButton.IsEnabled = false;
+            ConfigButton.IsEnabled = false;
 
             var selectedValue = CharacterNameComboBox.SelectedValue.ToString();
+
+            GameOptionsProperties gameOptions = new GameOptionsProperties()
+            {
+                Fps = 144,
+                Ram = 4096,
+                MaxZoom = 10
+            };
             
             if (selectedValue != "System.Windows.Controls.ComboBoxItem: None")
             {
-                Trace.WriteLine(gamePassword);
-                _appHandler.StartGame(_serverPath, gamePassword, loginProperties.Username, selectedValue, true);
+                await _appHandler.StartGameAsync(gameOptions, _serverPath, gamePassword, loginProperties.Username, selectedValue, true);
+                JsonCharacterHandler characterHandler = new JsonCharacterHandler();
+                characterHandler.SaveCharacter(selectedValue);
             }
             else
             {
-                _appHandler.StartGame(_serverPath);
+                await _appHandler.StartGameAsync(gameOptions, _serverPath);
             }
+
+            PlayButton.IsEnabled = true;
+            FullScanButton.IsEnabled = true;
+            ModsButton.IsEnabled = true;
+            ConfigButton.IsEnabled = true;
         }
 
         void PlayHoverSound(object sender, RoutedEventArgs e)
@@ -289,6 +324,7 @@ namespace LauncherApp
             FullScanButton.IsEnabled = false;
             ModsButton.IsEnabled = false;
             ConfigButton.IsEnabled = false;
+
             await GameSetupHandler.CheckFilesAsync(_serverPath, true);
         }
 

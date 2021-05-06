@@ -97,8 +97,8 @@ namespace LauncherManagement
 
             if (ValidateAccountConfig())
             {
-                using StreamReader sr = File.OpenText(configLocation);
-                accountProperties = JsonConvert.DeserializeObject<AccountProperties>(sr.ReadToEnd());
+                string file = File.ReadAllText(configLocation);
+                accountProperties = JsonConvert.DeserializeObject<AccountProperties>(file);
                 return accountProperties;
             }
 
