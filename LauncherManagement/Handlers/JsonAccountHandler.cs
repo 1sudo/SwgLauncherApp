@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -10,47 +9,6 @@ namespace LauncherManagement
     public class JsonAccountHandler
     {
         public static Action<string> OnJsonReadError;
-        public bool ValidateAccountConfig()
-        {
-            JObject json = new JObject();
-
-            string schemaJson = @"{
-                'Username': 'location',
-                'Password': 'location'
-            }";
-
-            JSchema schema = JSchema.Parse(schemaJson);
-
-            try
-            {
-                json = JObject.Parse(File.ReadAllText(Path.Join(Directory.GetCurrentDirectory(), "account.json")));
-            }
-            catch
-            {
-                return false;
-            }
-
-            bool validSchema = json.IsValid(schema);
-
-            int keysContained = 0;
-
-            if (json.ContainsKey("Username"))
-            {
-                keysContained++;
-            }
-
-            if (json.ContainsKey("Password"))
-            {
-                keysContained++;
-            }
-
-            if (validSchema && keysContained == 2)
-            {
-                return true;
-            }
-
-            return false;
-        }
 
         public async Task SaveCredentials(string username, string password)
         {
@@ -58,7 +16,7 @@ namespace LauncherManagement
 
             JObject json;
 
-            if (ValidateAccountConfig())
+            if (ValidationHandler.ValidateJson("account.json"))
             {
                 json = new JObject();
                 try
@@ -78,16 +36,18 @@ namespace LauncherManagement
                         case "Password": property.Value = password; break;
                     }
                 }
+
+                await File.WriteAllTextAsync(configLocation, json.ToString());
             }
             else
             {
-                json = JObject.Parse(@"
-                    {'Username': '" + username + "'," +
-                    "'Password': '" + password + "'}"
-                );
+                await File.WriteAllTextAsync(configLocation, 
+                    JsonConvert.SerializeObject(new AccountProperties()
+                    {
+                        Username = username,
+                        Password = password
+                    }));
             }
-
-            await File.WriteAllTextAsync(configLocation, json.ToString());
         }
 
         public AccountProperties GetAccountCredentials()
@@ -95,11 +55,10 @@ namespace LauncherManagement
             string configLocation = Path.Join(Directory.GetCurrentDirectory(), "account.json");
             AccountProperties accountProperties = new AccountProperties();
 
-            if (ValidateAccountConfig())
+            if (ValidationHandler.ValidateJson("account.json"))
             {
                 string file = File.ReadAllText(configLocation);
-                accountProperties = JsonConvert.DeserializeObject<AccountProperties>(file);
-                return accountProperties;
+                return JsonConvert.DeserializeObject<AccountProperties>(file);
             }
 
             return null;

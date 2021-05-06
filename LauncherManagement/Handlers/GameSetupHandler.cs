@@ -53,9 +53,9 @@ namespace LauncherManagement
             return CheckValidInstallation(location);
         }
 
-        public static bool ValidateConfig()
+        public static bool ValidateJsonFile(string file)
         {
-            return CheckValidConfig();
+            return ValidateJson(file);
         }
     }
 }

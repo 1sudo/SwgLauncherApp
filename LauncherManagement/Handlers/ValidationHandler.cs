@@ -49,9 +49,10 @@ namespace LauncherManagement
                                 newFileList.Add(file.Name);
                             }
                         }
+                        // Some other dumb shit happened, add file to list
                         catch
                         {
-
+                            newFileList.Add(file.Name);
                         }
 
                         ++i;
@@ -60,13 +61,21 @@ namespace LauncherManagement
                     {
                         try
                         {
-                            // If file is wrong size, add to download list
-                            if (new FileInfo(Path.Join(downloadLocation, file.Name)).Length != file.Size)
+                            if (File.Exists(Path.Join(downloadLocation, file.Name)))
+                            {
+                                // If file is wrong size, add to download list
+                                if (new FileInfo(Path.Join(downloadLocation, file.Name)).Length != file.Size)
+                                {
+                                    newFileList.Add(file.Name);
+                                }
+                            }
+                            // If file doesn't exist, add to download list
+                            else
                             {
                                 newFileList.Add(file.Name);
                             }
                         }
-                        // If file doesn't exist, add to download list
+                        // Some other dumb shit happened, add file to list
                         catch
                         {
                             newFileList.Add(file.Name);
@@ -116,47 +125,59 @@ namespace LauncherManagement
             return false;
         }
 
-        internal static bool CheckValidConfig()
+        internal static bool ValidateJson(string file)
         {
-            JObject json = new JObject();
+            List<string> keys = new List<string>();
 
-            string schemaJson = @"{
-              'SWGLocation': 'location',
-              'ServerLocation': 'location',
-              'AutoLogin': false
-            }";
+            Dictionary<string, List<string>> JsonFileKeys = new Dictionary<string, List<string>>()
+            {
+                { "config.json", new List<string>()
+                    {
+                        "SWGLocation", "ServerLocation", "AutoLogin"
+                    } 
+                },
+                { "account.json", new List<string>()
+                    {
+                        "Username", "Password"
+                    }
+                },
+                { "character.json", new List<string>()
+                    {
+                        "Character"
+                    }
+                },
+            };
 
-            JSchema schema = JSchema.Parse(schemaJson);
+            foreach (KeyValuePair<string, List<string>> kvp in JsonFileKeys)
+            {
+                if (kvp.Key == file)
+                {
+                    keys = kvp.Value;
+                }
+            }
+
+            JObject json;
 
             try
             {
-                json = JObject.Parse(File.ReadAllText(Path.Join(Directory.GetCurrentDirectory(), "config.json")));
+                json = JObject.Parse(File.ReadAllText(Path.Join(Directory.GetCurrentDirectory(), file)));
             }
             catch
             {
                 return false;
             }
-            
-            bool validSchema = json.IsValid(schema);
 
             int keysContained = 0;
 
-            if (json.ContainsKey("SWGLocation"))
+            foreach (string key in keys)
             {
-                keysContained++;
+                if (json.ContainsKey(key))
+                {
+                    keysContained++;
+                }
             }
 
-            if (json.ContainsKey("ServerLocation"))
-            {
-                keysContained++;
-            }
-
-            if (json.ContainsKey("AutoLogin"))
-            {
-                keysContained++;
-            }
-
-            if (validSchema && keysContained >= 3)
+            if (keysContained == keys.Count)
             {
                 return true;
             }

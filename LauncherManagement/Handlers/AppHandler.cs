@@ -8,7 +8,7 @@ namespace LauncherManagement
     public class AppHandler
     {
         public async Task StartGameAsync(GameOptionsProperties gameOptions, string serverPath, string password = "", 
-            string username = "", string charactername = "", bool autoLogin = false)
+            string username = "", string charactername = "", bool autoEnterZone = false)
         {
             // Run Async to prevent launcher from locking up when starting game and writing bytes
             await Task.Run(() =>
@@ -60,9 +60,13 @@ namespace LauncherManagement
 
                     var startInfo = new ProcessStartInfo();
 
-                    if (autoLogin)
+                    if (autoEnterZone)
                     {
                         startInfo.Arguments = $"-- -s ClientGame loginClientPassword={password} autoConnectToLoginServer=1 loginClientID={username} avatarName={charactername} autoConnectToGameServer=1 -s Station -s SwgClient allowMultipleInstances=true";
+                    }
+                    else
+                    {
+                        startInfo.Arguments = $"-- -s ClientGame loginClientPassword={password} autoConnectToLoginServer=1 loginClientID={username} autoConnectToGameServer=0 -s Station -s SwgClient allowMultipleInstances=true";
                     }
 
                     startInfo.EnvironmentVariables["SWGCLIENT_MEMORY_SIZE_MB"] = gameOptions.Ram.ToString();

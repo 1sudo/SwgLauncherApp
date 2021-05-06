@@ -8,41 +8,6 @@ namespace LauncherManagement
 {
     public class JsonCharacterHandler
     {
-        public bool ValidateCharacterConfig()
-        {
-            JObject json = new JObject();
-
-            string schemaJson = @"{
-                'Character': 'char',
-            }";
-
-            JSchema schema = JSchema.Parse(schemaJson);
-
-            try
-            {
-                json = JObject.Parse(File.ReadAllText(Path.Join(Directory.GetCurrentDirectory(), "character.json")));
-            }
-            catch
-            {
-                return false;
-            }
-
-            bool validSchema = json.IsValid(schema);
-
-            int keysContained = 0;
-
-            if (json.ContainsKey("Character"))
-            {
-                keysContained++;
-            }
-
-            if (validSchema && keysContained == 1)
-            {
-                return true;
-            }
-
-            return false;
-        }
 
         public string GetLastSavedCharacter()
         {
@@ -51,7 +16,7 @@ namespace LauncherManagement
             if (File.Exists(filePath))
             {
                 string content = File.ReadAllText(filePath);
-                if (ValidateCharacterConfig())
+                if (ValidationHandler.ValidateJson("character.json"))
                 {
                     CharacterProperties characterProperties = JsonConvert.DeserializeObject<CharacterProperties>(content);
                     return characterProperties.Character;
@@ -68,7 +33,7 @@ namespace LauncherManagement
             if (File.Exists(filePath))
             {
                 string content = File.ReadAllText(filePath);
-                if (ValidateCharacterConfig())
+                if (ValidationHandler.ValidateJson("character.json"))
                 {
                     CharacterProperties characterProperties = JsonConvert.DeserializeObject<CharacterProperties>(content);
                     characterProperties.Character = character;

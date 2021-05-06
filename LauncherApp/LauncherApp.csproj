@@ -47,6 +47,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Autoupdater.NET.Official" Version="1.6.4" />
     <PackageReference Include="CefSharp.Wpf" Version="89.0.170" />
     <PackageReference Include="NAudio" Version="2.0.0" />
   </ItemGroup>

@@ -80,17 +80,19 @@ namespace LauncherManagement
                         case "AutoLogin": property.Value = true; break;
                     }
                 }
+
+                await File.WriteAllTextAsync(configLocation, json.ToString());
             }
             else
             {
-                json = JObject.Parse(@"
-                    {'SWGLocation': '" + gamePath + "'," +
-                    "'ServerLocation': '" + serverPath + "'," +
-                    "'AutoLogin': false}"
-                );
+                await File.WriteAllTextAsync(configLocation, JsonConvert.SerializeObject(new ConfigProperties()
+                {
+                    SWGLocation = gamePath,
+                    ServerLocation = serverPath,
+                    AutoLogin = false
+                }));
             }
 
-            await File.WriteAllTextAsync(configLocation, json.ToString());
             Directory.CreateDirectory($"{ serverPath }");
         }
     }

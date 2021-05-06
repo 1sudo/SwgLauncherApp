@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using LauncherManagement;
@@ -91,7 +92,7 @@ namespace LauncherApp
             // If it exists, validate it
             else
             {
-                configValidated = GameSetupHandler.ValidateConfig();
+                configValidated = GameSetupHandler.ValidateJsonFile("config.json");
 
                 // If config is validated and keys exist, get the swg location
                 if (configValidated)
@@ -291,7 +292,7 @@ namespace LauncherApp
             }
             else
             {
-                await _appHandler.StartGameAsync(gameOptions, _serverPath);
+                await _appHandler.StartGameAsync(gameOptions, _serverPath, gamePassword, loginProperties.Username);
             }
 
             PlayButton.IsEnabled = true;

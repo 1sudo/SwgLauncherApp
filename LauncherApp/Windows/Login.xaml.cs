@@ -3,6 +3,7 @@ using System.Windows.Input;
 using LauncherManagement;
 using System.Threading.Tasks;
 using System;
+using System.Collections.Generic;
 
 namespace LauncherApp
 {
@@ -41,7 +42,7 @@ namespace LauncherApp
             AccountProperties account = accountHandler.GetAccountCredentials();
             JsonConfigHandler configHandler = new JsonConfigHandler();
 
-            if (accountHandler.ValidateAccountConfig())
+            if (GameSetupHandler.ValidateJsonFile("account.json"))
             {
                 if (configHandler.CheckAutoLoginEnabled())
                 {
