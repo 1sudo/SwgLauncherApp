@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using LauncherManagement;
@@ -13,21 +11,25 @@ namespace LauncherApp
     /// </summary>
     public partial class MainWindow : Window
     {
-        string _serverName = "SWGLegacy";
-        string apiUrl = "http://127.0.0.1:5000";
         bool _gamePathValidated;
         string _currentFile;
         double _currentFileStatus;
         double _totalFileStatus;
         string _gamePath;
         string _serverPath;
-        AudioHandler _audioHandler;
-        AppHandler _appHandler;
+        readonly AudioHandler _audioHandler;
+        readonly AppHandler _appHandler;
         internal LoginProperties loginProperties = new LoginProperties();
         internal string gamePassword;
 
         public MainWindow()
         {
+            ServerProperties.ServerName = "SWGLegacy";
+            ServerProperties.ApiUrl = "http://localhost:5000";
+            ServerProperties.ManifestFileUrl = "http://localhost/files/";
+            ServerProperties.BackupManifestFileUrl = "http://localhost:8080/files/";
+            ServerProperties.ManifestFilePath = "manifest/required.json";
+
             AudioHandler audioHandler = new AudioHandler();
             _audioHandler = audioHandler;
 
@@ -46,7 +48,7 @@ namespace LauncherApp
 
         void CheckLoggedIn()
         {
-            Login login = new Login(apiUrl, this);
+            Login login = new Login(ServerProperties.ApiUrl, this);
             login.ShowDialog();
             PreLaunchChecks();
 
@@ -64,7 +66,7 @@ namespace LauncherApp
                 characterHandler.GetLastSavedCharacter();
 
                 for (int i = 0; i < CharacterNameComboBox.Items.Count; i++)
-                {                    
+                {
                     if (characterHandler.GetLastSavedCharacter() == CharacterNameComboBox.Items[i].ToString())
                     {
                         CharacterNameComboBox.SelectedIndex = i;
@@ -133,7 +135,7 @@ namespace LauncherApp
 
                 if (!serverPathValidated)
                 {
-                    Setup setupForm = new Setup(_gamePath, configValidated, _serverName);
+                    Setup setupForm = new Setup(_gamePath, configValidated, ServerProperties.ServerName);
                     setupForm.ShowDialog();
                 }
             }
@@ -164,7 +166,7 @@ namespace LauncherApp
             {
                 if (looped)
                 {
-                    Setup setupForm = new Setup(_gamePath, configValidated, _serverName);
+                    Setup setupForm = new Setup(_gamePath, configValidated, ServerProperties.ServerName);
                     setupForm.ShowDialog();
                 }
                 _gamePath = location;
@@ -173,7 +175,7 @@ namespace LauncherApp
 
             if (_gamePathValidated)
             {
-                Setup setupForm = new Setup(_gamePath, configValidated, _serverName);
+                Setup setupForm = new Setup(_gamePath, configValidated, ServerProperties.ServerName);
                 setupForm.ShowDialog();
                 return true;
             }

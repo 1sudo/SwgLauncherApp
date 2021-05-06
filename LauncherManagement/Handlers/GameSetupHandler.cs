@@ -9,9 +9,9 @@ namespace LauncherManagement
     {
         public static async Task CheckFilesAsync(string downloadLocation, bool isFullScan = false)
         {
-            var downloadableFiles = await DownloadManifestAsync("http://localhost/required.json");
+            var downloadableFiles = await DownloadManifestAsync(ServerProperties.ManifestFilePath);
 
-            Dictionary<string, string> fileList;
+            List<string> fileList;
             if (isFullScan)
             {
                 fileList = await Task.Run(() => GetBadFilesAsync(downloadLocation, downloadableFiles, true));

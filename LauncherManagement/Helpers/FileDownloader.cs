@@ -9,13 +9,22 @@ namespace LauncherManagement
         public static Action<long, long, int> OnDownloadProgressUpdated;
         public static Action<string> OnServerError;
 
-        internal static async Task<byte[]> DownloadAsync(string url)
+        internal static async Task<byte[]> DownloadAsync(string file)
         {
             byte[] data;
 
             using (var client = new WebClient())
             {
-                Uri uri = new Uri(url);
+                Uri uri;
+                if (ServerProperties.PrimaryServerOffline)
+                {
+                    uri = new Uri(ServerProperties.BackupManifestFileUrl + file);
+                }
+                else
+                {
+                    uri = new Uri(ServerProperties.ManifestFileUrl + file);
+                }
+                
 
                 client.DownloadProgressChanged += OnDownloadProgressChanged;
                 
@@ -24,11 +33,26 @@ namespace LauncherManagement
                     data = await client.DownloadDataTaskAsync(uri);
                     return data;
                 }
-                // If the download server is unavailable
-                catch (Exception e)
+                // If the download server is unavailable, try the backup server
+                catch
                 {
-                    OnServerError?.Invoke(e.ToString());
-                    return new byte[0];
+                    ServerProperties.PrimaryServerOffline = true;
+
+                    Uri uri2 = new Uri(ServerProperties.BackupManifestFileUrl + file);
+
+                    client.DownloadProgressChanged += OnDownloadProgressChanged;
+
+                    try
+                    {
+                        data = await client.DownloadDataTaskAsync(uri2);
+                        return data;
+                    }
+                    // If the backup server is unavailable, error
+                    catch (Exception e)
+                    {
+                        OnServerError?.Invoke(e.ToString());
+                        return new byte[0];
+                    }
                 }
             }
         }

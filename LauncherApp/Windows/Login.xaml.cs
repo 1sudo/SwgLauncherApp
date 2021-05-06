@@ -11,9 +11,8 @@ namespace LauncherApp
     /// </summary>
     public partial class Login : Window
     {
-        string _url;
-
-        MainWindow _mainWindow;
+        readonly string _url;
+        readonly MainWindow _mainWindow;
 
         public Login(string url, MainWindow mainWindow)
         {

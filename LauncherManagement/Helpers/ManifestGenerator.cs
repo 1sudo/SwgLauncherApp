@@ -32,8 +32,6 @@ namespace LauncherManagement
                     }
                 }
 
-                dFile.Url = "http://www.launchpad2.net/SWGEmu/" + splitFile;
-
                 listOfFiles.Add(dFile);
             }
 

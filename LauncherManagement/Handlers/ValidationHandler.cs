@@ -9,60 +9,71 @@ namespace LauncherManagement
 {
     public class ValidationHandler : DownloadHandler
     {
-        internal static async Task<Dictionary<string, string>> GetBadFilesAsync(string downloadLocation, List<DownloadableFile> fileList, bool isFullScan = false)
+        internal static async Task<List<string>> GetBadFilesAsync(string downloadLocation, List<DownloadableFile> fileList, bool isFullScan = false)
         {
-            var newFileList = new Dictionary<string, string>();
+            var newFileList = new List<string>();
 
             double listLength = fileList.Count;
 
             double i = 1;
-            foreach (var file in fileList)
+            await Task.Run(() =>
             {
-                if (isFullScan)
+                foreach (var file in fileList)
                 {
-                    try
+                    if (isFullScan)
                     {
-                        OnFullScanFileCheck?.Invoke($"Checking File { file.Name }...", i, listLength);
-
-                        using (var md5 = MD5.Create())
+                        try
                         {
-                            using (var stream = File.OpenRead(Path.Join(downloadLocation, file.Name)))
+                            if (File.Exists(Path.Join(downloadLocation, file.Name)))
                             {
-                                var result = await Task.Run(() => System.BitConverter.ToString(md5.ComputeHash(stream))
-                                    .Replace("-", "").ToLowerInvariant());
+                                OnFullScanFileCheck?.Invoke($"Checking File { file.Name }...", i, listLength);
 
-                                // If checksum doesn't match, add to download list
-                                if (result != file.Md5)
+                                using (var md5 = MD5.Create())
                                 {
-                                    newFileList.Add(file.Name, file.Url);
+                                    using (var stream = File.OpenRead(Path.Join(downloadLocation, file.Name)))
+                                    {
+                                        var result =  System.BitConverter.ToString(md5.ComputeHash(stream))
+                                            .Replace("-", "").ToLowerInvariant();
+
+                                        // If checksum doesn't match, add to download list
+                                        if (result != file.Md5)
+                                        {
+                                            newFileList.Add(file.Name);
+                                        }
+                                    }
                                 }
                             }
+                            // If file doesn't exist, add to download list
+                            else
+                            {
+                                newFileList.Add(file.Name);
+                            }
                         }
-                    }
-                    // If file doesn't exist, add to download list
-                    catch
-                    {
-                        newFileList.Add(file.Name, file.Url);
-                    }
-                    ++i;
-                }
-                else
-                {
-                    try
-                    {
-                        // If file is wrong size, add to download list
-                        if (new FileInfo(Path.Join(downloadLocation, file.Name)).Length != file.Size)
+                        catch
                         {
-                            newFileList.Add(file.Name, file.Url);
+
+                        }
+
+                        ++i;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            // If file is wrong size, add to download list
+                            if (new FileInfo(Path.Join(downloadLocation, file.Name)).Length != file.Size)
+                            {
+                                newFileList.Add(file.Name);
+                            }
+                        }
+                        // If file doesn't exist, add to download list
+                        catch
+                        {
+                            newFileList.Add(file.Name);
                         }
                     }
-                    // If file doesn't exist, add to download list
-                    catch
-                    {
-                        newFileList.Add(file.Name, file.Url);
-                    }
                 }
-            }
+            });
 
             return newFileList;
         }

@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -13,30 +12,30 @@ namespace LauncherManagement
         public static Action<string, string, double, double> OnCurrentFileDownloading;
         public static Action<string, double, double> OnFullScanFileCheck;
 
-        internal static async Task<List<DownloadableFile>> DownloadManifestAsync(string manifestUrl)
+        internal static async Task<List<DownloadableFile>> DownloadManifestAsync(string manifestFile)
         {
-            var contents = await Task.Run(() => DownloadAsync(manifestUrl).Result);
+            var contents = await Task.Run(() => DownloadAsync(manifestFile).Result);
 
             return JsonManifestHandler.GetFileList(System.Text.Encoding.UTF8.GetString(contents));
         }
 
-        internal static async Task DownloadFilesFromListAsync(Dictionary<string, string> fileList, string downloadLocation)
+        internal static async Task DownloadFilesFromListAsync(List<string> fileList, string downloadLocation)
         {
             double listLength = fileList.Count;
 
             double i = 1;
             // Key == name, Value == url
-            foreach (KeyValuePair<string, string> file in fileList)
+            foreach (string file in fileList)
             {
                 // Notify UI of filename
-                OnCurrentFileDownloading?.Invoke("download", file.Key, i, listLength);
+                OnCurrentFileDownloading?.Invoke("download", file, i, listLength);
 
-                var contents = await Task.Run(() => DownloadAsync(file.Value));
+                var contents = await Task.Run(() => DownloadAsync(file));
 
                 // Create directory before writing to file if it doesn't exist
-                new FileInfo(Path.Join(downloadLocation, file.Key)).Directory.Create();
+                new FileInfo(Path.Join(downloadLocation, file)).Directory.Create();
 
-                await File.WriteAllBytesAsync(Path.Join(downloadLocation, file.Key), contents);
+                await File.WriteAllBytesAsync(Path.Join(downloadLocation, file), contents);
 
                 ++i;
             }
@@ -44,10 +43,10 @@ namespace LauncherManagement
             OnDownloadCompleted?.Invoke();
         }
 
-        internal static async Task AttemptCopyFilesFromListAsync(Dictionary<string, string> fileList, string copyLocation)
+        internal static async Task AttemptCopyFilesFromListAsync(List<string> fileList, string copyLocation)
         {
             double listLength = fileList.Count;
-            Dictionary<string, string> newFileList = new Dictionary<string, string>();
+            List<string> newFileList = new List<string>();
 
             // Get source installation properties
             string configLocation = Path.Join(Directory.GetCurrentDirectory(), "config.json");
@@ -56,30 +55,30 @@ namespace LauncherManagement
 
             double i = 1;
             // Key == name, Value == url
-            foreach (KeyValuePair<string, string> file in fileList)
+            foreach (string file in fileList)
             {
                 // Notify UI of filename
-                OnCurrentFileDownloading?.Invoke("copy", file.Key, i, listLength);
+                OnCurrentFileDownloading?.Invoke("copy", file, i, listLength);
 
                 // Create directory before writing to file if it doesn't exist
-                new FileInfo(Path.Join(copyLocation, file.Key)).Directory.Create();
+                new FileInfo(Path.Join(copyLocation, file)).Directory.Create();
 
                 // If file exists at source installation, copy it
-                if (File.Exists(Path.Join(configProperties.SWGLocation, file.Key)))
+                if (File.Exists(Path.Join(configProperties.SWGLocation, file)))
                 {
-                    await CopyFileAsync(Path.Join(configProperties.SWGLocation, file.Key), Path.Join(copyLocation, file.Key));
+                    await CopyFileAsync(Path.Join(configProperties.SWGLocation, file), Path.Join(copyLocation, file));
                 }
                 // If file doesn't exist in source location, add to new list to be returned
                 else
                 {
-                    newFileList.Add(file.Key, file.Value);
+                    newFileList.Add(file);
                 }
                 
                 ++i;
             }
         }
 
-        public static async Task CopyFileAsync(string sourcePath, string destinationPath)
+        static async Task CopyFileAsync(string sourcePath, string destinationPath)
         {
             using (Stream source = File.OpenRead(sourcePath))
             {
