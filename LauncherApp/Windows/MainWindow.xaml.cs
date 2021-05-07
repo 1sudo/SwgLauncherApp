@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
@@ -314,7 +315,10 @@ namespace LauncherApp
         void ConfigButton_Click(object sender, RoutedEventArgs e)
         {
             _audioHandler.PlayClickSound();
-            _appHandler.StartGameConfig(_serverPath);
+            // _appHandler.StartGameConfig(_serverPath);
+
+            Settings settings = new Settings(this);
+            settings.Show();
         }
 
         async void FullScanButton_Click(object sender, RoutedEventArgs e)

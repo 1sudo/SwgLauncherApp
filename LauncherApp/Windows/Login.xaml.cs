@@ -3,7 +3,6 @@ using System.Windows.Input;
 using LauncherManagement;
 using System.Threading.Tasks;
 using System;
-using System.Collections.Generic;
 
 namespace LauncherApp
 {
