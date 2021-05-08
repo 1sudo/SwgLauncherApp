@@ -27,6 +27,8 @@
     <None Remove="Images\discord.png" />
     <None Remove="Images\donate-active.png" />
     <None Remove="Images\donate.png" />
+    <None Remove="Images\icons\close.png" />
+    <None Remove="Images\icons\minimize.png" />
     <None Remove="Images\launcher-bg.jpg" />
     <None Remove="Images\mantis-active.png" />
     <None Remove="Images\mantis.png" />
@@ -39,8 +41,17 @@
     <None Remove="Images\setup-advanced-active.png" />
     <None Remove="Images\setup-advanced.png" />
     <None Remove="Images\setup.png" />
+    <None Remove="Images\sidebar\icons\bug-report.png" />
+    <None Remove="Images\sidebar\icons\paypal.png" />
+    <None Remove="Images\sidebar\icons\resources.png" />
+    <None Remove="Images\sidebar\icons\settings.png" />
+    <None Remove="Images\sidebar\icons\skill-planner.png" />
+    <None Remove="Images\sidebar\icons\vote.png" />
+    <None Remove="Images\sidebar\swg-legacy-launcher-logo-bg.png" />
+    <None Remove="Images\sidebar\swg-legacy-launcher-logo.png" />
     <None Remove="Images\skillplanner-active.png" />
     <None Remove="Images\skillplanner.png" />
+    <None Remove="Images\swg-legacy-launcher-bg.png" />
     <None Remove="Images\vote-active.png" />
     <None Remove="Images\vote.png" />
     <None Remove="launcher-bg.jpg" />
@@ -69,6 +80,8 @@
     <Resource Include="Images\discord.png" />
     <Resource Include="Images\donate-active.png" />
     <Resource Include="Images\donate.png" />
+    <Resource Include="Images\icons\close.png" />
+    <Resource Include="Images\icons\minimize.png" />
     <Resource Include="Images\launcher-bg.jpg" />
     <Resource Include="Images\mantis-active.png" />
     <Resource Include="Images\mantis.png" />
@@ -80,8 +93,17 @@
     <Resource Include="Images\setup-advanced-active.png" />
     <Resource Include="Images\setup-advanced.png" />
     <Resource Include="Images\setup.png" />
+    <Resource Include="Images\sidebar\icons\bug-report.png" />
+    <Resource Include="Images\sidebar\icons\paypal.png" />
+    <Resource Include="Images\sidebar\icons\resources.png" />
+    <Resource Include="Images\sidebar\icons\settings.png" />
+    <Resource Include="Images\sidebar\icons\skill-planner.png" />
+    <Resource Include="Images\sidebar\icons\vote.png" />
+    <Resource Include="Images\sidebar\swg-legacy-launcher-logo-bg.png" />
+    <Resource Include="Images\sidebar\swg-legacy-launcher-logo.png" />
     <Resource Include="Images\skillplanner-active.png" />
     <Resource Include="Images\skillplanner.png" />
+    <Resource Include="Images\swg-legacy-launcher-bg.png" />
     <Resource Include="Images\vote-active.png" />
     <Resource Include="Images\vote.png" />
   </ItemGroup>

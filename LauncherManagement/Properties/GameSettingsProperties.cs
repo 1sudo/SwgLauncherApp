@@ -11,4 +11,8 @@ namespace LauncherManagement
         public string Value { get; set; }
     }
 
+    public class GameSettingsProperties
+    {
+        public List<GameSettingsProperty> Property { get; set; }
+    }
 }

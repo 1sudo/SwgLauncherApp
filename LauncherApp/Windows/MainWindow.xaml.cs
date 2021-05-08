@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using LauncherManagement;
@@ -79,6 +77,7 @@ namespace LauncherApp
 
         public async void PreLaunchChecks()
         {
+            CharacterSelectGrid.Visibility = Visibility.Collapsed;
             bool locationSelected = false;
             bool configValidated = false;
             bool gameValidated = false;
@@ -272,9 +271,8 @@ namespace LauncherApp
         {
             _audioHandler.PlayClickSound();
             PlayButton.IsEnabled = false;
-            FullScanButton.IsEnabled = false;
-            ModsButton.IsEnabled = false;
-            ConfigButton.IsEnabled = false;
+            // FullScanButton.IsEnabled = false;
+            SettingsButton.IsEnabled = false;
 
             var selectedValue = CharacterNameComboBox.SelectedValue.ToString();
 
@@ -297,9 +295,8 @@ namespace LauncherApp
             }
 
             PlayButton.IsEnabled = true;
-            FullScanButton.IsEnabled = true;
-            ModsButton.IsEnabled = true;
-            ConfigButton.IsEnabled = true;
+            //FullScanButton.IsEnabled = true;
+            SettingsButton.IsEnabled = true;
         }
 
         void PlayHoverSound(object sender, RoutedEventArgs e)
@@ -312,7 +309,7 @@ namespace LauncherApp
             _audioHandler.PlayClickSound();
         }
 
-        void ConfigButton_Click(object sender, RoutedEventArgs e)
+        void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
             _audioHandler.PlayClickSound();
             // _appHandler.StartGameConfig(_serverPath);
@@ -326,11 +323,9 @@ namespace LauncherApp
             _audioHandler.PlayClickSound();
 
             ProgressGrid.Visibility = Visibility.Visible;
-            statusBar.Visibility = Visibility.Collapsed;
             PlayButton.IsEnabled = false;
-            FullScanButton.IsEnabled = false;
-            ModsButton.IsEnabled = false;
-            ConfigButton.IsEnabled = false;
+            // FullScanButton.IsEnabled = false;
+            SettingsButton.IsEnabled = false;
 
             await GameSetupHandler.CheckFilesAsync(_serverPath, true);
         }
@@ -352,15 +347,15 @@ namespace LauncherApp
                 double status = (_currentFileStatus / _totalFileStatus) * 100;
 
                 ProgressGrid.Visibility = Visibility.Visible;
-                ProgressGrid2.Visibility = Visibility.Visible;
-                statusBar.Visibility = Visibility.Hidden;
-                DownloadProgress.Value = progressPercentage;
-                DownloadProgress2.Value = status;
-                
-                DownloadProgressText2.Text = $"Currently downloading file { _currentFileStatus } / { _totalFileStatus }";
-                DownloadProgressText.Text = $"{ _currentFile } - " +
-                    $"{ UnitConversion.ToSize(bytesReceived, UnitConversion.SizeUnits.MB) }MB / " +
-                    $"{ UnitConversion.ToSize(totalBytesToReceive, UnitConversion.SizeUnits.MB) }MB";
+                DownloadProgress.Value = status;
+                DownloadProgress2.Value = progressPercentage;
+
+                DownloadProgressText2.Text = $"{ _currentFile }";
+                DownloadProgressTextRight2.Text = $"{progressPercentage}%";
+                DownloadProgressTextRight.Text = $"({ _currentFileStatus }/{ _totalFileStatus })";
+                DownloadProgressText.Text = $"Downloading Files";
+                // + $"{ UnitConversion.ToSize(bytesReceived, UnitConversion.SizeUnits.MB) }MB / " +
+                // $"{ UnitConversion.ToSize(totalBytesToReceive, UnitConversion.SizeUnits.MB) }MB";
             });
         }
 
@@ -382,7 +377,8 @@ namespace LauncherApp
                 double filesLeft = total - current;
 
                 DownloadProgress2.Value = status;
-                DownloadProgressText2.Text = $"Files left to check: { filesLeft }";
+                DownloadProgressText2.Text = $"Checking Files";
+                DownloadProgressTextRight2.Text = $"({ filesLeft }/{ total })";
                 DownloadProgressText.Text = message;
             });
         }
@@ -395,14 +391,14 @@ namespace LauncherApp
                 _totalFileStatus = total;
                 if (transferType == "download")
                 {
-                    _currentFile = $"Downloading { file }";
+                    _currentFile = $"{ file }";
                 }
                 else
                 {
-                    _currentFile = $"Copying { file }";
+                    _currentFile = $"{ file }";
                     DownloadProgressText2.Text = _currentFile;
                     DownloadProgress2.Value = (current / total) * 100;
-                    DownloadProgressText.Text = "File copy in progress...";
+                    DownloadProgressText.Text = "Copying Files";
                 }
             });
         }
@@ -415,12 +411,10 @@ namespace LauncherApp
         void OnDownloadCompleted()
         {
             ProgressGrid.Visibility = Visibility.Collapsed;
-            ProgressGrid2.Visibility = Visibility.Collapsed;
-            statusBar.Visibility = Visibility.Visible;
+            CharacterSelectGrid.Visibility = Visibility.Visible;
             PlayButton.IsEnabled = true;
-            FullScanButton.IsEnabled = true;
-            ModsButton.IsEnabled = true;
-            ConfigButton.IsEnabled = true;
+            // FullScanButton.IsEnabled = true;
+            SettingsButton.IsEnabled = true;
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)

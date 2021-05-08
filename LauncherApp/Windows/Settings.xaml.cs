@@ -1,7 +1,9 @@
 ﻿using LauncherManagement;
 using System.Windows;
-using LauncherManagement;
 using System.Collections.Generic;
+using System.IO;
+using Newtonsoft.Json;
+using System.Diagnostics;
 
 namespace LauncherApp
 {
@@ -23,11 +25,44 @@ namespace LauncherApp
             {
                 ResolutionBox.Items.Add(resolution);
             }
+
+            LoadSettings();
+        }
+
+        void LoadSettings()
+        {
+            string file = Path.Join(Directory.GetCurrentDirectory(), "settings.json");
+
+            List<GameSettingsProperty> properties = JsonConvert.DeserializeObject<List<GameSettingsProperty>>(file);
+
+            foreach(GameSettingsProperty property in properties)
+            {
+                Trace.WriteLine(property.Category);
+            }
+        }
+
+        void GetResolution()
+        {
+            string file = Path.Join(Directory.GetCurrentDirectory(), "settings.json");
+
+            if (File.Exists(file))
+            {
+                JsonCharacterHandler characterHandler = new JsonCharacterHandler();
+
+                characterHandler.GetLastSavedCharacter();
+
+                for (int i = 0; i < ResolutionBox.Items.Count; i++)
+                {
+                    if (characterHandler.GetLastSavedCharacter() == ResolutionBox.Items[i].ToString())
+                    {
+                        ResolutionBox.SelectedIndex = i;
+                    }
+                }
+            }
         }
 
         private async void SubmitButton_Click(object sender, RoutedEventArgs e)
         {
-
             string[] categories = {
                 "ClientGraphics", "ClientGraphics", "ClientGraphics", "SharedUtility", "Direct3d9", "Direct3d9",
                 "ClientAudio", "ClientAudio", "ClientGraphics", "ClientGraphics", "ClientGraphics", 
