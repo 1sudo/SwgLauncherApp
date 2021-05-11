@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using LauncherManagement;
@@ -19,8 +22,11 @@ namespace LauncherApp
         string _serverPath;
         readonly AudioHandler _audioHandler;
         readonly AppHandler _appHandler;
-        internal LoginProperties loginProperties = new LoginProperties();
-        internal string gamePassword;
+        LoginProperties _loginProperties = new LoginProperties();
+        string _gamePassword;
+        bool _configValidated;
+
+        Action OnProceedToLogin;
 
         public MainWindow()
         {
@@ -37,114 +43,13 @@ namespace LauncherApp
             _appHandler = appHandler;
 
             InitializeComponent();
-            CheckLoggedIn();
 
             DownloadHandler.OnCurrentFileDownloading += ShowFileBeingDownloaded;
             FileDownloader.OnDownloadProgressUpdated += DownloadProgressUpdated;
             DownloadHandler.OnDownloadCompleted += OnDownloadCompleted;
             FileDownloader.OnServerError += CaughtServerError;
             DownloadHandler.OnFullScanFileCheck += OnFullScanFileCheck;
-        }
-
-        void CheckLoggedIn()
-        {
-            Login login = new Login(ServerProperties.ApiUrl, this);
-            login.ShowDialog();
-            PreLaunchChecks();
-
-            foreach (string character in loginProperties.Characters)
-            {
-                CharacterNameComboBox.Items.Add(character);
-            }
-
-            string file = Path.Join(Directory.GetCurrentDirectory(), "character.json");
-
-            if (File.Exists(file))
-            {
-                JsonCharacterHandler characterHandler = new JsonCharacterHandler();
-
-                characterHandler.GetLastSavedCharacter();
-
-                for (int i = 0; i < CharacterNameComboBox.Items.Count; i++)
-                {
-                    if (characterHandler.GetLastSavedCharacter() == CharacterNameComboBox.Items[i].ToString())
-                    {
-                        CharacterNameComboBox.SelectedIndex = i;
-                    }
-                }
-            }
-        }
-
-        public async void PreLaunchChecks()
-        {
-            CharacterSelectGrid.Visibility = Visibility.Collapsed;
-            bool locationSelected = false;
-            bool configValidated = false;
-            bool gameValidated = false;
-            bool serverPathValidated = false;
-
-            // Ensure config exists
-            if (!File.Exists(Path.Join(Directory.GetCurrentDirectory(), "config.json")))
-            {
-                locationSelected = true;
-                gameValidated = ValidateGamePath(SelectSWGLocation());
-            }
-            // If it exists, validate it
-            else
-            {
-                configValidated = GameSetupHandler.ValidateJsonFile("config.json");
-
-                // If config is validated and keys exist, get the swg location
-                if (configValidated)
-                {
-                    JObject json = new JObject();
-                    try
-                    {
-                        json = JObject.Parse(File.ReadAllText(Path.Join(Directory.GetCurrentDirectory(), "config.json")));
-                    }
-                    catch
-                    {
-                        MessageBox.Show("Error getting JSON data, please report this to staff!", "JSON Error");
-                    }
-
-                    JToken location;
-
-                    if (json.TryGetValue("SWGLocation", out location))
-                    {
-                        if (locationSelected)
-                        {
-                            // Validate the game path
-                            gameValidated = ValidateGamePath(location.ToString(), true, true);
-                        }
-                        // If not validated and location hasn't been selected yet, give the user that option
-                        else
-                        {
-                            gameValidated = ValidateGamePath(location.ToString(), false, true);
-                        }
-                    }
-                }
-                // If not validated, select swg location and validate game path
-                else
-                {
-                    gameValidated = ValidateGamePath(SelectSWGLocation());
-                }
-            }
-
-            if (configValidated && gameValidated)
-            {
-                serverPathValidated = ValidateServerPath();
-
-                if (!serverPathValidated)
-                {
-                    Setup setupForm = new Setup(_gamePath, configValidated, ServerProperties.ServerName);
-                    setupForm.ShowDialog();
-                }
-            }
-
-            if (configValidated && gameValidated && serverPathValidated)
-            {
-                await GameSetupHandler.CheckFilesAsync(_serverPath);
-            }
+            OnProceedToLogin += ProceedToLogin;
         }
 
         bool ValidateServerPath()
@@ -156,6 +61,7 @@ namespace LauncherApp
                 _serverPath = path;
                 return true;
             }
+
             return false;
         }
 
@@ -167,8 +73,7 @@ namespace LauncherApp
             {
                 if (looped)
                 {
-                    Setup setupForm = new Setup(_gamePath, configValidated, ServerProperties.ServerName);
-                    setupForm.ShowDialog();
+                    SetupGrid.Visibility = Visibility.Visible;
                 }
                 _gamePath = location;
                 return true;
@@ -176,8 +81,6 @@ namespace LauncherApp
 
             if (_gamePathValidated)
             {
-                Setup setupForm = new Setup(_gamePath, configValidated, ServerProperties.ServerName);
-                setupForm.ShowDialog();
                 return true;
             }
             else
@@ -191,7 +94,6 @@ namespace LauncherApp
                 else
                 {
                     MessageBox.Show("Invalid SWG installation location, please ensure the path is correct, then try again.", "Invalid SWG Location");
-                    this.Close();
                 }
             }
 
@@ -285,13 +187,13 @@ namespace LauncherApp
             
             if (selectedValue != "System.Windows.Controls.ComboBoxItem: None")
             {
-                await _appHandler.StartGameAsync(gameOptions, _serverPath, gamePassword, loginProperties.Username, selectedValue, true);
+                await _appHandler.StartGameAsync(gameOptions, _serverPath, _gamePassword, _loginProperties.Username, selectedValue, true);
                 JsonCharacterHandler characterHandler = new JsonCharacterHandler();
                 characterHandler.SaveCharacter(selectedValue);
             }
             else
             {
-                await _appHandler.StartGameAsync(gameOptions, _serverPath, gamePassword, loginProperties.Username);
+                await _appHandler.StartGameAsync(gameOptions, _serverPath, _gamePassword, _loginProperties.Username);
             }
 
             PlayButton.IsEnabled = true;
@@ -314,8 +216,8 @@ namespace LauncherApp
             _audioHandler.PlayClickSound();
             // _appHandler.StartGameConfig(_serverPath);
 
-            Settings settings = new Settings(this);
-            settings.Show();
+            // Settings settings = new Settings(this);
+            // settings.Show();
         }
 
         async void FullScanButton_Click(object sender, RoutedEventArgs e)
@@ -336,12 +238,12 @@ namespace LauncherApp
             {
                 if (_currentFileStatus == 0)
                 {
-                    _currentFileStatus = 0.01;
+                    _currentFileStatus = 1;
                 }
 
                 if (_totalFileStatus == 0)
                 {
-                    _totalFileStatus = 0.01;
+                    _totalFileStatus = 1;
                 }
 
                 double status = (_currentFileStatus / _totalFileStatus) * 100;
@@ -365,12 +267,12 @@ namespace LauncherApp
             {
                 if (current == 0)
                 {
-                    current = 0.01;
+                    current = 1;
                 }
 
                 if (total == 0)
                 {
-                    total = 0.01;
+                    total = 1;
                 }
 
                 double status = (current / total) * 100;
@@ -417,7 +319,7 @@ namespace LauncherApp
             SettingsButton.IsEnabled = true;
         }
 
-        private void Window_KeyDown(object sender, KeyEventArgs e)
+        private async void Window_KeyDown(object sender, KeyEventArgs e)
         {
             if (Keyboard.IsKeyDown(Key.LeftCtrl) &&
                 Keyboard.IsKeyDown(Key.LeftShift) &&
@@ -437,8 +339,251 @@ namespace LauncherApp
                     generateFromFolder = dialog.SelectedPath.Replace("\\", "/");
                 }
 
-                ManifestGenerator.GenerateManifestAsync(generateFromFolder);
+                await ManifestGenerator.GenerateManifestAsync(generateFromFolder);
             }
+        }
+
+        void Window_Activated(object sender, EventArgs e)
+        {
+            PreLaunchChecks();
+        }
+
+        async void ProceedToLogin()
+        {
+            PrimaryGrid.Visibility = Visibility.Collapsed;
+            SetupGrid.Visibility = Visibility.Collapsed;
+            LoginGrid.Visibility = Visibility.Visible;
+
+            bool loggedIn = await CheckAutoLogin();
+
+            if (loggedIn)
+            {
+                await PreparePrimaryGrid();
+            }
+        }
+
+        async Task PreparePrimaryGrid()
+        {
+            GetCharacters();
+            LoginGrid.Visibility = Visibility.Collapsed;
+            PrimaryGrid.Visibility = Visibility.Visible;
+            ProgressGrid.Visibility = Visibility.Visible;
+            await GameSetupHandler.CheckFilesAsync(_serverPath);
+        }
+
+        async void PreLaunchChecks()
+        {
+            CharacterSelectGrid.Visibility = Visibility.Collapsed;
+            bool locationSelected = false;
+            bool configValidated = false;
+            bool gameValidated = false;
+            bool serverPathValidated = false;
+
+            // Ensure config exists
+            if (!File.Exists(Path.Join(Directory.GetCurrentDirectory(), "config.json")))
+            {
+                SetupGrid.Visibility = Visibility.Visible;
+                locationSelected = true;
+                gameValidated = ValidateGamePath(SelectSWGLocation());
+            }
+            // If it exists, validate it
+            else
+            {
+                configValidated = GameSetupHandler.ValidateJsonFile("config.json");
+
+                _configValidated = configValidated;
+
+                // If config is validated and keys exist, get the swg location
+                if (configValidated)
+                {
+                    JObject json = new JObject();
+                    try
+                    {
+                        json = JObject.Parse(File.ReadAllText(Path.Join(Directory.GetCurrentDirectory(), "config.json")));
+                    }
+                    catch
+                    {
+                        MessageBox.Show("Error getting JSON data, please report this to staff!", "JSON Error");
+                    }
+
+                    JToken location;
+
+                    if (json.TryGetValue("SWGLocation", out location))
+                    {
+                        
+                        if (locationSelected)
+                        {
+                            // Validate the game path
+                            gameValidated = ValidateGamePath(location.ToString(), true, true);
+                        }
+                        // If not validated and location hasn't been selected yet, give the user that option
+                        else
+                        {
+                            gameValidated = ValidateGamePath(location.ToString(), false, true);
+                        }
+                    }
+                }
+                // If not validated, select swg location and validate game path
+                else
+                {
+                    SetupGrid.Visibility = Visibility.Visible;
+                    gameValidated = ValidateGamePath(SelectSWGLocation());
+                }
+            }
+
+            if (configValidated && gameValidated)
+            {
+                serverPathValidated = ValidateServerPath();
+
+                if (!serverPathValidated)
+                {
+                    SetupGrid.Visibility = Visibility.Visible;
+                }
+            }
+
+            if (configValidated && gameValidated && serverPathValidated)
+            {
+                JsonConfigHandler config = new JsonConfigHandler();
+                string serverLocation = config.GetServerLocation();
+                await config.ConfigureLocationsAsync(serverLocation, _configValidated, _gamePath);
+                SetupGrid.Visibility = Visibility.Collapsed;
+                PrimaryGrid.Visibility = Visibility.Visible;
+                OnProceedToLogin?.Invoke();
+            }
+        }
+
+        void GetCharacters()
+        {
+            if (_loginProperties.Characters != null)
+            {
+                foreach (string character in _loginProperties.Characters)
+                {
+                    CharacterNameComboBox.Items.Add(character);
+                }
+            }
+
+            string file = Path.Join(Directory.GetCurrentDirectory(), "character.json");
+
+            if (File.Exists(file))
+            {
+                JsonCharacterHandler characterHandler = new JsonCharacterHandler();
+
+                characterHandler.GetLastSavedCharacter();
+
+                for (int i = 0; i < CharacterNameComboBox.Items.Count; i++)
+                {
+                    if (characterHandler.GetLastSavedCharacter() == CharacterNameComboBox.Items[i].ToString())
+                    {
+                        CharacterNameComboBox.SelectedIndex = i;
+                    }
+                }
+            }
+        }
+
+        async Task<bool> CheckAutoLogin()
+        {
+            JsonAccountHandler accountHandler = new JsonAccountHandler();
+            AccountProperties account = accountHandler.GetAccountCredentials();
+            JsonConfigHandler configHandler = new JsonConfigHandler();
+
+            if (GameSetupHandler.ValidateJsonFile("account.json"))
+            {
+                if (configHandler.CheckAutoLoginEnabled())
+                {
+                    if (account != null)
+                    {
+                        if (account.Username != "" && account.Password != "")
+                        {
+                            ApiHandler apiHandler = new ApiHandler();
+
+                            LoginProperties loginProperties = await apiHandler.AccountLoginAsync(ServerProperties.ApiUrl, account.Username, account.Password);
+
+                            _loginProperties = loginProperties;
+                            _gamePassword = account.Password;
+
+                            switch (loginProperties.Result)
+                            {
+                                case "Success": return true;
+                                case "ServerDown": ResultText.Text = "API server down!"; break;
+                                case "InvalidCredentials": ResultText.Text = "Invalid username or password!"; break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        async void LoginButton_Click(object sender, RoutedEventArgs e)
+        {
+            ApiHandler apiHandler = new ApiHandler();
+            JsonAccountHandler accountHandler = new JsonAccountHandler();
+
+            LoginProperties loginProperties = await apiHandler.AccountLoginAsync(ServerProperties.ApiUrl, UsernameTextbox.Text, PasswordTextbox.Password.ToString());
+
+            _loginProperties = loginProperties;
+            _gamePassword = PasswordTextbox.Password.ToString();
+
+            if ((bool)AutoLoginCheckbox.IsChecked && loginProperties.Result == "Success")
+            {
+                JsonConfigHandler config = new JsonConfigHandler();
+                await config.EnableAutoLoginAsync();
+                await accountHandler.SaveCredentials(UsernameTextbox.Text, PasswordTextbox.Password.ToString());
+            }
+
+            switch (loginProperties.Result)
+            {
+                case "Success": await PreparePrimaryGrid(); break;
+                case "ServerDown": ResultText.Text = "API server down!"; break;
+                case "InvalidCredentials": ResultText.Text = "Invalid username or password!"; break;
+            }
+        }
+
+        private async void EasySetupButton_Click(object sender, RoutedEventArgs e)
+        {
+            JsonConfigHandler config = new JsonConfigHandler();
+            await config.ConfigureLocationsAsync($"C:/{ServerProperties.ServerName}", _configValidated, _gamePath);
+            PreLaunchChecks();
+        }
+
+        private void AdvancedSetupButton_Click(object sender, RoutedEventArgs e)
+        {
+            EasySetupButton.Visibility = Visibility.Collapsed;
+            EasySetupText.Visibility = Visibility.Collapsed;
+            EasySetupDescription.Visibility = Visibility.Collapsed;
+            EasySetupCaption.Visibility = Visibility.Collapsed;
+            AdvancedSetupButton.Visibility = Visibility.Collapsed;
+            AdvancedSetupText.Visibility = Visibility.Collapsed;
+            AdvancedSetupDescription.Visibility = Visibility.Collapsed;
+            AdvancedSetupCaption.Visibility = Visibility.Collapsed;
+            SelectDirectoryButton.Visibility = Visibility.Visible;
+            SelectDirectoryDescription.Visibility = Visibility.Visible;
+            SelectDirectoryText.Visibility = Visibility.Visible;
+            SelectDirectoryTextbox.Visibility = Visibility.Visible;
+            OkayDirectoryButton.Visibility = Visibility.Visible;
+        }
+
+        private void SelectDirectoryButton_Click(object sender, RoutedEventArgs e)
+        {
+            using var dialog = new System.Windows.Forms.FolderBrowserDialog();
+            System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+
+            if (result.ToString().Trim() == "Cancel")
+            {
+                this.Close();
+            }
+            else if (result.ToString().Trim() == "OK")
+            {
+                SelectDirectoryTextbox.Text = dialog.SelectedPath.Replace("\\", "/");
+            }
+        }
+
+        private async void OkayDirectoryButton_Click(object sender, RoutedEventArgs e)
+        {
+            JsonConfigHandler config = new JsonConfigHandler();
+            await config.ConfigureLocationsAsync(SelectDirectoryTextbox.Text, _configValidated, _gamePath);
+            PreLaunchChecks();
         }
     }
 }

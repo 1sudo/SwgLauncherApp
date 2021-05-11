@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:LauncherApp" xmlns:wpf="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
         x:Class="LauncherApp.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="610" Width="1130" WindowStyle="None" MouseDown="Window_MouseDown" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+        Title="MainWindow" Height="610" Width="1130" WindowStyle="None" MouseDown="Window_MouseDown" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Activated="Window_Activated">
     <Window.Resources>
 
         <Style x:Key="NavButton" TargetType="{x:Type Button}">
@@ -261,6 +261,81 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+
+        <!-- Temp Setup Styles -->
+        <Style x:Key="FocusVisual">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Rectangle Margin="2" StrokeDashArray="1 2" SnapsToDevicePixels="true" StrokeThickness="1" Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <SolidColorBrush x:Key="Button.Static.Background" Color="#FFDDDDDD"/>
+        <SolidColorBrush x:Key="Button.Static.Border" Color="#FF707070"/>
+        <SolidColorBrush x:Key="Button.MouseOver.Background" Color="#FFBEE6FD"/>
+        <SolidColorBrush x:Key="Button.MouseOver.Border" Color="#FF3C7FB1"/>
+        <SolidColorBrush x:Key="Button.Pressed.Background" Color="#FFC4E5F6"/>
+        <SolidColorBrush x:Key="Button.Pressed.Border" Color="#FF2C628B"/>
+        <SolidColorBrush x:Key="Button.Disabled.Background" Color="#FFB4B4B4"/>
+        <SolidColorBrush x:Key="Button.Disabled.Border" Color="#FFB4B4B4"/>
+        <SolidColorBrush x:Key="Button.Disabled.Foreground" Color="#FF686868"/>
+        <Style x:Key="RoundedButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+            <Setter Property="Background" Value="{StaticResource Button.Static.Background}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Button.Static.Border}"/>
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" CornerRadius="4" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="true">
+                            <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsDefaulted" Value="true">
+                                <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="#0064a1"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="#0064a1"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource Button.Pressed.Background}"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.Pressed.Border}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource Button.Disabled.Background}"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.Disabled.Border}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="{StaticResource Button.Disabled.Foreground}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="setupImage" TargetType="{x:Type Image}">
+            <Setter Property="Source" Value="/images/setup.png" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="true">
+                    <Setter Property="Source" Value="/images/setup-active.png" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="setupAdvancedImage" TargetType="{x:Type Image}">
+            <Setter Property="Source" Value="/images/setup-advanced.png" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="true">
+                    <Setter Property="Source" Value="/images/setup-advanced-active.png" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -269,6 +344,7 @@
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="18"/>
+            <RowDefinition Height="120"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="36"/>
         </Grid.RowDefinitions>
@@ -279,6 +355,7 @@
             <ColumnDefinition Width="36" />
         </Grid.ColumnDefinitions>
 
+        <!-- Title Bar -->
         <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Grid.ColumnSpan="4">
             <Grid.Background>
                 <LinearGradientBrush EndPoint="1,0" StartPoint="0,0">
@@ -299,29 +376,155 @@
             </Button>
         </Grid>
 
+        <!-- Logo Background -->
         <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" Grid.ColumnSpan="2147483647" Grid.RowSpan="2147483647" IsHitTestVisible="false">
             <Grid.Background>
                 <ImageBrush ImageSource="/Images/sidebar/swg-legacy-launcher-logo-bg.png" AlignmentX="Left" AlignmentY="Top" Stretch="None"/>
             </Grid.Background>
         </Grid>
 
+        <!-- Logo -->
         <Grid Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="48" />
-            </Grid.RowDefinitions>
+            <Image Source="/Images/sidebar/swg-legacy-launcher-logo.png" Stretch="None" VerticalAlignment="Center"/>
+        </Grid>
 
-            <Image Source="/Images/sidebar/swg-legacy-launcher-logo.png" Stretch="None" VerticalAlignment="Top" Margin="0,18,0,18"/>
+        <!-- Primary Screen -->
+        <Grid x:Name="PrimaryGrid" Grid.ColumnSpan="2" Grid.Row="2" Grid.Column="1" Visibility="Hidden">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="224" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-            <Grid Grid.Row="1" HorizontalAlignment="Stretch">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="74" />
-                </Grid.RowDefinitions>
-
-                <Grid Grid.Row="0" HorizontalAlignment="Stretch" Margin="0,30,0,22">
+            <!-- Main Sidebar -->
+            <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch">
+                <Grid Grid.Row="1" HorizontalAlignment="Stretch">
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="74" />
+                        <RowDefinition Height="48" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" HorizontalAlignment="Stretch" Margin="0,18,0,22">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Content="Vote" Grid.Row="0" Grid.Column="0" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="VoteButton_Click">
+                            <Button.Background>
+                                <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/vote.png"/>
+                            </Button.Background>
+                        </Button>
+                        <Button Content="Donate" Grid.Row="1" Grid.Column="0" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="DonateButton_Click">
+                            <Button.Background>
+                                <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/paypal.png"/>
+                            </Button.Background>
+                        </Button>
+                        <Button Content="Resources" Grid.Row="2" Grid.Column="0" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="ResourcesButton_Click">
+                            <Button.Background>
+                                <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/resources.png"/>
+                            </Button.Background>
+                        </Button>
+                        <Button Content="Bug Report" Grid.Row="3" Grid.Column="0" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="MantisButton_Click">
+                            <Button.Background>
+                                <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/bug-report.png"/>
+                            </Button.Background>
+                        </Button>
+                        <Button Content="Skill Planner" Grid.Row="4" Grid.Column="0" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="SkillplannerButton_Click">
+                            <Button.Background>
+                                <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/skill-planner.png"/>
+                            </Button.Background>
+                        </Button>
+                        <Button x:Name="SettingsButton" Content="Settings" Grid.Row="5" Grid.Column="0" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="SettingsButton_Click">
+                            <Button.Background>
+                                <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/settings.png"/>
+                            </Button.Background>
+                        </Button>
+                    </Grid>
+
+                    <Grid x:Name="ProgressGrid" Grid.Row="1" HorizontalAlignment="Stretch" Margin="0,0,0,18" Visibility="Collapsed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock x:Name="DownloadProgressText" TextWrapping="Wrap" HorizontalAlignment="Left" FontFamily="Bahnschrift SemiBold" Foreground="#FFCBD4DD" Grid.Row="0" VerticalAlignment="Bottom" FontSize="10"/>
+                        <TextBlock x:Name="DownloadProgressTextRight" TextWrapping="Wrap" HorizontalAlignment="Right" FontFamily="Bahnschrift SemiBold" Foreground="White" Grid.Row="0" VerticalAlignment="Bottom" FontSize="10"/>
+                        <ProgressBar x:Name="DownloadProgress" Style="{DynamicResource RoundedProgressBar}" Grid.Row="1"/>
+                        <TextBlock x:Name="DownloadProgressText2" TextWrapping="Wrap" HorizontalAlignment="Left" FontFamily="Bahnschrift SemiCondensed" Foreground="#FFCBD4DD" Grid.Row="2" FontSize="10" VerticalAlignment="Bottom"/>
+                        <TextBlock x:Name="DownloadProgressTextRight2" TextWrapping="Wrap" HorizontalAlignment="Right" FontFamily="Bahnschrift SemiBold" Foreground="White" Grid.Row="2" VerticalAlignment="Bottom" FontSize="10"/>
+                        <ProgressBar x:Name="DownloadProgress2" Style="{DynamicResource RoundedProgressBar}" Grid.Row="3"/>
+                    </Grid>
+
+                    <Grid x:Name="CharacterSelectGrid" Grid.Row="1" HorizontalAlignment="Stretch" Margin="0,0,0,18" >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Character Select" TextWrapping="Wrap" HorizontalAlignment="Left" FontFamily="Bahnschrift SemiBold" Foreground="White" Grid.Row="0" VerticalAlignment="Bottom"/>
+                        <ComboBox x:Name="CharacterNameComboBox" Style="{DynamicResource ComboBoxTransparent}" Grid.Row="1" Height="28" VerticalAlignment="Center" SelectedIndex="0" FontFamily="Bahnschrift" Foreground="#99F1F8FF" >
+                            <ComboBoxItem Content="None"/>
+                        </ComboBox>
+                    </Grid>
+
+                    <Button x:Name="PlayButton" Style="{DynamicResource NavButton}" Content="Play" VerticalAlignment="Bottom" Grid.Row="2" FontFamily="Bahnschrift SemiBold" FontSize="22" Padding="0,10,1,10" Click="PlayButton_Click" />
+                </Grid>
+            </Grid>
+
+            <!-- Main Window -->
+            <Grid Grid.Row="2" Grid.Column="2" HorizontalAlignment="Stretch" Margin="18,18,0,0">
+                <!-- Settings -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="auto" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
                         <RowDefinition Height="auto" />
                         <RowDefinition Height="auto" />
                         <RowDefinition Height="auto" />
@@ -330,76 +533,199 @@
                         <RowDefinition Height="auto" />
                     </Grid.RowDefinitions>
 
+                    <ComboBox x:Name="ResolutionBox" Grid.Column="0" Grid.Row="0" SelectedIndex="1" />
+                    <ComboBox x:Name="ShaderBox" Grid.Column="0" Grid.Row="1" SelectedIndex="0">
+                        <ComboBoxItem Content="Optimal" />
+                        <ComboBoxItem Content="2.0 (Override)" />
+                        <ComboBoxItem Content="1.4 (Override)" />
+                        <ComboBoxItem Content="1.1 (Override)" />
+                        <ComboBoxItem Content="Disabled" />
+                    </ComboBox>
+                    <CheckBox x:Name="WindowModeCheckbox" Grid.Column="0" Grid.Row="2" Content="Window Mode" />
+                    <CheckBox x:Name="BorderlessWindowCheckbox" Grid.Column="0" Grid.Row="3" Content="Borderless Window" />
+                    <CheckBox x:Name="DisableBumpMappingCheckbox" Grid.Column="0" Grid.Row="4" Content="Disable Bump Mapping" />
+                    <CheckBox x:Name="DisableHardwareMouseCheckbox" Grid.Column="0" Grid.Row="5" Content="Disable Hardware Mouse Cursor" />
+                    <CheckBox x:Name="LowDetailTexturesCheckbox" Grid.Column="0" Grid.Row="6" Content="Use Low Detail Textures" />
+                    <CheckBox x:Name="LowDetailNormalsCheckbox" Grid.Column="0" Grid.Row="7" Content="Use Low Detail Normal Maps" />
+                    <CheckBox x:Name="DisableMultiPassRenderingCheckbox" Grid.Column="0" Grid.Row="8" Content="Disable Multi-Pass Rendering" />
+                    <CheckBox x:Name="DisableVsyncCheckbox" Grid.Column="0" Grid.Row="9" Content="Disable Vsync (Allow Tearing)" />
+                    <CheckBox x:Name="DisableFastMouseCheckbox" Grid.Column="0" Grid.Row="10" Content="Disable Fast Mouse Cursor" />
+                    <CheckBox x:Name="UseSafeRendererCheckbox" Grid.Column="0" Grid.Row="11" Content="Use Safe Renderer (Slower)" />
+                    <CheckBox x:Name="DisableAudioCheckbox" Grid.Column="0" Grid.Row="12" Content="Disable Audio" />
+                    <CheckBox x:Name="SkipIntroCheckbox" Grid.Column="0" Grid.Row="13" Content="Skip Intro Sequence" />
+                    <CheckBox x:Name="DisableLODManagerCheckbox" Grid.Column="0" Grid.Row="14" Content="Disable Character System Level of Detail Manager" />
+                    <CheckBox x:Name="DisableWorldPreloadingCheckbox" Grid.Column="0" Grid.Row="15" Content="Disable World Preloading" />
+                    <CheckBox x:Name="LowDetailCharactersCheckbox" Grid.Column="0" Grid.Row="16" Content="Use Low Detail Characters" />
+                    <CheckBox x:Name="LowDetailMeshesCheckbox" Grid.Column="0" Grid.Row="17" Content="Use Low Detail Meshes" />
+                    <CheckBox x:Name="DisableTextureBakingCheckbox" Grid.Column="0" Grid.Row="18" Content="Disable Texture Baking" />
+                    <CheckBox x:Name="DisableFileCachingCheckbox" Grid.Column="0" Grid.Row="19" Content="Disable File Caching" />
+                    <CheckBox x:Name="DisableAsyncLoaderCheckbox" Grid.Column="0" Grid.Row="20" Content="Disable Asynchronous Loader" />
+                    <!--<Button x:Name="SubmitButton" Grid.Column="0" Grid.Row="21" Click="SubmitButton_Click">Submit</Button>-->
+                </Grid>
+            </Grid>
+
+        </Grid>
+
+        <!-- Login -->
+        <Grid x:Name="LoginGrid" Grid.ColumnSpan="2" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" Visibility="Collapsed">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="224" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Login Sidebar -->
+            <Grid Grid.Column="0">
+                <TextBlock TextWrapping="Wrap" Foreground="#FFCBD4DD" FontFamily="Bahnschrift Light">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer commodo fringilla mi. Proin tristique dignissim venenatis. Suspendisse eget nulla placerat, semper arcu non, maximus justo.</TextBlock>
+            </Grid>
+
+            <!-- Login Window -->
+            <Grid Grid.Column="1" Margin="18,18,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock x:Name="AccountLoginText" Grid.Column="1" Grid.Row="1" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    ACCOUNT LOGIN
+                </TextBlock>
+
+                <TextBlock x:Name="ResultText" Grid.Column="1" Grid.Row="2" Foreground="Red" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="10">
+
+                </TextBlock>
+
+                <TextBlock x:Name="UsernameText" Grid.Column="1" Grid.Row="3" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    Username:
+                </TextBlock>
+
+                <TextBox x:Name="UsernameTextbox" Grid.Column="1" Grid.Row="3" Width="145" HorizontalAlignment="Right" TabIndex="1"></TextBox>
+
+                <TextBlock x:Name="PasswordText" Grid.Column="1" Grid.Row="5" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    Password:
+                </TextBlock>
+
+                <CheckBox x:Name="AutoLoginCheckbox" Grid.Column="1" Grid.Row="6" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center" TabIndex="3">Remember Password</CheckBox>
+
+                <PasswordBox x:Name="PasswordTextbox" Grid.Column="1" Grid.Row="5" Width="145" HorizontalAlignment="Right" TabIndex="2"></PasswordBox>
+
+                <Button x:Name="LoginButton" Grid.Column="1" Grid.Row="7" Width="150" Height="20" Background="#FF006FB2" Foreground="White" Click="LoginButton_Click" TabIndex="4">Login</Button>
+            </Grid>
+        </Grid>
+
+        <!-- Setup -->
+        <Grid x:Name="SetupGrid" Grid.ColumnSpan="2" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" Visibility="Collapsed">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="224" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Setup Sidebar -->
+            <Grid Grid.Column="0">
+                <TextBlock TextWrapping="Wrap" Foreground="#FFCBD4DD" FontFamily="Bahnschrift Light">Aliquam faucibus, libero ut luctus auctor, diam turpis pretium elit, vitae tincidunt nibh ligula vitae enim. Nullam lobortis neque sed nisl efficitur molestie. Maecenas sodales neque ut neque dignissim lobortis.</TextBlock>
+            </Grid>
+
+            <!-- Setup Window -->
+            <Grid Grid.Column="1" Margin="18,18,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="20" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="20" />
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="20" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="1" Grid.Column="1" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="Bahnschrift SemiBold Condensed" FontWeight="Bold" FontSize="16">
+                    GAME SETUP
+                </TextBlock>
+
+                <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
-                    <Button Content="Vote" Grid.Row="0" Grid.Column="0" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="VoteButton_Click">
-                        <Button.Background>
-                            <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/vote.png"/>
-                        </Button.Background>
-                    </Button>
-                    <Button Content="Donate" Grid.Row="1" Grid.Column="0" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="DonateButton_Click">
-                        <Button.Background>
-                            <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/paypal.png"/>
-                        </Button.Background>
-                    </Button>
-                    <Button Content="Resources" Grid.Row="2" Grid.Column="0" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="ResourcesButton_Click">
-                        <Button.Background>
-                            <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/resources.png"/>
-                        </Button.Background>
-                    </Button>
-                    <Button Content="Bug Report" Grid.Row="3" Grid.Column="0" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="MantisButton_Click">
-                        <Button.Background>
-                            <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/bug-report.png"/>
-                        </Button.Background>
-                    </Button>
-                    <Button Content="Skill Planner" Grid.Row="4" Grid.Column="0" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="SkillplannerButton_Click">
-                        <Button.Background>
-                            <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/skill-planner.png"/>
-                        </Button.Background>
-                    </Button>
-                    <Button x:Name="SettingsButton" Content="Settings" Grid.Row="5" Grid.Column="0" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="SettingsButton_Click">
-                        <Button.Background>
-                            <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/settings.png"/>
-                        </Button.Background>
-                    </Button>
-
-                </Grid>
-
-                <Grid x:Name="ProgressGrid" Grid.Row="1" HorizontalAlignment="Stretch" Margin="0,0,0,18" Visibility="Collapsed">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="70" />
                     </Grid.RowDefinitions>
 
-                    <TextBlock x:Name="DownloadProgressText" Text="Files Downloaded" TextWrapping="Wrap" HorizontalAlignment="Left" FontFamily="Bahnschrift SemiBold" Foreground="#FFCBD4DD" Grid.Row="0" VerticalAlignment="Bottom" FontSize="10"/>
-                    <TextBlock x:Name="DownloadProgressTextRight" Text="(0/99)" TextWrapping="Wrap" HorizontalAlignment="Right" FontFamily="Bahnschrift SemiBold" Foreground="White" Grid.Row="0" VerticalAlignment="Bottom" FontSize="10"/>
-                    <ProgressBar x:Name="DownloadProgress" Style="{DynamicResource RoundedProgressBar}" Grid.Row="1"/>
-                    <TextBlock x:Name="DownloadProgressText2" Text="mtg_patch_010_object_01.tre" TextWrapping="Wrap" HorizontalAlignment="Left" FontFamily="Bahnschrift SemiCondensed" Foreground="#FFCBD4DD" Grid.Row="2" FontSize="10" VerticalAlignment="Bottom"/>
-                    <TextBlock x:Name="DownloadProgressTextRight2" Text="0%" TextWrapping="Wrap" HorizontalAlignment="Right" FontFamily="Bahnschrift SemiBold" Foreground="White" Grid.Row="2" VerticalAlignment="Bottom" FontSize="10"/>
-                    <ProgressBar x:Name="DownloadProgress2" Style="{DynamicResource RoundedProgressBar}" Grid.Row="3"/>
+                    <TextBlock x:Name="SelectDirectoryText" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed">
+                        SELECT GAME DIRECTORY
+                    </TextBlock>
+
+                    <TextBlock x:Name="EasySetupText" Grid.Column="0" Grid.Row="0" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        EASY SETUP
+                    </TextBlock>
+
+                    <Button Style="{DynamicResource NavButton}" x:Name="EasySetupButton" Grid.Column="0" Grid.Row="1" Click="EasySetupButton_Click" Visibility="Visible">
+                        <Image Style="{DynamicResource setupImage}" />
+                    </Button>
+
+                    <TextBox x:Name="SelectDirectoryTextbox" IsReadOnly="True" Grid.Column="0" Grid.Row="1" Width="200" Height="35" Visibility="Collapsed"/>
+
+                    <TextBlock x:Name="AdvancedSetupText" Grid.Column="1" Grid.Row="0" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        ADVANCED SETUP
+                    </TextBlock>
+
+                    <Button Style="{DynamicResource NavButton}" x:Name="AdvancedSetupButton" Grid.Column="1" Grid.Row="1" Click="AdvancedSetupButton_Click" Visibility="Visible">
+                        <Image Style="{DynamicResource setupAdvancedImage}" />
+                    </Button>
+
+                    <Button x:Name="SelectDirectoryButton" Style="{DynamicResource RoundedButtonStyle}" Grid.Column="1" Grid.Row="1" Width="175" Height="35" Background="#FF006FB2" Foreground="White" FontFamily="Bahnschrift SemiBold Condensed" FontSize="16" HorizontalAlignment="Right" Visibility="Collapsed" Click="SelectDirectoryButton_Click">
+                        SELECT DIRECTORY
+                    </Button>
                 </Grid>
 
-                <Grid x:Name="CharacterSelectGrid" Grid.Row="2" HorizontalAlignment="Stretch" Margin="0,0,0,18" >
+                <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="20" />
+                        <RowDefinition Height="auto" />
                     </Grid.RowDefinitions>
 
-                    <TextBlock Text="Character Select" TextWrapping="Wrap" HorizontalAlignment="Left" FontFamily="Bahnschrift SemiBold" Foreground="White" Grid.Row="0" VerticalAlignment="Bottom"/>
-                    <ComboBox x:Name="CharacterNameComboBox" Style="{DynamicResource ComboBoxTransparent}" Grid.Row="1" Height="28" VerticalAlignment="Center" SelectedIndex="0" FontFamily="Bahnschrift" Foreground="#99F1F8FF" >
-                        <ComboBoxItem Content="None"/>
-                    </ComboBox>
-                </Grid>
+                    <TextBlock x:Name="EasySetupDescription" Grid.Column="0" Grid.Row="0" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="10,0,10,0" FontFamily="Bahnschrift SemiLight">
+                        The "Just Make It Work" option. This defaults the Darknaught installation to the "C" drive.
+                    </TextBlock>
 
+                    <TextBlock x:Name="EasySetupCaption" Grid.Column="0" Grid.Row="2" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="5,0,5,0" FontFamily="Bahnschrift SemiLight">
+                        Click the folder to select this option.
+                    </TextBlock>
+
+                    <TextBlock x:Name="AdvancedSetupDescription" Grid.Column="1" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="10,0,10,0" FontFamily="Bahnschrift SemiLight">
+                        The "Advanced" setup option. This option allows you to select the hard drive you wish to install Darknaught game files to.
+                    </TextBlock>
+
+                    <TextBlock x:Name="AdvancedSetupCaption" Grid.Column="1" Grid.Row="2" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="5,0,5,0" FontFamily="Bahnschrift SemiLight">
+                        Click the folder to select this option.
+                    </TextBlock>
+
+                    <TextBlock x:Name="SelectDirectoryDescription" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Height="57" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="5,0,5,0" FontFamily="Bahnschrift SemiLight" Visibility="Collapsed">
+                        Select the directory you wish for your new game files to be stored. This is normally in a directory such as (C:/ServerName).
+                    </TextBlock>
+
+                    <Button x:Name="OkayDirectoryButton" Style="{DynamicResource RoundedButtonStyle}" Grid.Column="0" Grid.Row="1" Grid.RowSpan="2" Grid.ColumnSpan="2" Width="175" Height="35" Background="#FF006FB2" Foreground="White" FontFamily="Bahnschrift SemiBold Condensed" FontSize="16" HorizontalAlignment="Center" Visibility="Collapsed" VerticalAlignment="Center" Click="OkayDirectoryButton_Click">
+                        CONTINUE
+                    </Button>
+                </Grid>
             </Grid>
-
-            <Button x:Name="PlayButton" Style="{DynamicResource NavButton}" Content="Play" VerticalAlignment="Bottom" Grid.Row="2" FontFamily="Bahnschrift SemiBold" FontSize="22" Padding="0,10,1,10" Click="PlayButton_Click" />
         </Grid>
-
     </Grid>
 
 </Window>

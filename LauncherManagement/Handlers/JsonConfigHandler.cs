@@ -77,7 +77,6 @@ namespace LauncherManagement
                     {
                         case "SWGLocation": property.Value = gamePath; break;
                         case "ServerLocation": property.Value = serverPath; break;
-                        case "AutoLogin": property.Value = true; break;
                     }
                 }
 
@@ -94,6 +93,26 @@ namespace LauncherManagement
             }
 
             Directory.CreateDirectory($"{ serverPath }");
+        }
+
+        public string GetServerLocation()
+        {
+            JObject json = new JObject();
+            try
+            {
+                json = JObject.Parse(File.ReadAllText(Path.Join(Directory.GetCurrentDirectory(), "config.json")));
+            }
+            catch
+            { }
+
+            JToken location;
+
+            if (json.TryGetValue("ServerLocation", out location))
+            {
+                return location.ToString();
+            }
+
+            return "";
         }
     }
 }
