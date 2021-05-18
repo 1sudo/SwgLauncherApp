@@ -16,7 +16,9 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="1"/>
+            <Setter Property="FontFamily" Value="Bahnschrift SemiBold"/>
+            <Setter Property="FontSize" Value="22"/>
+            <Setter Property="Padding" Value="0,10,1,10"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -37,8 +39,8 @@
                                 <Setter Property="BorderBrush" TargetName="border" Value="Transparent"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="false">
-                                <Setter Property="Background" TargetName="border" Value="#FF777777"/>
-                                <Setter Property="BorderBrush" TargetName="border" Value="Transparent"/>
+                                <Setter Property="Background" TargetName="border" Value="#FF0e2b44"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="#FF0c5897"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -185,6 +187,10 @@
         </Style>
 
         <Style x:Key="ComboBoxTransparent" TargetType="{x:Type ComboBox}">
+            <Setter Property="FontFamily" Value="Bahnschrift"/>
+            <Setter Property="Foreground" Value="#99F1F8FF"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Height" Value="28"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -273,6 +279,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
         <SolidColorBrush x:Key="Button.Static.Background" Color="#FFDDDDDD"/>
         <SolidColorBrush x:Key="Button.Static.Border" Color="#FF707070"/>
         <SolidColorBrush x:Key="Button.MouseOver.Background" Color="#FFBEE6FD"/>
@@ -336,9 +343,149 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+
+
+        <Style x:Key="TextBoxTransparent" TargetType="{x:Type TextBox}">
+            <Setter Property="Background" Value="#99082C49"/>
+            <Setter Property="BorderBrush" Value="#19000000"/>
+            <Setter Property="Foreground" Value="#FFFFFFFF"/>
+            <Setter Property="SelectionBrush" Value="#FF177CD1"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="8,4,8,4"/>
+            <Setter Property="Margin" Value="0,4,0,4"/>
+            <Setter Property="FontFamily" Value="Bahnschrift Light"/>
+            <Setter Property="Cursor" Value="IBeam"/>
+            <Setter Property="Height" Value="50"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="true">
+                    <Setter Property="BorderBrush" Value="#93177CD1"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Background" Value="#CC304455"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="TextBlockPlaceholder" TargetType="{x:Type TextBlock}">
+            <Setter Property="IsHitTestVisible" Value="False"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Foreground" Value="DarkGray"/>
+            <Setter Property="Margin" Value="10,0,0,0"/>
+            <Setter Property="FontFamily" Value="Bahnschrift Light"/>
+        </Style>
+
+        <Style x:Key="PasswordBoxTransparent" TargetType="{x:Type PasswordBox}">
+            <Setter Property="Background" Value="#99082C49"/>
+            <Setter Property="BorderBrush" Value="#19000000"/>
+            <Setter Property="Foreground" Value="#FFFFFFFF"/>
+            <Setter Property="SelectionBrush" Value="#FF177CD1"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="8,4,8,4"/>
+            <Setter Property="Margin" Value="0,4,0,4"/>
+            <Setter Property="FontFamily" Value="Bahnschrift Light"/>
+            <Setter Property="Cursor" Value="IBeam"/>
+        </Style>
+
+        <Style x:Key="CustomRadioBlock" TargetType="{x:Type Button}">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderBrush" Value="#19000000"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Margin" Value="12,12,12,12"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" CornerRadius="3" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="true">
+                            <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="#99082C49"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="BorderBrush" TargetName="border" Value="#CC5584AC"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Background" TargetName="border" Value="#FF777777"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="#40000000"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="HeaderText" TargetType="{x:Type TextBlock}">
+            <Setter Property="Foreground" Value="#FFFFFFFF"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="FontFamily" Value="Bahnschrift SemiBold Condensed"/>
+            <Setter Property="UseLayoutRounding" Value="True"/>
+        </Style>
+
+        <Style x:Key="MainWindowTitle" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource HeaderText}">
+            <Setter Property="FontSize" Value="24"/>
+        </Style>
+
+        <Style x:Key="h2" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource HeaderText}">
+            <Setter Property="FontSize" Value="20"/>
+        </Style>
+
+        <Style x:Key="h3" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource HeaderText}">
+            <Setter Property="FontSize" Value="16"/>
+        </Style>
+
+        <Style x:Key="{x:Type CheckBox}" TargetType="{x:Type CheckBox}">
+            <Setter Property="SnapsToDevicePixels" Value="true"/>
+            <Setter Property="Background" Value="#99082C49"/>
+            <Setter Property="BorderBrush" Value="#99082C49"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="0,2,0,2"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type CheckBox}">
+                        <BulletDecorator Background="Transparent">
+                            <BulletDecorator.Bullet>
+                                <Grid Width="18" Height="18">
+                                    <Border x:Name="Border" Background="#99082C49" BorderBrush="#FFD4DFE8" BorderThickness="2,2,2,2" CornerRadius="0"/>
+                                    <Path x:Name="CheckMark" Stroke="#FFD4DFE8" StrokeThickness="2" SnapsToDevicePixels="False" Data="M1.5000001,1.5833334 L9.7920001,9.6666667 M1.5420001,9.6666667 L9.7083333,1.5000001" Margin="3.5,3.5,3.5,3.5" ClipToBounds="False"/>
+                                </Grid>
+                            </BulletDecorator.Bullet>
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" RecognizesAccessKey="True"/>
+                        </BulletDecorator>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="false">
+                                <Setter Property="Visibility" Value="Collapsed" TargetName="CheckMark"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="BorderBrush" Value="#CC5584AC" TargetName="Border"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Background" Value="#FF777777" TargetName="Border"/>
+                                <Setter Property="BorderBrush" Value="#40000000" TargetName="Border"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SettingsColumn" TargetType="{x:Type StackPanel}">
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+
     </Window.Resources>
 
     <Grid>
+
+        <!-- #region General -->
         <Grid.Background>
             <ImageBrush ImageSource="/Images/swg-legacy-launcher-bg.png" />
         </Grid.Background>
@@ -388,8 +535,10 @@
             <Image Source="/Images/sidebar/swg-legacy-launcher-logo.png" Stretch="None" VerticalAlignment="Center"/>
         </Grid>
 
+        <!-- #endregion -->
+
         <!-- Primary Screen -->
-        <Grid x:Name="PrimaryGrid" Grid.ColumnSpan="2" Grid.Row="2" Grid.Column="1" Visibility="Hidden">
+        <Grid x:Name="PrimaryGrid" Grid.ColumnSpan="2" Grid.Row="2" Grid.Column="1" Visibility="Visible">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="224" />
                 <ColumnDefinition Width="*" />
@@ -473,12 +622,12 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock Text="Character Select" TextWrapping="Wrap" HorizontalAlignment="Left" FontFamily="Bahnschrift SemiBold" Foreground="White" Grid.Row="0" VerticalAlignment="Bottom"/>
-                        <ComboBox x:Name="CharacterNameComboBox" Style="{DynamicResource ComboBoxTransparent}" Grid.Row="1" Height="28" VerticalAlignment="Center" SelectedIndex="0" FontFamily="Bahnschrift" Foreground="#99F1F8FF" >
+                        <ComboBox x:Name="CharacterNameComboBox" Style="{DynamicResource ComboBoxTransparent}" Grid.Row="1" SelectedIndex="0">
                             <ComboBoxItem Content="None"/>
                         </ComboBox>
                     </Grid>
 
-                    <Button x:Name="PlayButton" Style="{DynamicResource NavButton}" Content="Play" VerticalAlignment="Bottom" Grid.Row="2" FontFamily="Bahnschrift SemiBold" FontSize="22" Padding="0,10,1,10" Click="PlayButton_Click" />
+                    <Button x:Name="PlayButton" Style="{DynamicResource NavButton}" Content="Play" VerticalAlignment="Bottom" Grid.Row="2" Click="PlayButton_Click" />
                 </Grid>
             </Grid>
 
@@ -486,81 +635,132 @@
             <Grid Grid.Row="2" Grid.Column="2" HorizontalAlignment="Stretch" Margin="18,18,0,0">
                 <!-- Settings -->
                 <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto" />
-                        <ColumnDefinition Width="auto" />
-                        <ColumnDefinition Width="auto" />
-                        <ColumnDefinition Width="auto" />
-                        <ColumnDefinition Width="auto" />
-                        <ColumnDefinition Width="auto" />
-                        <ColumnDefinition Width="auto" />
-                        <ColumnDefinition Width="auto" />
-                    </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto" />
                         <RowDefinition Height="auto" />
                         <RowDefinition Height="auto" />
                         <RowDefinition Height="auto" />
                         <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <ComboBox x:Name="ResolutionBox" Grid.Column="0" Grid.Row="0" SelectedIndex="1" />
-                    <ComboBox x:Name="ShaderBox" Grid.Column="0" Grid.Row="1" SelectedIndex="0">
-                        <ComboBoxItem Content="Optimal" />
-                        <ComboBoxItem Content="2.0 (Override)" />
-                        <ComboBoxItem Content="1.4 (Override)" />
-                        <ComboBoxItem Content="1.1 (Override)" />
-                        <ComboBoxItem Content="Disabled" />
-                    </ComboBox>
-                    <CheckBox x:Name="WindowModeCheckbox" Grid.Column="0" Grid.Row="2" Content="Window Mode" />
-                    <CheckBox x:Name="BorderlessWindowCheckbox" Grid.Column="0" Grid.Row="3" Content="Borderless Window" />
-                    <CheckBox x:Name="DisableBumpMappingCheckbox" Grid.Column="0" Grid.Row="4" Content="Disable Bump Mapping" />
-                    <CheckBox x:Name="DisableHardwareMouseCheckbox" Grid.Column="0" Grid.Row="5" Content="Disable Hardware Mouse Cursor" />
-                    <CheckBox x:Name="LowDetailTexturesCheckbox" Grid.Column="0" Grid.Row="6" Content="Use Low Detail Textures" />
-                    <CheckBox x:Name="LowDetailNormalsCheckbox" Grid.Column="0" Grid.Row="7" Content="Use Low Detail Normal Maps" />
-                    <CheckBox x:Name="DisableMultiPassRenderingCheckbox" Grid.Column="0" Grid.Row="8" Content="Disable Multi-Pass Rendering" />
-                    <CheckBox x:Name="DisableVsyncCheckbox" Grid.Column="0" Grid.Row="9" Content="Disable Vsync (Allow Tearing)" />
-                    <CheckBox x:Name="DisableFastMouseCheckbox" Grid.Column="0" Grid.Row="10" Content="Disable Fast Mouse Cursor" />
-                    <CheckBox x:Name="UseSafeRendererCheckbox" Grid.Column="0" Grid.Row="11" Content="Use Safe Renderer (Slower)" />
-                    <CheckBox x:Name="DisableAudioCheckbox" Grid.Column="0" Grid.Row="12" Content="Disable Audio" />
-                    <CheckBox x:Name="SkipIntroCheckbox" Grid.Column="0" Grid.Row="13" Content="Skip Intro Sequence" />
-                    <CheckBox x:Name="DisableLODManagerCheckbox" Grid.Column="0" Grid.Row="14" Content="Disable Character System Level of Detail Manager" />
-                    <CheckBox x:Name="DisableWorldPreloadingCheckbox" Grid.Column="0" Grid.Row="15" Content="Disable World Preloading" />
-                    <CheckBox x:Name="LowDetailCharactersCheckbox" Grid.Column="0" Grid.Row="16" Content="Use Low Detail Characters" />
-                    <CheckBox x:Name="LowDetailMeshesCheckbox" Grid.Column="0" Grid.Row="17" Content="Use Low Detail Meshes" />
-                    <CheckBox x:Name="DisableTextureBakingCheckbox" Grid.Column="0" Grid.Row="18" Content="Disable Texture Baking" />
-                    <CheckBox x:Name="DisableFileCachingCheckbox" Grid.Column="0" Grid.Row="19" Content="Disable File Caching" />
-                    <CheckBox x:Name="DisableAsyncLoaderCheckbox" Grid.Column="0" Grid.Row="20" Content="Disable Asynchronous Loader" />
-                    <!--<Button x:Name="SubmitButton" Grid.Column="0" Grid.Row="21" Click="SubmitButton_Click">Submit</Button>-->
+                    <StackPanel Style="{DynamicResource SettingsColumn}" Grid.Row="0">
+                        <UniformGrid Columns="3">
+                            <StackPanel Margin="0,0,8,0">
+                                <TextBlock Style="{DynamicResource h3}">
+                                Game Resolution
+                                </TextBlock>
+                                <ComboBox x:Name="ResolutionBox" SelectedIndex="1" Style="{DynamicResource ComboBoxTransparent}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                                <TextBlock Style="{DynamicResource h3}">
+                                Shader
+                                </TextBlock>
+                                <ComboBox x:Name="ShaderBox" Grid.Column="0" Grid.Row="1" SelectedIndex="0" Style="{DynamicResource ComboBoxTransparent}">
+                                    <ComboBoxItem Content="Optimal" />
+                                    <ComboBoxItem Content="2.0 (Override)" />
+                                    <ComboBoxItem Content="1.4 (Override)" />
+                                    <ComboBoxItem Content="1.1 (Override)" />
+                                    <ComboBoxItem Content="Disabled" />
+                                </ComboBox>
+                            </StackPanel>
+                        </UniformGrid>
+                    </StackPanel>
+
+                    <StackPanel Style="{DynamicResource SettingsColumn}" Grid.Row="1">
+                        <TextBlock Style="{DynamicResource h3}">
+                            Display
+                        </TextBlock>
+                        <UniformGrid Columns="3">
+                            <CheckBox x:Name="WindowModeCheckbox">
+                                <TextBlock Margin="12,0,0,0">Window Mode</TextBlock>
+                            </CheckBox>
+                            <CheckBox x:Name="BorderlessWindowCheckbox">
+                                <TextBlock Margin="12,0,0,0">Borderless Window</TextBlock>
+                            </CheckBox>
+                            <CheckBox x:Name="DisableVsyncCheckbox">
+                                <TextBlock Margin="12,0,0,0">Disable Vsync (Allow Tearing)</TextBlock>
+                            </CheckBox>
+                        </UniformGrid>
+                    </StackPanel>
+
+                    <StackPanel Style="{DynamicResource SettingsColumn}" Grid.Row="2">
+                        <TextBlock Style="{DynamicResource h3}">
+                            General
+                        </TextBlock>
+                        <UniformGrid Columns="3">
+                            <CheckBox x:Name="SkipIntroCheckbox">
+                                <TextBlock Margin="12,0,0,0">Skip Intro Sequence</TextBlock>
+                            </CheckBox>
+                            <CheckBox x:Name="DisableAudioCheckbox">
+                                <TextBlock Margin="12,0,0,0">Disable Audio</TextBlock>
+                            </CheckBox>
+                        </UniformGrid>
+                    </StackPanel>
+
+                    <StackPanel Style="{DynamicResource SettingsColumn}" Grid.Row="3">
+                        <TextBlock Style="{DynamicResource h3}">
+                            Graphics
+                        </TextBlock>
+                        <UniformGrid Columns="3">
+                            <CheckBox x:Name="DisableLODManagerCheckbox">
+                                <TextBlock Margin="12,0,0,0">Disable Level of Detail Manager</TextBlock>
+                            </CheckBox>
+                            <CheckBox x:Name="DisableWorldPreloadingCheckbox">
+                                <TextBlock Margin="12,0,0,0">Disable World Preloading</TextBlock>
+                            </CheckBox>
+                            <CheckBox x:Name="LowDetailCharactersCheckbox">
+                                <TextBlock Margin="12,0,0,0">Use Low Detail Characters</TextBlock>
+                            </CheckBox>
+                            <CheckBox x:Name="LowDetailMeshesCheckbox">
+                                <TextBlock Margin="12,0,0,0">Use Low Detail Meshes</TextBlock>
+                            </CheckBox>
+                            <CheckBox x:Name="DisableTextureBakingCheckbox">
+                                <TextBlock Margin="12,0,0,0">Disable Texture Baking</TextBlock>
+                            </CheckBox>
+                            <CheckBox x:Name="DisableBumpMappingCheckbox">
+                                <TextBlock Margin="12,0,0,0">Disable Bump Mapping</TextBlock>
+                            </CheckBox>
+                            <CheckBox x:Name="LowDetailTexturesCheckbox">
+                                <TextBlock Margin="12,0,0,0">Use Low Detail Textures</TextBlock>
+                            </CheckBox>
+                            <CheckBox x:Name="LowDetailNormalsCheckbox">
+                                <TextBlock Margin="12,0,0,0">Use Low Detail Normal Maps</TextBlock>
+                            </CheckBox>
+                            <CheckBox x:Name="DisableMultiPassRenderingCheckbox">
+                                <TextBlock Margin="12,0,0,0">Disable Multi-Pass Rendering</TextBlock>
+                            </CheckBox>
+                        </UniformGrid>
+                    </StackPanel>
+
+                    <StackPanel Style="{DynamicResource SettingsColumn}" Grid.Row="4">
+                        <TextBlock Style="{DynamicResource h3}">
+                            Advanced
+                        </TextBlock>
+                        <UniformGrid Columns="3">
+                            <CheckBox x:Name="DisableHardwareMouseCheckbox">
+                                <TextBlock Margin="12,0,0,0">Disable Hardware Mouse Cursor</TextBlock>
+                            </CheckBox>
+                            <CheckBox x:Name="DisableFastMouseCheckbox">
+                                <TextBlock Margin="12,0,0,0">Disable Fast Mouse Cursor</TextBlock>
+                            </CheckBox>
+                            <CheckBox x:Name="UseSafeRendererCheckbox">
+                                <TextBlock Margin="12,0,0,0">Use Safe Renderer (Slower)</TextBlock>
+                            </CheckBox>
+                            <CheckBox x:Name="DisableFileCachingCheckbox">
+                                <TextBlock Margin="12,0,0,0">Disable File Caching</TextBlock>
+                            </CheckBox>
+                            <CheckBox x:Name="DisableAsyncLoaderCheckbox">
+                                <TextBlock Margin="12,0,0,0">Disable Asynchronous Loader</TextBlock>
+                            </CheckBox>
+                        </UniformGrid>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Grid.Row="5" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                        <Button x:Name="RevertButton" Style="{DynamicResource NavButton}" FontSize="14" Height="40" Margin="0,0,12,0" Padding="30,10,30,10">Revert</Button>
+                        <Button x:Name="SubmitButton" Style="{DynamicResource NavButton}" FontSize="14" Click="SubmitButton_Click" Height="40" Padding="30,10,30,10">Save Changes</Button>
+                    </StackPanel>
                 </Grid>
             </Grid>
 
@@ -574,45 +774,76 @@
             </Grid.ColumnDefinitions>
 
             <!-- Login Sidebar -->
-            <Grid Grid.Column="0">
-                <TextBlock TextWrapping="Wrap" Foreground="#FFCBD4DD" FontFamily="Bahnschrift Light">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer commodo fringilla mi. Proin tristique dignissim venenatis. Suspendisse eget nulla placerat, semper arcu non, maximus justo.</TextBlock>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="110" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                </Grid.RowDefinitions>
+
+                <TextBlock TextWrapping="Wrap" Foreground="#FFCBD4DD" FontFamily="Bahnschrift Light">
+                    Welcome to SWG Legacy.<LineBreak/><LineBreak/>Here is where I'm going to eventually write a whole bunch of bullshit about the server. It's going to be super cool sounding and make people want to click that log in button.
+                </TextBlock>
+
+                <Button x:Name="LoginHelp" Content="Support / Help" Grid.Row="2" Style="{DynamicResource SidebarButton}" Padding="0,2,0,2" HorizontalAlignment="Left" VerticalAlignment="Center"></Button>
+                <Button x:Name="LoginRules" Content="Rules &amp; Regulations" Grid.Row="3" Style="{DynamicResource SidebarButton}" Padding="0,2,0,2" HorizontalAlignment="Left" VerticalAlignment="Center"></Button>
             </Grid>
 
             <!-- Login Window -->
-            <Grid Grid.Column="1" Margin="18,18,0,0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-                <TextBlock x:Name="AccountLoginText" Grid.Column="1" Grid.Row="1" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    ACCOUNT LOGIN
-                </TextBlock>
+            <Grid Grid.Column="1" Margin="18,0,0,0">
+                <Grid MaxWidth="280" MaxHeight="280">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="18" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock x:Name="AccountLoginText" Grid.Row="0" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="20">
+                        ACCOUNT LOGIN
+                    </TextBlock>
 
-                <TextBlock x:Name="ResultText" Grid.Column="1" Grid.Row="2" Foreground="Red" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="10">
+                    <TextBlock x:Name="ResultText" Grid.Row="1" Foreground="#FFF32A2A" FontFamily="Bahnschrift" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14">
+                    </TextBlock>
 
-                </TextBlock>
+                    <TextBox Style="{DynamicResource TextBoxTransparent}" x:Name="UsernameTextbox" Grid.Column="1" Grid.Row="2" />
+                    <TextBlock Text="Username" Grid.Column="1" Grid.Row="2">
+                        <TextBlock.Style>
+                            <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TextBlockPlaceholder}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Text, ElementName=UsernameTextbox}" Value="">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
 
-                <TextBlock x:Name="UsernameText" Grid.Column="1" Grid.Row="3" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Left" VerticalAlignment="Center">
-                    Username:
-                </TextBlock>
 
-                <TextBox x:Name="UsernameTextbox" Grid.Column="1" Grid.Row="3" Width="145" HorizontalAlignment="Right" TabIndex="1"></TextBox>
+                    <!-- https://stackoverflow.com/questions/833943/watermark-hint-text-placeholder-textbox/836463#836463 -->
+                    <PasswordBox Style="{DynamicResource PasswordBoxTransparent}" x:Name="PasswordTextbox" Grid.Column="1" Grid.Row="3"/>
+                    <TextBlock Text="Password" Grid.Column="1" Grid.Row="3">
+                        <TextBlock.Style>
+                            <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TextBlockPlaceholder}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Text, ElementName=PasswordTextbox}" Value="">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
 
-                <TextBlock x:Name="PasswordText" Grid.Column="1" Grid.Row="5" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Left" VerticalAlignment="Center">
-                    Password:
-                </TextBlock>
+                    <CheckBox x:Name="AutoLoginCheckbox" Grid.Column="1" Grid.Row="4" VerticalAlignment="Center" IsChecked="True">
+                        <TextBlock Margin="12,0,0,0">Keep me logged in</TextBlock>
+                    </CheckBox>
 
-                <CheckBox x:Name="AutoLoginCheckbox" Grid.Column="1" Grid.Row="6" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center" TabIndex="3">Remember Password</CheckBox>
-
-                <PasswordBox x:Name="PasswordTextbox" Grid.Column="1" Grid.Row="5" Width="145" HorizontalAlignment="Right" TabIndex="2"></PasswordBox>
-
-                <Button x:Name="LoginButton" Grid.Column="1" Grid.Row="7" Width="150" Height="20" Background="#FF006FB2" Foreground="White" Click="LoginButton_Click" TabIndex="4">Login</Button>
+                    <Button x:Name="LoginButton" Style="{DynamicResource NavButton}" Grid.Column="1" Grid.Row="5" Click="LoginButton_Click" TabIndex="4">LOG IN</Button>
+                </Grid>
             </Grid>
         </Grid>
 
@@ -624,12 +855,285 @@
             </Grid.ColumnDefinitions>
 
             <!-- Setup Sidebar -->
-            <Grid Grid.Column="0">
-                <TextBlock TextWrapping="Wrap" Foreground="#FFCBD4DD" FontFamily="Bahnschrift Light">Aliquam faucibus, libero ut luctus auctor, diam turpis pretium elit, vitae tincidunt nibh ligula vitae enim. Nullam lobortis neque sed nisl efficitur molestie. Maecenas sodales neque ut neque dignissim lobortis.</TextBlock>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="100" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                </Grid.RowDefinitions>
+                
+                <TextBlock TextWrapping="Wrap" Foreground="#FFCBD4DD" FontFamily="Bahnschrift Light">
+                    This setup will guide you through the SWG Legacy installation process.<LineBreak/><LineBreak/>
+                    Questions about the setup process? Please follow the <Bold>"Support / Help" link in the sidebar.</Bold>
+                </TextBlock>
+
+                <Button x:Name="SetupCreateAccount" Content="Create Account" Grid.Row="2" Style="{DynamicResource SidebarButton}" Padding="0,2,0,2" HorizontalAlignment="Left" VerticalAlignment="Center"></Button>
+                <Button x:Name="SetupHelp" Content="Support / Help" Grid.Row="3" Style="{DynamicResource SidebarButton}" Padding="0,2,0,2" HorizontalAlignment="Left" VerticalAlignment="Center"></Button>
+                <Button x:Name="SetupRules" Content="Rules &amp; Regulations" Grid.Row="4" Style="{DynamicResource SidebarButton}" Padding="0,2,0,2" HorizontalAlignment="Left" VerticalAlignment="Center"></Button>
             </Grid>
 
             <!-- Setup Window -->
-            <Grid Grid.Column="1" Margin="18,18,0,0">
+            <Grid Grid.Column="1" Margin="18,0,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="50" />
+                </Grid.RowDefinitions>
+
+                <!-- #region Setup Inner -->
+
+                <!-- Rules and Regulations -->
+                <Grid Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="26" />
+                        <RowDefinition Height="30" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Style="{DynamicResource MainWindowTitle}">
+                        Rules And Regulations
+                    </TextBlock>
+
+                    <Grid Grid.Row="1" Margin="0,0,0,22">
+                        <TextBlock Foreground="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontFamily="Bahnschrift Light" FontSize="14" UseLayoutRounding="True" Padding="12,12,12,12" Background="#19000000">
+                        Content Here
+                        </TextBlock>
+                    </Grid>
+
+                    <CheckBox Foreground="White" Grid.Row="2" Margin="20,0,0,0">
+                        <TextBlock Margin="12,0,0,0">I agree</TextBlock>
+                    </CheckBox>
+
+                    <TextBlock Foreground="#FFCBD4DD" HorizontalAlignment="Left" VerticalAlignment="Top" FontFamily="Bahnschrift Light" FontSize="14" UseLayoutRounding="True" Grid.Row="3">
+                        Once you've agreed to our rules, select the Next button to continue.
+                    </TextBlock>
+                </Grid>
+
+                <!-- Install Directory -->
+                <Grid Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Style="{DynamicResource MainWindowTitle}">
+                        Installation Directory
+                    </TextBlock>
+
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="130" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <Button Style="{DynamicResource CustomRadioBlock}" Margin="0,0,12,12">
+                            <Button.Background>
+                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                    <GradientStop Color="#990A263C"/>
+                                    <GradientStop Color="#99082C49" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="48" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+
+                                <Ellipse Height="18" Stroke="#CC5584AC" Width="18" StrokeThickness="2"/>
+                                <Ellipse Height="10" Fill="#CC5584AC" Width="10"/>
+
+                                <Grid Grid.Column="1">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="45" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Bottom" FontFamily="Bahnschrift SemiBold Condensed" FontSize="20" Padding="0,0,0,2" UseLayoutRounding="True">
+                                        Easy Setup
+                                    </TextBlock>
+                                    <TextBlock Grid.Row="1" TextWrapping="Wrap" Foreground="#FFCBD4DD" HorizontalAlignment="Left" VerticalAlignment="Top" FontFamily="Bahnschrift Light SemiCondensed" FontSize="14" Padding="0,2,12,0" UseLayoutRounding="True">
+                                        Quick setup option, installs SWG Legacy to a default directory on the "C" drive.
+                                    </TextBlock>
+                                </Grid>
+                            </Grid>
+                        </Button>
+
+                        <Button Style="{DynamicResource CustomRadioBlock}" Grid.Column="1" Margin="12,0,0,12">
+                            <Button.Background>
+                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                    <GradientStop Color="#990A263C"/>
+                                    <GradientStop Color="#99082C49" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="48" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+
+                                <Ellipse Height="18" Stroke="#CC5584AC" Width="18" StrokeThickness="2"/>
+                                <Ellipse Height="10" Fill="#CC5584AC" Width="10" Visibility="Collapsed"/>
+
+                                <Grid Grid.Column="1">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="45" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Bottom" FontFamily="Bahnschrift SemiBold Condensed" FontSize="20" Padding="0,0,0,2" UseLayoutRounding="True">
+                                        Advanced Setup
+                                    </TextBlock>
+                                    <TextBlock Grid.Row="1" TextWrapping="Wrap" Foreground="#FFCBD4DD" HorizontalAlignment="Left" VerticalAlignment="Top" FontFamily="Bahnschrift Light SemiCondensed" FontSize="14" Padding="0,2,12,0" UseLayoutRounding="True">
+                                        Select a custom directory for installing SWG Legacy.
+                                    </TextBlock>
+                                </Grid>
+                            </Grid>
+                        </Button>
+
+                        <!-- Easy Setup Info -->
+                        <TextBlock TextWrapping="Wrap" Foreground="#FFCBD4DD" FontFamily="Bahnschrift Light" Grid.Row="1" Margin="0,12,12,12">
+                            Automatically installs SWG Legacy to the <Bold>"C:/SWGLegacy"</Bold> directory.
+                        </TextBlock>
+
+                        <!-- Advanced Setup Info -->
+                        <Grid Grid.Row="1" Grid.Column="2" Margin="12,0,0,12">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="34" />
+                                <RowDefinition Height="46" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="150" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Row="0" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Bottom" FontFamily="Bahnschrift SemiBold Condensed" FontSize="20" UseLayoutRounding="True" Grid.ColumnSpan="2">
+                            Select a Directory
+                            </TextBlock>
+                            <TextBox Grid.Row="1" x:Name="AdvancedSetupDirectory" Style="{DynamicResource TextBoxTransparent}" VerticalAlignment="Bottom" Margin="0,4,12,0" Height="40" />
+                            <Button Grid.Row="1"  Style="{DynamicResource NavButton}" Content="Browse" Grid.Column="1" FontSize="18" />
+                            <TextBlock Grid.Row="2" TextWrapping="Wrap" Foreground="#FFCBD4DD" FontFamily="Bahnschrift Light" Margin="0,12,0,0" Grid.ColumnSpan="2">
+                                Use the <Bold>"Browse"</Bold> button and navigate to a folder to install SWG Legacy to. It is recommended to install SWG Legacy to the root of your hard drive. (e.g. <Bold>"C:/SWGLegacy"</Bold>)<LineBreak/><LineBreak/>
+                                At least <Bold>6GB</Bold> of free hard drive is recommended for the base game installation.
+                            </TextBlock>
+                        </Grid>
+                    </Grid>
+                </Grid>
+
+                <!-- Game Validation-->
+                <Grid Visibility="Visible">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="20" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Style="{DynamicResource MainWindowTitle}">
+                        Game Validation
+                    </TextBlock>
+
+                    <TextBlock Foreground="#FFCBD4DD" HorizontalAlignment="Left" VerticalAlignment="Top" FontFamily="Bahnschrift Light" FontSize="14" UseLayoutRounding="True" TextWrapping="WrapWithOverflow" Grid.Row="1">
+                        To legally play a Star Wars Galaxies Emulator, you must own a purchased copy of Star Wars Galaxies.
+                    </TextBlock>
+
+                    <CheckBox Grid.Row="2" Margin="20,0,0,0">
+                        <TextBlock Margin="12,0,0,0">I verify that I own a legal copy of Star Wars Galaxies</TextBlock>
+                    </CheckBox>
+
+                    <!-- Enable on checkbox checked -->
+                    <Border Grid.Row="3" Margin="20" Padding="20" CornerRadius="3"  Background="#19000000">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="40" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Foreground="#FFCBD4DD" HorizontalAlignment="Left" VerticalAlignment="Top" FontFamily="Bahnschrift Light" FontSize="14" TextWrapping="WrapWithOverflow" UseLayoutRounding="True">
+                                Locate your Star Wars Galaxies installation using the "Browse" button below.<LineBreak/>You cannot use a 14 day trial or any other trial for this verification.
+                            </TextBlock>
+
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="180" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid Grid.Row="1" Margin="0,10,0,0">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="30" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Style="{DynamicResource MainWindowTitle}">
+                                        Selected Directory
+                                    </TextBlock>
+                                    <StackPanel Grid.Row="1" Name="Container">
+                                        <TextBox Style="{DynamicResource TextBoxTransparent}" x:Name="VerificationSelectedDirectory" Width="{Binding ElementName=Container,Path=ActualWidth}" MaxWidth="320" HorizontalAlignment="Left" IsEnabled="False" Height="40" Margin="0,4,12,4"  />
+                                    </StackPanel>
+                                </Grid>
+
+                                <Button Content="Browse" Style="{DynamicResource NavButton}" FontSize="18" Grid.Column="1" Height="50" Width="160" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- TEMPLATE FOR SETUP -->
+                <Grid Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Style="{DynamicResource MainWindowTitle}">
+                        Title Here
+                    </TextBlock>
+
+                    <Grid Grid.Row="1">
+                        <TextBlock Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Top" FontFamily="Bahnschrift Light" FontSize="14" UseLayoutRounding="True">
+                        Content Here
+                        </TextBlock>
+                    </Grid>
+                </Grid>
+                <!--#endregion-->
+                
+                <!-- Setup Navigation Buttons -->
+                <Grid Grid.Column="1" Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="160" />
+                        <ColumnDefinition Width="160" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="160" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button Content="Back" Style="{DynamicResource NavButton}" Margin="0,0,10,0" FontSize="18"/>
+                    <Button Content="Next" Style="{DynamicResource NavButton}" FontSize="18" Grid.Column="1"/>
+                    <Button Content="Cancel" Style="{DynamicResource NavButton}" FontSize="18" Grid.Column="3"/>
+                </Grid>
+            </Grid>
+
+            
+            
+            <Grid Grid.Column="1" Margin="18,18,0,0" Visibility="Hidden">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="20" />
                     <ColumnDefinition Width="*" />
@@ -646,11 +1150,7 @@
                     <RowDefinition Height="20" />
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="1" Grid.Column="1" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="Bahnschrift SemiBold Condensed" FontWeight="Bold" FontSize="16">
-                    GAME SETUP
-                </TextBlock>
-
-                <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3">
+                <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Visibility="Collapsed">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
@@ -669,7 +1169,7 @@
                         EASY SETUP
                     </TextBlock>
 
-                    <Button Style="{DynamicResource NavButton}" x:Name="EasySetupButton" Grid.Column="0" Grid.Row="1" Click="EasySetupButton_Click" Visibility="Visible">
+                    <Button x:Name="EasySetupButton" Grid.Column="0" Grid.Row="1" Click="EasySetupButton_Click" Visibility="Visible">
                         <Image Style="{DynamicResource setupImage}" />
                     </Button>
 
@@ -679,7 +1179,7 @@
                         ADVANCED SETUP
                     </TextBlock>
 
-                    <Button Style="{DynamicResource NavButton}" x:Name="AdvancedSetupButton" Grid.Column="1" Grid.Row="1" Click="AdvancedSetupButton_Click" Visibility="Visible">
+                    <Button x:Name="AdvancedSetupButton" Grid.Column="1" Grid.Row="1" Click="AdvancedSetupButton_Click" Visibility="Visible">
                         <Image Style="{DynamicResource setupAdvancedImage}" />
                     </Button>
 
@@ -688,7 +1188,7 @@
                     </Button>
                 </Grid>
 
-                <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3">
+                <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3"  Visibility="Collapsed">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
@@ -725,6 +1225,7 @@
                     </Button>
                 </Grid>
             </Grid>
+
         </Grid>
     </Grid>
 
