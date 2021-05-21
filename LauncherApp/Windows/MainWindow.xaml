@@ -121,6 +121,46 @@
             </Setter>
         </Style>
 
+        <Style x:Key="MainMenuButton" TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontFamily" Value="Bahnschrift Light Condensed"/>
+            <Setter Property="FontSize" Value="26"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="4,4,4,4"/>
+            <Setter Property="Margin" Value="0,3,22,3"/>
+            <Setter Property="Opacity" Value="0.8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="true">
+                            <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Opacity" Value="1"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Margin" Value="0,2,22,4"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="MainMenuIconButton" TargetType="{x:Type Button}" BasedOn="{StaticResource MainMenuButton}">
+            <Setter Property="Width" Value="18"/>
+            <Setter Property="Height" Value="18"/>
+        </Style>
+
         <SolidColorBrush x:Key="ProgressBar.Progress" Color="#FF177CD1"/>
         <SolidColorBrush x:Key="ProgressBar.Background" Color="#FFE6E6E6"/>
         <SolidColorBrush x:Key="ProgressBar.Border" Color="#10000000"/>
@@ -535,6 +575,46 @@
             <Image Source="/Images/sidebar/swg-legacy-launcher-logo.png" Stretch="None" VerticalAlignment="Center"/>
         </Grid>
 
+        <!-- Main Menu -->
+        <Border Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" CornerRadius="3" Margin="18,0,0,0" Padding="18,0,0,0"  Height="60">
+            <Border.Background>
+                <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                    <GradientStop Color="#33000000"/>
+                    <GradientStop Color="#00000000" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="UPDATES" Style="{DynamicResource MainMenuButton}" MouseEnter="PlayHoverSound" Click="PatchNotesButton_Click"></Button>
+                    <Button Content="WEBSITE" Style="{DynamicResource MainMenuButton}" MouseEnter="PlayHoverSound" Click="WebsiteButton_Click"></Button>
+                    <Button Content="FORUMS" Style="{DynamicResource MainMenuButton}" MouseEnter="PlayHoverSound" Click="ForumsButton_Click"></Button>
+                    <Button Content="WIKI" Style="{DynamicResource MainMenuButton}" MouseEnter="PlayHoverSound" Click="WikiButton_Click"></Button>
+                    <Button Style="{DynamicResource MainMenuIconButton}" MouseEnter="PlayHoverSound" Click="FacebookButton_Click">
+                        <Button.Background>
+                            <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/facebook.png"/>
+                        </Button.Background>
+                    </Button>
+                    <Button Style="{DynamicResource MainMenuIconButton}" MouseEnter="PlayHoverSound" Click="DiscordButton_Click">
+                        <Button.Background>
+                            <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/discord.png"/>
+                        </Button.Background>
+                    </Button>
+                </StackPanel>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Style="{DynamicResource h3}">
+                        USERNAME
+                    </TextBlock>
+                    <TextBlock Foreground="#97FFFFFF" FontFamily="Bahnschrift Light Condensed" HorizontalAlignment="Right" Padding="2,2,0,2">
+                        Logout
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
+        </Border>
+
         <!-- #endregion -->
 
         <!-- Primary Screen -->
@@ -553,51 +633,48 @@
                         <RowDefinition Height="48" />
                     </Grid.RowDefinitions>
 
-                    <Grid Grid.Row="0" HorizontalAlignment="Stretch" Margin="0,18,0,22">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="auto" />
-                            <RowDefinition Height="auto" />
-                            <RowDefinition Height="auto" />
-                            <RowDefinition Height="auto" />
-                            <RowDefinition Height="auto" />
-                            <RowDefinition Height="auto" />
-                        </Grid.RowDefinitions>
-
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
-                        <Button Content="Vote" Grid.Row="0" Grid.Column="0" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="VoteButton_Click">
+                    <StackPanel Grid.Row="0" HorizontalAlignment="Stretch" Margin="0,0,0,22">
+                        <Button Content="Vote" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="VoteButton_Click">
                             <Button.Background>
                                 <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/vote.png"/>
                             </Button.Background>
                         </Button>
-                        <Button Content="Donate" Grid.Row="1" Grid.Column="0" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="DonateButton_Click">
+                        <Button Content="Donate" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="DonateButton_Click">
                             <Button.Background>
                                 <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/paypal.png"/>
                             </Button.Background>
                         </Button>
-                        <Button Content="Resources" Grid.Row="2" Grid.Column="0" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="ResourcesButton_Click">
+                        <Button Content="Resources" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="ResourcesButton_Click">
                             <Button.Background>
                                 <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/resources.png"/>
                             </Button.Background>
                         </Button>
-                        <Button Content="Bug Report" Grid.Row="3" Grid.Column="0" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="MantisButton_Click">
+                        <Button Content="Bug Report" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="MantisButton_Click">
                             <Button.Background>
                                 <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/bug-report.png"/>
                             </Button.Background>
                         </Button>
-                        <Button Content="Skill Planner" Grid.Row="4" Grid.Column="0" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="SkillplannerButton_Click">
+                        <Button Content="Skill Planner" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="SkillplannerButton_Click">
                             <Button.Background>
                                 <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/skill-planner.png"/>
                             </Button.Background>
                         </Button>
-                        <Button x:Name="SettingsButton" Content="Settings" Grid.Row="5" Grid.Column="0" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="SettingsButton_Click">
+                        <Button x:Name="SettingsButton" Content="Game Settings" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="SettingsButton_Click">
+                            <Button.Background>
+                                <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/swg-logo.png"/>
+                            </Button.Background>
+                        </Button>
+                        <Button x:Name="OptionsButton" Content="Options &amp; Mods" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="OptionsButton_Click">
                             <Button.Background>
                                 <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/settings.png"/>
                             </Button.Background>
                         </Button>
-                    </Grid>
+                        <Button x:Name="DeveloperButton" Content="Developer" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="DeveloperButton_Click">
+                            <Button.Background>
+                                <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/developer.png"/>
+                            </Button.Background>
+                        </Button>
+                    </StackPanel>
 
                     <Grid x:Name="ProgressGrid" Grid.Row="1" HorizontalAlignment="Stretch" Margin="0,0,0,18" Visibility="Collapsed">
                         <Grid.RowDefinitions>
@@ -632,20 +709,35 @@
             </Grid>
 
             <!-- Main Window -->
-            <Grid Grid.Row="2" Grid.Column="2" HorizontalAlignment="Stretch" Margin="18,18,0,0">
-                <!-- Settings -->
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
+            <Grid Grid.Row="2" Grid.Column="2" HorizontalAlignment="Stretch" Margin="18,0,0,0">
+                <Grid.Background>
+                    <RadialGradientBrush Center="0,0.5" GradientOrigin="0,0.5" RadiusY="0.5" RadiusX="1">
+                        <GradientStop Color="#33000000" Offset="0.4"/>
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </RadialGradientBrush>
+                </Grid.Background>
 
-                    <StackPanel Style="{DynamicResource SettingsColumn}" Grid.Row="0">
-                        <UniformGrid Columns="3">
+                <!-- Settings -->
+                <StackPanel Visibility="Collapsed" Margin="18,0,0,0">
+                    <Border BorderThickness="0,0,0,1" Margin="0,0,0,10" Padding="0,0,0,2">
+                        <Border.BorderBrush>
+                            <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                                <GradientStop Color="#4C000000"/>
+                                <GradientStop Color="#00000000" Offset="0.8"/>
+                            </LinearGradientBrush>
+                        </Border.BorderBrush>
+                        <DockPanel>
+                            <TextBlock Style="{DynamicResource MainWindowTitle}" VerticalAlignment="Bottom">
+                            Game Settings
+                            </TextBlock>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button x:Name="RevertSettingsButton" Style="{DynamicResource NavButton}" FontSize="12" Margin="0,0,12,0" Padding="15,5,15,5">Revert</Button>
+                                <Button x:Name="SubmitSettingsButton" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Click="SubmitSettingsButton_Click">Save Changes</Button>
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+                    <StackPanel Style="{DynamicResource SettingsColumn}">
+                        <UniformGrid Columns="4">
                             <StackPanel Margin="0,0,8,0">
                                 <TextBlock Style="{DynamicResource h3}">
                                 Game Resolution
@@ -653,11 +745,11 @@
                                 <ComboBox x:Name="ResolutionBox" SelectedIndex="1" Style="{DynamicResource ComboBoxTransparent}" />
                             </StackPanel>
 
-                            <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                            <StackPanel Margin="0,0,8,0">
                                 <TextBlock Style="{DynamicResource h3}">
                                 Shader
                                 </TextBlock>
-                                <ComboBox x:Name="ShaderBox" Grid.Column="0" Grid.Row="1" SelectedIndex="0" Style="{DynamicResource ComboBoxTransparent}">
+                                <ComboBox x:Name="ShaderBox" SelectedIndex="0" Style="{DynamicResource ComboBoxTransparent}">
                                     <ComboBoxItem Content="Optimal" />
                                     <ComboBoxItem Content="2.0 (Override)" />
                                     <ComboBoxItem Content="1.4 (Override)" />
@@ -665,10 +757,34 @@
                                     <ComboBoxItem Content="Disabled" />
                                 </ComboBox>
                             </StackPanel>
+
+                            <StackPanel Margin="0,0,8,0">
+                                <TextBlock Style="{DynamicResource h3}">
+                                Memory
+                                </TextBlock>
+                                <ComboBox x:Name="MemoryBox" SelectedIndex="0" Style="{DynamicResource ComboBoxTransparent}">
+                                    <ComboBoxItem Content="4GB" />
+                                    <ComboBoxItem Content="2GB" />
+                                    <ComboBoxItem Content="1GB" />
+                                    <ComboBoxItem Content="512MB" />
+                                </ComboBox>
+                            </StackPanel>
+
+                            <StackPanel>
+                                <TextBlock Style="{DynamicResource h3}">
+                                FPS Limit
+                                </TextBlock>
+                                <ComboBox x:Name="FpsBox" SelectedIndex="2" Style="{DynamicResource ComboBoxTransparent}">
+                                    <ComboBoxItem Content="240" />
+                                    <ComboBoxItem Content="144" />
+                                    <ComboBoxItem Content="60" />
+                                    <ComboBoxItem Content="30" />
+                                </ComboBox>
+                            </StackPanel>
                         </UniformGrid>
                     </StackPanel>
 
-                    <StackPanel Style="{DynamicResource SettingsColumn}" Grid.Row="1">
+                    <StackPanel Style="{DynamicResource SettingsColumn}">
                         <TextBlock Style="{DynamicResource h3}">
                             Display
                         </TextBlock>
@@ -685,7 +801,7 @@
                         </UniformGrid>
                     </StackPanel>
 
-                    <StackPanel Style="{DynamicResource SettingsColumn}" Grid.Row="2">
+                    <StackPanel Style="{DynamicResource SettingsColumn}">
                         <TextBlock Style="{DynamicResource h3}">
                             General
                         </TextBlock>
@@ -699,7 +815,7 @@
                         </UniformGrid>
                     </StackPanel>
 
-                    <StackPanel Style="{DynamicResource SettingsColumn}" Grid.Row="3">
+                    <StackPanel Style="{DynamicResource SettingsColumn}">
                         <TextBlock Style="{DynamicResource h3}">
                             Graphics
                         </TextBlock>
@@ -734,7 +850,7 @@
                         </UniformGrid>
                     </StackPanel>
 
-                    <StackPanel Style="{DynamicResource SettingsColumn}" Grid.Row="4">
+                    <StackPanel Style="{DynamicResource SettingsColumn}">
                         <TextBlock Style="{DynamicResource h3}">
                             Advanced
                         </TextBlock>
@@ -756,12 +872,89 @@
                             </CheckBox>
                         </UniformGrid>
                     </StackPanel>
+                </StackPanel>
 
-                    <StackPanel Orientation="Horizontal" Grid.Row="5" HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                        <Button x:Name="RevertButton" Style="{DynamicResource NavButton}" FontSize="14" Height="40" Margin="0,0,12,0" Padding="30,10,30,10">Revert</Button>
-                        <Button x:Name="SubmitButton" Style="{DynamicResource NavButton}" FontSize="14" Click="SubmitButton_Click" Height="40" Padding="30,10,30,10">Save Changes</Button>
+                <!-- Options and Mods -->
+                <StackPanel Visibility="Collapsed" Margin="18,0,0,0">
+                    <Border BorderThickness="0,0,0,1" Margin="0,0,0,10" Padding="0,0,0,2">
+                        <Border.BorderBrush>
+                            <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                                <GradientStop Color="#4C000000"/>
+                                <GradientStop Color="#00000000" Offset="0.8"/>
+                            </LinearGradientBrush>
+                        </Border.BorderBrush>
+                        <DockPanel>
+                            <TextBlock Style="{DynamicResource MainWindowTitle}" VerticalAlignment="Bottom">
+                            Options &amp; Modifications
+                            </TextBlock>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button x:Name="RevertModsButton" Style="{DynamicResource NavButton}" FontSize="12" Margin="0,0,12,0" Padding="15,5,15,5">Revert</Button>
+                                <Button x:Name="SubmitModsButton" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Click="SubmitModsButton_Click">Save Changes</Button>
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- Developer Options -->
+                <StackPanel Visibility="Visible" Margin="18,0,0,0">
+                    <Border BorderThickness="0,0,0,1" Margin="0,0,0,10" Padding="0,0,0,2">
+                        <Border.BorderBrush>
+                            <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                                <GradientStop Color="#4C000000"/>
+                                <GradientStop Color="#00000000" Offset="0.8"/>
+                            </LinearGradientBrush>
+                        </Border.BorderBrush>
+                        <DockPanel>
+                            <TextBlock Style="{DynamicResource MainWindowTitle}" VerticalAlignment="Bottom">
+                            Developer Options
+                            </TextBlock>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button x:Name="RevertDeveloperButton" Style="{DynamicResource NavButton}" FontSize="12" Margin="0,0,12,0" Padding="15,5,15,5">Revert</Button>
+                                <Button x:Name="SubmitDeveloperButton" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Click="SubmitDeveloperButton_Click">Save Changes</Button>
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+
+                    <StackPanel>
+                        <UniformGrid Columns="4">
+                            <UniformGrid Rows="4" Margin="0,0,12,0">
+                                <StackPanel Style="{DynamicResource SettingsColumn}">
+                                    <TextBlock Style="{DynamicResource h3}">
+                                        API URL
+                                    </TextBlock>
+                                    <TextBox x:Name="DevAPIurl" Style="{DynamicResource TextBoxTransparent}" Height="30" />
+                                </StackPanel>
+                                <StackPanel Style="{DynamicResource SettingsColumn}">
+                                    <TextBlock Style="{DynamicResource h3}">
+                                        Manifest URL
+                                    </TextBlock>
+                                    <TextBox x:Name="DevManifestURL" Style="{DynamicResource TextBoxTransparent}" Height="30" />
+                                </StackPanel>
+                                <StackPanel Style="{DynamicResource SettingsColumn}">
+                                    <TextBlock Style="{DynamicResource h3}">
+                                        Manifest File Path
+                                    </TextBlock>
+                                    <TextBox x:Name="DevManifestFilePath" Style="{DynamicResource TextBoxTransparent}" Height="30" />
+                                </StackPanel>
+                            </UniformGrid>
+
+                            <UniformGrid Rows="4" Margin="0,0,12,0">
+                                <StackPanel Style="{DynamicResource SettingsColumn}">
+                                    <TextBlock Style="{DynamicResource h3}">
+                                        SWG Login / Hostname
+                                    </TextBlock>
+                                    <TextBox x:Name="DevSWGhostname" Style="{DynamicResource TextBoxTransparent}" Height="30" />
+                                </StackPanel>
+                                <StackPanel Style="{DynamicResource SettingsColumn}">
+                                    <TextBlock Style="{DynamicResource h3}">
+                                        SWG Login Port
+                                    </TextBlock>
+                                    <TextBox x:Name="DevSWGport" Style="{DynamicResource TextBoxTransparent}" Height="30" />
+                                </StackPanel>
+                            </UniformGrid>
+                        </UniformGrid>
                     </StackPanel>
-                </Grid>
+                </StackPanel>
             </Grid>
 
         </Grid>
@@ -863,7 +1056,7 @@
                     <RowDefinition Height="30" />
                     <RowDefinition Height="30" />
                 </Grid.RowDefinitions>
-                
+
                 <TextBlock TextWrapping="Wrap" Foreground="#FFCBD4DD" FontFamily="Bahnschrift Light">
                     This setup will guide you through the SWG Legacy installation process.<LineBreak/><LineBreak/>
                     Questions about the setup process? Please follow the <Bold>"Support / Help" link in the sidebar.</Bold>
@@ -1059,7 +1252,7 @@
                     </CheckBox>
 
                     <!-- Enable on checkbox checked -->
-                    <Border Grid.Row="3" Margin="20" Padding="20" CornerRadius="3"  Background="#19000000">
+                    <Border Grid.Row="3" Margin="20" Padding="20" CornerRadius="3" Background="#19000000">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="40" />
@@ -1115,7 +1308,7 @@
                     </Grid>
                 </Grid>
                 <!--#endregion-->
-                
+
                 <!-- Setup Navigation Buttons -->
                 <Grid Grid.Column="1" Grid.Row="1">
                     <Grid.ColumnDefinitions>
@@ -1131,8 +1324,8 @@
                 </Grid>
             </Grid>
 
-            
-            
+
+
             <Grid Grid.Column="1" Margin="18,18,0,0" Visibility="Hidden">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="20" />
