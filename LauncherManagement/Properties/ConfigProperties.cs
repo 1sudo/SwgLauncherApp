@@ -2,8 +2,8 @@
 {
     public class ConfigProperties
     {
-        public string SWGLocation { get; set; }
-        public string ServerLocation { get; set; }
+        public string GameLocation { get; set; }
         public bool AutoLogin { get; set; }
+        public bool Verified { get; set; }
     }
 }

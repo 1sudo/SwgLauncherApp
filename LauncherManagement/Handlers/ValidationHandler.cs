@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
@@ -8,6 +9,8 @@ namespace LauncherManagement
 {
     public class ValidationHandler : DownloadHandler
     {
+        public static Action<string> OnInstallCheckFailed;
+
         internal static async Task<List<string>> GetBadFilesAsync(string downloadLocation, List<DownloadableFile> fileList, bool isFullScan = false)
         {
             var newFileList = new List<string>();
@@ -86,39 +89,46 @@ namespace LauncherManagement
             return newFileList;
         }
 
-        internal static bool CheckValidInstallation(string location)
+        internal static bool CheckBaseInstallation(string location)
         {
-            if (!Directory.Exists(location))
+            try
             {
-                return false;
-            }
+                if (!Directory.Exists(location))
+                {
+                    return false;
+                }
 
-            // Files that are required to exist
-            List<string> filesToCheck = new List<string> {
+                // Files that are required to exist
+                List<string> filesToCheck = new List<string> {
                 "dpvs.dll",
                 "Mss32.dll",
                 "dbghelp.dll"
             };
 
-            // Files in supposed SWG directory
-            string[] files = Directory.GetFiles(location, "*.*", SearchOption.AllDirectories);
+                // Files in supposed SWG directory
+                string[] files = Directory.GetFiles(location, "*.*", SearchOption.AllDirectories);
 
-            int numRequiredFiles = 0;
+                int numRequiredFiles = 0;
 
-            foreach (string fileToCheck in filesToCheck)
-            {
-                foreach (string file in files)
+                foreach (string fileToCheck in filesToCheck)
                 {
-                    if (fileToCheck == file.Split(location + "\\")[1].Trim())
+                    foreach (string file in files)
                     {
-                        numRequiredFiles++;
+                        if (fileToCheck == file.Split(location + "\\")[1].Trim())
+                        {
+                            numRequiredFiles++;
+                        }
                     }
                 }
-            }
 
-            if (numRequiredFiles == 3)
+                if (numRequiredFiles == 3)
+                {
+                    return true;
+                }
+            }
+            catch (Exception ex)
             {
-                return true;
+                OnInstallCheckFailed?.Invoke(ex.Message.ToString());
             }
 
             return false;
@@ -132,7 +142,7 @@ namespace LauncherManagement
             {
                 { "config.json", new List<string>()
                     {
-                        "SWGLocation", "ServerLocation", "AutoLogin"
+                        "GameLocation", "AutoLogin", "Verified"
                     } 
                 },
                 { "account.json", new List<string>()

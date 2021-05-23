@@ -19,7 +19,7 @@ namespace LauncherApp
             _mainWindow = mainWindow;
         }
 
-        private void Window_Activated(object sender, System.EventArgs e)
+        void Window_Activated(object sender, System.EventArgs e)
         {
             foreach (string resolution in DisplayResolutions.GetResolutions())
             {
@@ -61,7 +61,7 @@ namespace LauncherApp
             }
         }
 
-        private async void SubmitButton_Click(object sender, RoutedEventArgs e)
+        async void SubmitButton_Click(object sender, RoutedEventArgs e)
         {
             string[] categories = {
                 "ClientGraphics", "ClientGraphics", "ClientGraphics", "SharedUtility", "Direct3d9", "Direct3d9",

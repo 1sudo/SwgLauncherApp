@@ -8,7 +8,6 @@ namespace LauncherManagement
 {
     public class JsonConfigHandler
     {
-        public object MessageBox { get; private set; }
         public static Action<string> OnJsonReadError;
 
         public async Task EnableAutoLoginAsync()
@@ -53,9 +52,11 @@ namespace LauncherManagement
             return configProperties.AutoLogin;
         }
 
-        public async Task ConfigureLocationsAsync(string serverPath, bool configValidated, string gamePath)
+        public async Task ConfigureLocationsAsync(string gamePath)
         {
             string configLocation = Path.Join(Directory.GetCurrentDirectory(), "config.json");
+
+            bool configValidated = GameSetupHandler.ValidateJsonFile(configLocation);
 
             JObject json;
 
@@ -75,8 +76,7 @@ namespace LauncherManagement
                 {
                     switch (property.Name)
                     {
-                        case "SWGLocation": property.Value = gamePath; break;
-                        case "ServerLocation": property.Value = serverPath; break;
+                        case "GameLocation": property.Value = gamePath; break;
                     }
                 }
 
@@ -86,13 +86,13 @@ namespace LauncherManagement
             {
                 await File.WriteAllTextAsync(configLocation, JsonConvert.SerializeObject(new ConfigProperties()
                 {
-                    SWGLocation = gamePath,
-                    ServerLocation = serverPath,
-                    AutoLogin = false
-                }));
+                    GameLocation = gamePath,
+                    AutoLogin = false,
+                    Verified = false
+                }, Formatting.Indented));
             }
 
-            Directory.CreateDirectory($"{ serverPath }");
+            Directory.CreateDirectory($"{ gamePath }");
         }
 
         public string GetServerLocation()
@@ -107,12 +107,51 @@ namespace LauncherManagement
 
             JToken location;
 
-            if (json.TryGetValue("ServerLocation", out location))
+            if (json.TryGetValue("GameLocation", out location))
             {
                 return location.ToString();
             }
 
             return "";
+        }
+
+        public async Task<bool> SetVerified()
+        {
+            string configFile = Path.Join(Directory.GetCurrentDirectory(), "config.json");
+            bool configValidated = ValidationHandler.ValidateJson("config.json");
+
+            if (configValidated)
+            {
+                string json = File.ReadAllText(configFile);
+
+                ConfigProperties config = JsonConvert.DeserializeObject<ConfigProperties>(json);
+
+                config.Verified = true;
+
+                string newJson = JsonConvert.SerializeObject(config, Formatting.Indented);
+
+                await File.WriteAllTextAsync(configFile, newJson);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool GetVerified()
+        {
+            bool configValidated = ValidationHandler.ValidateJson("config.json");
+
+            if (configValidated)
+            {
+                string json = File.ReadAllText(Path.Join(Directory.GetCurrentDirectory(), "config.json"));
+
+                ConfigProperties config = JsonConvert.DeserializeObject<ConfigProperties>(json);
+
+                return config.Verified;
+            }
+
+            return false;
         }
     }
 }

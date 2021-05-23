@@ -12,8 +12,8 @@ namespace LauncherManagement
         [StructLayout(LayoutKind.Sequential)]
         public struct DEVMODE
         {
-            private const int CCHDEVICENAME = 0x20;
-            private const int CCHFORMNAME = 0x20;
+            const int CCHDEVICENAME = 0x20;
+            const int CCHFORMNAME = 0x20;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 0x20)]
             public string dmDeviceName;
             public short dmSpecVersion;

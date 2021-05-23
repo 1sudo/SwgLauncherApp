@@ -45,6 +45,9 @@ namespace LauncherManagement
 
         internal static async Task AttemptCopyFilesFromListAsync(List<string> fileList, string copyLocation)
         {
+            /* Needs refactored to not use config file for path
+             * ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+             * 
             double listLength = fileList.Count;
             List<string> newFileList = new List<string>();
 
@@ -76,6 +79,7 @@ namespace LauncherManagement
                 
                 ++i;
             }
+            */
         }
 
         static async Task CopyFileAsync(string sourcePath, string destinationPath)

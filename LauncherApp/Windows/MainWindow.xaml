@@ -6,7 +6,9 @@
         xmlns:local="clr-namespace:LauncherApp" xmlns:wpf="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
         x:Class="LauncherApp.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="610" Width="1130" WindowStyle="None" MouseDown="Window_MouseDown" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Activated="Window_Activated">
+        Title="MainWindow" Height="610" Width="1130" WindowStyle="None" MouseDown="Window_MouseDown" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Initialized="Window_Initialized">
+
+    <!-- #region WindowResources -->
     <Window.Resources>
 
         <Style x:Key="NavButton" TargetType="{x:Type Button}">
@@ -522,9 +524,9 @@
         </Style>
 
     </Window.Resources>
+    <!-- #endregion -->
 
     <Grid>
-
         <!-- #region General -->
         <Grid.Background>
             <ImageBrush ImageSource="/Images/swg-legacy-launcher-bg.png" />
@@ -605,10 +607,10 @@
                     </Button>
                 </StackPanel>
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock Style="{DynamicResource h3}">
+                    <TextBlock x:Name="UsernameTextBlock" Style="{DynamicResource h3}" Visibility="Collapsed">
                         USERNAME
                     </TextBlock>
-                    <TextBlock Foreground="#97FFFFFF" FontFamily="Bahnschrift Light Condensed" HorizontalAlignment="Right" Padding="2,2,0,2">
+                    <TextBlock x:Name="LogoutButton" Foreground="#97FFFFFF" FontFamily="Bahnschrift Light Condensed" HorizontalAlignment="Right" Padding="2,2,0,2" Visibility="Collapsed">
                         Logout
                     </TextBlock>
                 </StackPanel>
@@ -618,7 +620,7 @@
         <!-- #endregion -->
 
         <!-- Primary Screen -->
-        <Grid x:Name="PrimaryGrid" Grid.ColumnSpan="2" Grid.Row="2" Grid.Column="1" Visibility="Visible">
+        <Grid x:Name="PrimaryGrid" Grid.ColumnSpan="2" Grid.Row="2" Grid.Column="1" Visibility="Collapsed">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="224" />
                 <ColumnDefinition Width="*" />
@@ -718,245 +720,251 @@
                 </Grid.Background>
 
                 <!-- Settings -->
-                <StackPanel Visibility="Collapsed" Margin="18,0,0,0">
-                    <Border BorderThickness="0,0,0,1" Margin="0,0,0,10" Padding="0,0,0,2">
-                        <Border.BorderBrush>
-                            <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
-                                <GradientStop Color="#4C000000"/>
-                                <GradientStop Color="#00000000" Offset="0.8"/>
-                            </LinearGradientBrush>
-                        </Border.BorderBrush>
-                        <DockPanel>
-                            <TextBlock Style="{DynamicResource MainWindowTitle}" VerticalAlignment="Bottom">
+                <Grid x:Name="SettingsGrid" Visibility="Collapsed" Margin="18,0,0,0">
+                    <StackPanel>
+                        <Border BorderThickness="0,0,0,1" Margin="0,0,0,10" Padding="0,0,0,2">
+                            <Border.BorderBrush>
+                                <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                                    <GradientStop Color="#4C000000"/>
+                                    <GradientStop Color="#00000000" Offset="0.8"/>
+                                </LinearGradientBrush>
+                            </Border.BorderBrush>
+                            <DockPanel>
+                                <TextBlock Style="{DynamicResource MainWindowTitle}" VerticalAlignment="Bottom">
                             Game Settings
-                            </TextBlock>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                <Button x:Name="RevertSettingsButton" Style="{DynamicResource NavButton}" FontSize="12" Margin="0,0,12,0" Padding="15,5,15,5">Revert</Button>
-                                <Button x:Name="SubmitSettingsButton" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Click="SubmitSettingsButton_Click">Save Changes</Button>
-                            </StackPanel>
-                        </DockPanel>
-                    </Border>
-                    <StackPanel Style="{DynamicResource SettingsColumn}">
-                        <UniformGrid Columns="4">
-                            <StackPanel Margin="0,0,8,0">
-                                <TextBlock Style="{DynamicResource h3}">
+                                </TextBlock>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button x:Name="RevertSettingsButton" Style="{DynamicResource NavButton}" FontSize="12" Margin="0,0,12,0" Padding="15,5,15,5">Revert</Button>
+                                    <Button x:Name="SubmitSettingsButton" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Click="SubmitSettingsButton_Click">Save Changes</Button>
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+                        <StackPanel Style="{DynamicResource SettingsColumn}">
+                            <UniformGrid Columns="4">
+                                <StackPanel Margin="0,0,8,0">
+                                    <TextBlock Style="{DynamicResource h3}">
                                 Game Resolution
-                                </TextBlock>
-                                <ComboBox x:Name="ResolutionBox" SelectedIndex="1" Style="{DynamicResource ComboBoxTransparent}" />
-                            </StackPanel>
+                                    </TextBlock>
+                                    <ComboBox x:Name="ResolutionBox" SelectedIndex="1" Style="{DynamicResource ComboBoxTransparent}" />
+                                </StackPanel>
 
-                            <StackPanel Margin="0,0,8,0">
-                                <TextBlock Style="{DynamicResource h3}">
+                                <StackPanel Margin="0,0,8,0">
+                                    <TextBlock Style="{DynamicResource h3}">
                                 Shader
-                                </TextBlock>
-                                <ComboBox x:Name="ShaderBox" SelectedIndex="0" Style="{DynamicResource ComboBoxTransparent}">
-                                    <ComboBoxItem Content="Optimal" />
-                                    <ComboBoxItem Content="2.0 (Override)" />
-                                    <ComboBoxItem Content="1.4 (Override)" />
-                                    <ComboBoxItem Content="1.1 (Override)" />
-                                    <ComboBoxItem Content="Disabled" />
-                                </ComboBox>
-                            </StackPanel>
+                                    </TextBlock>
+                                    <ComboBox x:Name="ShaderBox" SelectedIndex="0" Style="{DynamicResource ComboBoxTransparent}">
+                                        <ComboBoxItem Content="Optimal" />
+                                        <ComboBoxItem Content="2.0 (Override)" />
+                                        <ComboBoxItem Content="1.4 (Override)" />
+                                        <ComboBoxItem Content="1.1 (Override)" />
+                                        <ComboBoxItem Content="Disabled" />
+                                    </ComboBox>
+                                </StackPanel>
 
-                            <StackPanel Margin="0,0,8,0">
-                                <TextBlock Style="{DynamicResource h3}">
+                                <StackPanel Margin="0,0,8,0">
+                                    <TextBlock Style="{DynamicResource h3}">
                                 Memory
-                                </TextBlock>
-                                <ComboBox x:Name="MemoryBox" SelectedIndex="0" Style="{DynamicResource ComboBoxTransparent}">
-                                    <ComboBoxItem Content="4GB" />
-                                    <ComboBoxItem Content="2GB" />
-                                    <ComboBoxItem Content="1GB" />
-                                    <ComboBoxItem Content="512MB" />
-                                </ComboBox>
-                            </StackPanel>
+                                    </TextBlock>
+                                    <ComboBox x:Name="MemoryBox" SelectedIndex="0" Style="{DynamicResource ComboBoxTransparent}">
+                                        <ComboBoxItem Content="4GB" />
+                                        <ComboBoxItem Content="2GB" />
+                                        <ComboBoxItem Content="1GB" />
+                                        <ComboBoxItem Content="512MB" />
+                                    </ComboBox>
+                                </StackPanel>
 
-                            <StackPanel>
-                                <TextBlock Style="{DynamicResource h3}">
+                                <StackPanel>
+                                    <TextBlock Style="{DynamicResource h3}">
                                 FPS Limit
-                                </TextBlock>
-                                <ComboBox x:Name="FpsBox" SelectedIndex="2" Style="{DynamicResource ComboBoxTransparent}">
-                                    <ComboBoxItem Content="240" />
-                                    <ComboBoxItem Content="144" />
-                                    <ComboBoxItem Content="60" />
-                                    <ComboBoxItem Content="30" />
-                                </ComboBox>
-                            </StackPanel>
-                        </UniformGrid>
-                    </StackPanel>
+                                    </TextBlock>
+                                    <ComboBox x:Name="FpsBox" SelectedIndex="2" Style="{DynamicResource ComboBoxTransparent}">
+                                        <ComboBoxItem Content="240" />
+                                        <ComboBoxItem Content="144" />
+                                        <ComboBoxItem Content="60" />
+                                        <ComboBoxItem Content="30" />
+                                    </ComboBox>
+                                </StackPanel>
+                            </UniformGrid>
+                        </StackPanel>
 
-                    <StackPanel Style="{DynamicResource SettingsColumn}">
-                        <TextBlock Style="{DynamicResource h3}">
+                        <StackPanel Style="{DynamicResource SettingsColumn}">
+                            <TextBlock Style="{DynamicResource h3}">
                             Display
-                        </TextBlock>
-                        <UniformGrid Columns="3">
-                            <CheckBox x:Name="WindowModeCheckbox">
-                                <TextBlock Margin="12,0,0,0">Window Mode</TextBlock>
-                            </CheckBox>
-                            <CheckBox x:Name="BorderlessWindowCheckbox">
-                                <TextBlock Margin="12,0,0,0">Borderless Window</TextBlock>
-                            </CheckBox>
-                            <CheckBox x:Name="DisableVsyncCheckbox">
-                                <TextBlock Margin="12,0,0,0">Disable Vsync (Allow Tearing)</TextBlock>
-                            </CheckBox>
-                        </UniformGrid>
-                    </StackPanel>
+                            </TextBlock>
+                            <UniformGrid Columns="3">
+                                <CheckBox x:Name="WindowModeCheckbox">
+                                    <TextBlock Margin="12,0,0,0">Window Mode</TextBlock>
+                                </CheckBox>
+                                <CheckBox x:Name="BorderlessWindowCheckbox">
+                                    <TextBlock Margin="12,0,0,0">Borderless Window</TextBlock>
+                                </CheckBox>
+                                <CheckBox x:Name="DisableVsyncCheckbox">
+                                    <TextBlock Margin="12,0,0,0">Disable Vsync (Allow Tearing)</TextBlock>
+                                </CheckBox>
+                            </UniformGrid>
+                        </StackPanel>
 
-                    <StackPanel Style="{DynamicResource SettingsColumn}">
-                        <TextBlock Style="{DynamicResource h3}">
+                        <StackPanel Style="{DynamicResource SettingsColumn}">
+                            <TextBlock Style="{DynamicResource h3}">
                             General
-                        </TextBlock>
-                        <UniformGrid Columns="3">
-                            <CheckBox x:Name="SkipIntroCheckbox">
-                                <TextBlock Margin="12,0,0,0">Skip Intro Sequence</TextBlock>
-                            </CheckBox>
-                            <CheckBox x:Name="DisableAudioCheckbox">
-                                <TextBlock Margin="12,0,0,0">Disable Audio</TextBlock>
-                            </CheckBox>
-                        </UniformGrid>
-                    </StackPanel>
+                            </TextBlock>
+                            <UniformGrid Columns="3">
+                                <CheckBox x:Name="SkipIntroCheckbox">
+                                    <TextBlock Margin="12,0,0,0">Skip Intro Sequence</TextBlock>
+                                </CheckBox>
+                                <CheckBox x:Name="DisableAudioCheckbox">
+                                    <TextBlock Margin="12,0,0,0">Disable Audio</TextBlock>
+                                </CheckBox>
+                            </UniformGrid>
+                        </StackPanel>
 
-                    <StackPanel Style="{DynamicResource SettingsColumn}">
-                        <TextBlock Style="{DynamicResource h3}">
+                        <StackPanel Style="{DynamicResource SettingsColumn}">
+                            <TextBlock Style="{DynamicResource h3}">
                             Graphics
-                        </TextBlock>
-                        <UniformGrid Columns="3">
-                            <CheckBox x:Name="DisableLODManagerCheckbox">
-                                <TextBlock Margin="12,0,0,0">Disable Level of Detail Manager</TextBlock>
-                            </CheckBox>
-                            <CheckBox x:Name="DisableWorldPreloadingCheckbox">
-                                <TextBlock Margin="12,0,0,0">Disable World Preloading</TextBlock>
-                            </CheckBox>
-                            <CheckBox x:Name="LowDetailCharactersCheckbox">
-                                <TextBlock Margin="12,0,0,0">Use Low Detail Characters</TextBlock>
-                            </CheckBox>
-                            <CheckBox x:Name="LowDetailMeshesCheckbox">
-                                <TextBlock Margin="12,0,0,0">Use Low Detail Meshes</TextBlock>
-                            </CheckBox>
-                            <CheckBox x:Name="DisableTextureBakingCheckbox">
-                                <TextBlock Margin="12,0,0,0">Disable Texture Baking</TextBlock>
-                            </CheckBox>
-                            <CheckBox x:Name="DisableBumpMappingCheckbox">
-                                <TextBlock Margin="12,0,0,0">Disable Bump Mapping</TextBlock>
-                            </CheckBox>
-                            <CheckBox x:Name="LowDetailTexturesCheckbox">
-                                <TextBlock Margin="12,0,0,0">Use Low Detail Textures</TextBlock>
-                            </CheckBox>
-                            <CheckBox x:Name="LowDetailNormalsCheckbox">
-                                <TextBlock Margin="12,0,0,0">Use Low Detail Normal Maps</TextBlock>
-                            </CheckBox>
-                            <CheckBox x:Name="DisableMultiPassRenderingCheckbox">
-                                <TextBlock Margin="12,0,0,0">Disable Multi-Pass Rendering</TextBlock>
-                            </CheckBox>
-                        </UniformGrid>
-                    </StackPanel>
+                            </TextBlock>
+                            <UniformGrid Columns="3">
+                                <CheckBox x:Name="DisableLODManagerCheckbox">
+                                    <TextBlock Margin="12,0,0,0">Disable Level of Detail Manager</TextBlock>
+                                </CheckBox>
+                                <CheckBox x:Name="DisableWorldPreloadingCheckbox">
+                                    <TextBlock Margin="12,0,0,0">Disable World Preloading</TextBlock>
+                                </CheckBox>
+                                <CheckBox x:Name="LowDetailCharactersCheckbox">
+                                    <TextBlock Margin="12,0,0,0">Use Low Detail Characters</TextBlock>
+                                </CheckBox>
+                                <CheckBox x:Name="LowDetailMeshesCheckbox">
+                                    <TextBlock Margin="12,0,0,0">Use Low Detail Meshes</TextBlock>
+                                </CheckBox>
+                                <CheckBox x:Name="DisableTextureBakingCheckbox">
+                                    <TextBlock Margin="12,0,0,0">Disable Texture Baking</TextBlock>
+                                </CheckBox>
+                                <CheckBox x:Name="DisableBumpMappingCheckbox">
+                                    <TextBlock Margin="12,0,0,0">Disable Bump Mapping</TextBlock>
+                                </CheckBox>
+                                <CheckBox x:Name="LowDetailTexturesCheckbox">
+                                    <TextBlock Margin="12,0,0,0">Use Low Detail Textures</TextBlock>
+                                </CheckBox>
+                                <CheckBox x:Name="LowDetailNormalsCheckbox">
+                                    <TextBlock Margin="12,0,0,0">Use Low Detail Normal Maps</TextBlock>
+                                </CheckBox>
+                                <CheckBox x:Name="DisableMultiPassRenderingCheckbox">
+                                    <TextBlock Margin="12,0,0,0">Disable Multi-Pass Rendering</TextBlock>
+                                </CheckBox>
+                            </UniformGrid>
+                        </StackPanel>
 
-                    <StackPanel Style="{DynamicResource SettingsColumn}">
-                        <TextBlock Style="{DynamicResource h3}">
+                        <StackPanel Style="{DynamicResource SettingsColumn}">
+                            <TextBlock Style="{DynamicResource h3}">
                             Advanced
-                        </TextBlock>
-                        <UniformGrid Columns="3">
-                            <CheckBox x:Name="DisableHardwareMouseCheckbox">
-                                <TextBlock Margin="12,0,0,0">Disable Hardware Mouse Cursor</TextBlock>
-                            </CheckBox>
-                            <CheckBox x:Name="DisableFastMouseCheckbox">
-                                <TextBlock Margin="12,0,0,0">Disable Fast Mouse Cursor</TextBlock>
-                            </CheckBox>
-                            <CheckBox x:Name="UseSafeRendererCheckbox">
-                                <TextBlock Margin="12,0,0,0">Use Safe Renderer (Slower)</TextBlock>
-                            </CheckBox>
-                            <CheckBox x:Name="DisableFileCachingCheckbox">
-                                <TextBlock Margin="12,0,0,0">Disable File Caching</TextBlock>
-                            </CheckBox>
-                            <CheckBox x:Name="DisableAsyncLoaderCheckbox">
-                                <TextBlock Margin="12,0,0,0">Disable Asynchronous Loader</TextBlock>
-                            </CheckBox>
-                        </UniformGrid>
+                            </TextBlock>
+                            <UniformGrid Columns="3">
+                                <CheckBox x:Name="DisableHardwareMouseCheckbox">
+                                    <TextBlock Margin="12,0,0,0">Disable Hardware Mouse Cursor</TextBlock>
+                                </CheckBox>
+                                <CheckBox x:Name="DisableFastMouseCheckbox">
+                                    <TextBlock Margin="12,0,0,0">Disable Fast Mouse Cursor</TextBlock>
+                                </CheckBox>
+                                <CheckBox x:Name="UseSafeRendererCheckbox">
+                                    <TextBlock Margin="12,0,0,0">Use Safe Renderer (Slower)</TextBlock>
+                                </CheckBox>
+                                <CheckBox x:Name="DisableFileCachingCheckbox">
+                                    <TextBlock Margin="12,0,0,0">Disable File Caching</TextBlock>
+                                </CheckBox>
+                                <CheckBox x:Name="DisableAsyncLoaderCheckbox">
+                                    <TextBlock Margin="12,0,0,0">Disable Asynchronous Loader</TextBlock>
+                                </CheckBox>
+                            </UniformGrid>
+                        </StackPanel>
                     </StackPanel>
-                </StackPanel>
+                </Grid>
 
                 <!-- Options and Mods -->
-                <StackPanel Visibility="Collapsed" Margin="18,0,0,0">
-                    <Border BorderThickness="0,0,0,1" Margin="0,0,0,10" Padding="0,0,0,2">
-                        <Border.BorderBrush>
-                            <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
-                                <GradientStop Color="#4C000000"/>
-                                <GradientStop Color="#00000000" Offset="0.8"/>
-                            </LinearGradientBrush>
-                        </Border.BorderBrush>
-                        <DockPanel>
-                            <TextBlock Style="{DynamicResource MainWindowTitle}" VerticalAlignment="Bottom">
+                <Grid x:Name="OptionsAndModsGrid" Visibility="Collapsed" Margin="18,0,0,0">
+                    <StackPanel>
+                        <Border BorderThickness="0,0,0,1" Margin="0,0,0,10" Padding="0,0,0,2">
+                            <Border.BorderBrush>
+                                <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                                    <GradientStop Color="#4C000000"/>
+                                    <GradientStop Color="#00000000" Offset="0.8"/>
+                                </LinearGradientBrush>
+                            </Border.BorderBrush>
+                            <DockPanel>
+                                <TextBlock Style="{DynamicResource MainWindowTitle}" VerticalAlignment="Bottom">
                             Options &amp; Modifications
-                            </TextBlock>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                <Button x:Name="RevertModsButton" Style="{DynamicResource NavButton}" FontSize="12" Margin="0,0,12,0" Padding="15,5,15,5">Revert</Button>
-                                <Button x:Name="SubmitModsButton" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Click="SubmitModsButton_Click">Save Changes</Button>
-                            </StackPanel>
-                        </DockPanel>
-                    </Border>
-                </StackPanel>
+                                </TextBlock>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button x:Name="RevertModsButton" Style="{DynamicResource NavButton}" FontSize="12" Margin="0,0,12,0" Padding="15,5,15,5">Revert</Button>
+                                    <Button x:Name="SubmitModsButton" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Click="SubmitModsButton_Click">Save Changes</Button>
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
 
                 <!-- Developer Options -->
-                <StackPanel Visibility="Visible" Margin="18,0,0,0">
-                    <Border BorderThickness="0,0,0,1" Margin="0,0,0,10" Padding="0,0,0,2">
-                        <Border.BorderBrush>
-                            <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
-                                <GradientStop Color="#4C000000"/>
-                                <GradientStop Color="#00000000" Offset="0.8"/>
-                            </LinearGradientBrush>
-                        </Border.BorderBrush>
-                        <DockPanel>
-                            <TextBlock Style="{DynamicResource MainWindowTitle}" VerticalAlignment="Bottom">
-                            Developer Options
-                            </TextBlock>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                <Button x:Name="RevertDeveloperButton" Style="{DynamicResource NavButton}" FontSize="12" Margin="0,0,12,0" Padding="15,5,15,5">Revert</Button>
-                                <Button x:Name="SubmitDeveloperButton" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Click="SubmitDeveloperButton_Click">Save Changes</Button>
-                            </StackPanel>
-                        </DockPanel>
-                    </Border>
-
+                <Grid x:Name="DeveloperGrid" Visibility="Collapsed" Margin="18,0,0,0">
                     <StackPanel>
-                        <UniformGrid Columns="4">
-                            <UniformGrid Rows="4" Margin="0,0,12,0">
-                                <StackPanel Style="{DynamicResource SettingsColumn}">
-                                    <TextBlock Style="{DynamicResource h3}">
+                        <Border BorderThickness="0,0,0,1" Margin="0,0,0,10" Padding="0,0,0,2">
+                            <Border.BorderBrush>
+                                <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                                    <GradientStop Color="#4C000000"/>
+                                    <GradientStop Color="#00000000" Offset="0.8"/>
+                                </LinearGradientBrush>
+                            </Border.BorderBrush>
+                            <DockPanel>
+                                <TextBlock Style="{DynamicResource MainWindowTitle}" VerticalAlignment="Bottom">
+                            Developer Options
+                                </TextBlock>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button x:Name="RevertDeveloperButton" Style="{DynamicResource NavButton}" FontSize="12" Margin="0,0,12,0" Padding="15,5,15,5">Revert</Button>
+                                    <Button x:Name="SubmitDeveloperButton" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Click="SubmitDeveloperButton_Click">Save Changes</Button>
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+
+                        <StackPanel>
+                            <UniformGrid Columns="4">
+                                <UniformGrid Rows="4" Margin="0,0,12,0">
+                                    <StackPanel Style="{DynamicResource SettingsColumn}">
+                                        <TextBlock Style="{DynamicResource h3}">
                                         API URL
-                                    </TextBlock>
-                                    <TextBox x:Name="DevAPIurl" Style="{DynamicResource TextBoxTransparent}" Height="30" />
-                                </StackPanel>
-                                <StackPanel Style="{DynamicResource SettingsColumn}">
-                                    <TextBlock Style="{DynamicResource h3}">
+                                        </TextBlock>
+                                        <TextBox x:Name="DevAPIurl" Style="{DynamicResource TextBoxTransparent}" Height="30" />
+                                    </StackPanel>
+                                    <StackPanel Style="{DynamicResource SettingsColumn}">
+                                        <TextBlock Style="{DynamicResource h3}">
                                         Manifest URL
-                                    </TextBlock>
-                                    <TextBox x:Name="DevManifestURL" Style="{DynamicResource TextBoxTransparent}" Height="30" />
-                                </StackPanel>
-                                <StackPanel Style="{DynamicResource SettingsColumn}">
-                                    <TextBlock Style="{DynamicResource h3}">
+                                        </TextBlock>
+                                        <TextBox x:Name="DevManifestURL" Style="{DynamicResource TextBoxTransparent}" Height="30" />
+                                    </StackPanel>
+                                    <StackPanel Style="{DynamicResource SettingsColumn}">
+                                        <TextBlock Style="{DynamicResource h3}">
                                         Manifest File Path
-                                    </TextBlock>
-                                    <TextBox x:Name="DevManifestFilePath" Style="{DynamicResource TextBoxTransparent}" Height="30" />
-                                </StackPanel>
-                            </UniformGrid>
+                                        </TextBlock>
+                                        <TextBox x:Name="DevManifestFilePath" Style="{DynamicResource TextBoxTransparent}" Height="30" />
+                                    </StackPanel>
+                                </UniformGrid>
 
-                            <UniformGrid Rows="4" Margin="0,0,12,0">
-                                <StackPanel Style="{DynamicResource SettingsColumn}">
-                                    <TextBlock Style="{DynamicResource h3}">
+                                <UniformGrid Rows="4" Margin="0,0,12,0">
+                                    <StackPanel Style="{DynamicResource SettingsColumn}">
+                                        <TextBlock Style="{DynamicResource h3}">
                                         SWG Login / Hostname
-                                    </TextBlock>
-                                    <TextBox x:Name="DevSWGhostname" Style="{DynamicResource TextBoxTransparent}" Height="30" />
-                                </StackPanel>
-                                <StackPanel Style="{DynamicResource SettingsColumn}">
-                                    <TextBlock Style="{DynamicResource h3}">
+                                        </TextBlock>
+                                        <TextBox x:Name="DevSWGhostname" Style="{DynamicResource TextBoxTransparent}" Height="30" />
+                                    </StackPanel>
+                                    <StackPanel Style="{DynamicResource SettingsColumn}">
+                                        <TextBlock Style="{DynamicResource h3}">
                                         SWG Login Port
-                                    </TextBlock>
-                                    <TextBox x:Name="DevSWGport" Style="{DynamicResource TextBoxTransparent}" Height="30" />
-                                </StackPanel>
+                                        </TextBlock>
+                                        <TextBox x:Name="DevSWGport" Style="{DynamicResource TextBoxTransparent}" Height="30" />
+                                    </StackPanel>
+                                </UniformGrid>
                             </UniformGrid>
-                        </UniformGrid>
+                        </StackPanel>
                     </StackPanel>
-                </StackPanel>
-            </Grid>
+                </Grid>
 
+            </Grid>
         </Grid>
 
         <!-- Login -->
@@ -1041,7 +1049,7 @@
         </Grid>
 
         <!-- Setup -->
-        <Grid x:Name="SetupGrid" Grid.ColumnSpan="2" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" Visibility="Collapsed">
+        <Grid x:Name="SetupGrid" Grid.ColumnSpan="2" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" Visibility="Visible">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="224" />
                 <ColumnDefinition Width="*" />
@@ -1068,21 +1076,18 @@
             </Grid>
 
             <!-- Setup Window -->
-            <Grid Grid.Column="1" Margin="18,0,0,0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="50" />
-                </Grid.RowDefinitions>
+            <Grid Grid.Column="1" Margin="18,0,0,0" Visibility="Visible">
 
                 <!-- #region Setup Inner -->
 
                 <!-- Rules and Regulations -->
-                <Grid Visibility="Collapsed">
+                <Grid x:Name="RulesAndRegulationsGrid" Visibility="Collapsed">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="40" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="26" />
                         <RowDefinition Height="30" />
+                        <RowDefinition Height="50" />
                     </Grid.RowDefinitions>
 
                     <TextBlock Style="{DynamicResource MainWindowTitle}">
@@ -1095,20 +1100,33 @@
                         </TextBlock>
                     </Grid>
 
-                    <CheckBox Foreground="White" Grid.Row="2" Margin="20,0,0,0">
+                    <CheckBox x:Name="RulesAndRegulationsCheckbox" Foreground="White" Grid.Row="2" Margin="20,0,0,0">
                         <TextBlock Margin="12,0,0,0">I agree</TextBlock>
                     </CheckBox>
 
                     <TextBlock Foreground="#FFCBD4DD" HorizontalAlignment="Left" VerticalAlignment="Top" FontFamily="Bahnschrift Light" FontSize="14" UseLayoutRounding="True" Grid.Row="3">
                         Once you've agreed to our rules, select the Next button to continue.
                     </TextBlock>
+
+                    <!-- Setup Navigation Buttons -->
+                    <Grid Grid.Column="1" Grid.Row="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="160" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Content="Next" Style="{DynamicResource NavButton}" FontSize="18" Click="RulesAndRegulationsNextButton_Click" />
+                        <Button Content="Cancel" Style="{DynamicResource NavButton}" FontSize="18" Grid.Column="3" Click="RulesAndRegulationsCancelButton_Click" />
+                    </Grid>
                 </Grid>
 
                 <!-- Install Directory -->
-                <Grid Visibility="Collapsed">
+                <Grid x:Name="InstallDirectoryGrid" Visibility="Collapsed">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="40" />
                         <RowDefinition Height="*" />
+                        <RowDefinition Height="50" />
                     </Grid.RowDefinitions>
 
                     <TextBlock Style="{DynamicResource MainWindowTitle}">
@@ -1126,7 +1144,7 @@
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
-                        <Button Style="{DynamicResource CustomRadioBlock}" Margin="0,0,12,12">
+                        <Button Style="{DynamicResource CustomRadioBlock}" Margin="0,0,12,12" Click="EasySetupButton_Click">
                             <Button.Background>
                                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                                     <GradientStop Color="#990A263C"/>
@@ -1143,8 +1161,8 @@
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
 
-                                <Ellipse Height="18" Stroke="#CC5584AC" Width="18" StrokeThickness="2"/>
-                                <Ellipse Height="10" Fill="#CC5584AC" Width="10"/>
+                                <Ellipse x:Name="EasySetupOuterEllipse" Height="18" Stroke="#CC5584AC" Width="18" StrokeThickness="2"/>
+                                <Ellipse x:Name="EasySetupEllipse" Height="10" Fill="#CC5584AC" Width="10"/>
 
                                 <Grid Grid.Column="1">
                                     <Grid.RowDefinitions>
@@ -1162,7 +1180,7 @@
                             </Grid>
                         </Button>
 
-                        <Button Style="{DynamicResource CustomRadioBlock}" Grid.Column="1" Margin="12,0,0,12">
+                        <Button Style="{DynamicResource CustomRadioBlock}" Grid.Column="1" Margin="12,0,0,12" Click="AdvancedSetupButton_Click">
                             <Button.Background>
                                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                                     <GradientStop Color="#990A263C"/>
@@ -1179,8 +1197,8 @@
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
 
-                                <Ellipse Height="18" Stroke="#CC5584AC" Width="18" StrokeThickness="2"/>
-                                <Ellipse Height="10" Fill="#CC5584AC" Width="10" Visibility="Collapsed"/>
+                                <Ellipse x:Name="AdvancedSetupOuterEllipse" Height="18" Stroke="#CC5584AC" Width="18" StrokeThickness="2"/>
+                                <Ellipse x:Name="AdvancedSetupEllipse" Height="10" Fill="#CC5584AC" Width="10" Visibility="Collapsed"/>
 
                                 <Grid Grid.Column="1">
                                     <Grid.RowDefinitions>
@@ -1199,12 +1217,12 @@
                         </Button>
 
                         <!-- Easy Setup Info -->
-                        <TextBlock TextWrapping="Wrap" Foreground="#FFCBD4DD" FontFamily="Bahnschrift Light" Grid.Row="1" Margin="0,12,12,12">
+                        <TextBlock x:Name="EasySetupSection" TextWrapping="Wrap" Foreground="#FFCBD4DD" FontFamily="Bahnschrift Light" Grid.Row="1" Margin="0,12,12,12">
                             Automatically installs SWG Legacy to the <Bold>"C:/SWGLegacy"</Bold> directory.
                         </TextBlock>
 
                         <!-- Advanced Setup Info -->
-                        <Grid Grid.Row="1" Grid.Column="2" Margin="12,0,0,12">
+                        <Grid x:Name="AdvancedSetupSection" Grid.Row="1" Grid.Column="2" Margin="12,0,0,12" Visibility="Collapsed">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="34" />
                                 <RowDefinition Height="46" />
@@ -1219,24 +1237,39 @@
                             <TextBlock Grid.Row="0" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Bottom" FontFamily="Bahnschrift SemiBold Condensed" FontSize="20" UseLayoutRounding="True" Grid.ColumnSpan="2">
                             Select a Directory
                             </TextBlock>
-                            <TextBox Grid.Row="1" x:Name="AdvancedSetupDirectory" Style="{DynamicResource TextBoxTransparent}" VerticalAlignment="Bottom" Margin="0,4,12,0" Height="40" />
-                            <Button Grid.Row="1"  Style="{DynamicResource NavButton}" Content="Browse" Grid.Column="1" FontSize="18" />
+                            <TextBox Grid.Row="1" x:Name="AdvancedSetupTextbox" Style="{DynamicResource TextBoxTransparent}" VerticalAlignment="Bottom" Margin="0,4,12,0" Height="40" />
+                            <Button x:Name="AdvancedSetupBrowseButton" Grid.Row="1"  Style="{DynamicResource NavButton}" Content="Browse" Grid.Column="1" FontSize="18" Click="AdvancedSetupBrowseButton_Click" />
                             <TextBlock Grid.Row="2" TextWrapping="Wrap" Foreground="#FFCBD4DD" FontFamily="Bahnschrift Light" Margin="0,12,0,0" Grid.ColumnSpan="2">
                                 Use the <Bold>"Browse"</Bold> button and navigate to a folder to install SWG Legacy to. It is recommended to install SWG Legacy to the root of your hard drive. (e.g. <Bold>"C:/SWGLegacy"</Bold>)<LineBreak/><LineBreak/>
                                 At least <Bold>6GB</Bold> of free hard drive is recommended for the base game installation.
                             </TextBlock>
                         </Grid>
                     </Grid>
+
+                    <!-- Setup Navigation Buttons -->
+                    <Grid Grid.Column="1" Grid.Row="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160" />
+                            <ColumnDefinition Width="160" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="160" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Content="Back" Style="{DynamicResource NavButton}" Margin="0,0,10,0" FontSize="18" Click="InstallDirectoryBackButton_Click" />
+                        <Button Content="Next" Style="{DynamicResource NavButton}" FontSize="18" Grid.Column="1" Click="InstallDirectoryNextButton_Click" />
+                        <Button Content="Cancel" Style="{DynamicResource NavButton}" FontSize="18" Grid.Column="3" Click="InstallDirectoryCancelButton_Click" />
+                    </Grid>
                 </Grid>
 
                 <!-- Game Validation-->
-                <Grid Visibility="Visible">
+                <Grid x:Name="GameValidationGrid" Visibility="Visible">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="40" />
                         <RowDefinition Height="40" />
                         <RowDefinition Height="20" />
                         <RowDefinition Height="auto" />
                         <RowDefinition Height="*" />
+                        <RowDefinition Height="50" />
                     </Grid.RowDefinitions>
 
                     <TextBlock Style="{DynamicResource MainWindowTitle}">
@@ -1247,7 +1280,7 @@
                         To legally play a Star Wars Galaxies Emulator, you must own a purchased copy of Star Wars Galaxies.
                     </TextBlock>
 
-                    <CheckBox Grid.Row="2" Margin="20,0,0,0">
+                    <CheckBox x:Name="GameValidationCheckbox" Grid.Row="2" Margin="20,0,0,0">
                         <TextBlock Margin="12,0,0,0">I verify that I own a legal copy of Star Wars Galaxies</TextBlock>
                     </CheckBox>
 
@@ -1280,143 +1313,30 @@
                                         Selected Directory
                                     </TextBlock>
                                     <StackPanel Grid.Row="1" Name="Container">
-                                        <TextBox Style="{DynamicResource TextBoxTransparent}" x:Name="VerificationSelectedDirectory" Width="{Binding ElementName=Container,Path=ActualWidth}" MaxWidth="320" HorizontalAlignment="Left" IsEnabled="False" Height="40" Margin="0,4,12,4"  />
+                                        <TextBox x:Name="GameValidationTextBox" Style="{DynamicResource TextBoxTransparent}" Width="{Binding ElementName=Container,Path=ActualWidth}" MaxWidth="320" HorizontalAlignment="Left" IsEnabled="False" Height="40" Margin="0,4,12,4"  />
                                     </StackPanel>
                                 </Grid>
 
-                                <Button Content="Browse" Style="{DynamicResource NavButton}" FontSize="18" Grid.Column="1" Height="50" Width="160" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+                                <Button Content="Browse" Style="{DynamicResource NavButton}" FontSize="18" Grid.Column="1" Height="50" Width="160" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="GameValidationBrowseButton_Click" />
                             </Grid>
                         </Grid>
                     </Border>
-                </Grid>
 
-                <!-- TEMPLATE FOR SETUP -->
-                <Grid Visibility="Collapsed">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="40" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
+                    <!-- Setup Navigation Buttons -->
+                    <Grid Grid.Column="1" Grid.Row="5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160" />
+                            <ColumnDefinition Width="160" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="160" />
+                        </Grid.ColumnDefinitions>
 
-                    <TextBlock Style="{DynamicResource MainWindowTitle}">
-                        Title Here
-                    </TextBlock>
-
-                    <Grid Grid.Row="1">
-                        <TextBlock Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Top" FontFamily="Bahnschrift Light" FontSize="14" UseLayoutRounding="True">
-                        Content Here
-                        </TextBlock>
+                        <Button Content="Back" Style="{DynamicResource NavButton}" Margin="0,0,10,0" FontSize="18" Click="GameValidationBackButton_Click" />
+                        <Button Content="Next" Style="{DynamicResource NavButton}" FontSize="18" Grid.Column="1" Click="GameValidationNextButton_Click" />
+                        <Button Content="Cancel" Style="{DynamicResource NavButton}" FontSize="18" Grid.Column="3" Click="GameValidationCancelButton_Click" />
                     </Grid>
                 </Grid>
-                <!--#endregion-->
 
-                <!-- Setup Navigation Buttons -->
-                <Grid Grid.Column="1" Grid.Row="1">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="160" />
-                        <ColumnDefinition Width="160" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="160" />
-                    </Grid.ColumnDefinitions>
-
-                    <Button Content="Back" Style="{DynamicResource NavButton}" Margin="0,0,10,0" FontSize="18"/>
-                    <Button Content="Next" Style="{DynamicResource NavButton}" FontSize="18" Grid.Column="1"/>
-                    <Button Content="Cancel" Style="{DynamicResource NavButton}" FontSize="18" Grid.Column="3"/>
-                </Grid>
-            </Grid>
-
-
-
-            <Grid Grid.Column="1" Margin="18,18,0,0" Visibility="Hidden">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="20" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="auto" />
-                    <ColumnDefinition Width="20" />
-                </Grid.ColumnDefinitions>
-
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="5" />
-                    <RowDefinition Height="30" />
-                    <RowDefinition Height="auto" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="20" />
-                </Grid.RowDefinitions>
-
-                <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Visibility="Collapsed">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="30" />
-                        <RowDefinition Height="70" />
-                    </Grid.RowDefinitions>
-
-                    <TextBlock x:Name="SelectDirectoryText" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed">
-                        SELECT GAME DIRECTORY
-                    </TextBlock>
-
-                    <TextBlock x:Name="EasySetupText" Grid.Column="0" Grid.Row="0" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        EASY SETUP
-                    </TextBlock>
-
-                    <Button x:Name="EasySetupButton" Grid.Column="0" Grid.Row="1" Click="EasySetupButton_Click" Visibility="Visible">
-                        <Image Style="{DynamicResource setupImage}" />
-                    </Button>
-
-                    <TextBox x:Name="SelectDirectoryTextbox" IsReadOnly="True" Grid.Column="0" Grid.Row="1" Width="200" Height="35" Visibility="Collapsed"/>
-
-                    <TextBlock x:Name="AdvancedSetupText" Grid.Column="1" Grid.Row="0" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        ADVANCED SETUP
-                    </TextBlock>
-
-                    <Button x:Name="AdvancedSetupButton" Grid.Column="1" Grid.Row="1" Click="AdvancedSetupButton_Click" Visibility="Visible">
-                        <Image Style="{DynamicResource setupAdvancedImage}" />
-                    </Button>
-
-                    <Button x:Name="SelectDirectoryButton" Style="{DynamicResource RoundedButtonStyle}" Grid.Column="1" Grid.Row="1" Width="175" Height="35" Background="#FF006FB2" Foreground="White" FontFamily="Bahnschrift SemiBold Condensed" FontSize="16" HorizontalAlignment="Right" Visibility="Collapsed" Click="SelectDirectoryButton_Click">
-                        SELECT DIRECTORY
-                    </Button>
-                </Grid>
-
-                <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3"  Visibility="Collapsed">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="20" />
-                        <RowDefinition Height="auto" />
-                    </Grid.RowDefinitions>
-
-                    <TextBlock x:Name="EasySetupDescription" Grid.Column="0" Grid.Row="0" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="10,0,10,0" FontFamily="Bahnschrift SemiLight">
-                        The "Just Make It Work" option. This defaults the Darknaught installation to the "C" drive.
-                    </TextBlock>
-
-                    <TextBlock x:Name="EasySetupCaption" Grid.Column="0" Grid.Row="2" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="5,0,5,0" FontFamily="Bahnschrift SemiLight">
-                        Click the folder to select this option.
-                    </TextBlock>
-
-                    <TextBlock x:Name="AdvancedSetupDescription" Grid.Column="1" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="10,0,10,0" FontFamily="Bahnschrift SemiLight">
-                        The "Advanced" setup option. This option allows you to select the hard drive you wish to install Darknaught game files to.
-                    </TextBlock>
-
-                    <TextBlock x:Name="AdvancedSetupCaption" Grid.Column="1" Grid.Row="2" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="5,0,5,0" FontFamily="Bahnschrift SemiLight">
-                        Click the folder to select this option.
-                    </TextBlock>
-
-                    <TextBlock x:Name="SelectDirectoryDescription" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Height="57" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" Margin="5,0,5,0" FontFamily="Bahnschrift SemiLight" Visibility="Collapsed">
-                        Select the directory you wish for your new game files to be stored. This is normally in a directory such as (C:/ServerName).
-                    </TextBlock>
-
-                    <Button x:Name="OkayDirectoryButton" Style="{DynamicResource RoundedButtonStyle}" Grid.Column="0" Grid.Row="1" Grid.RowSpan="2" Grid.ColumnSpan="2" Width="175" Height="35" Background="#FF006FB2" Foreground="White" FontFamily="Bahnschrift SemiBold Condensed" FontSize="16" HorizontalAlignment="Center" Visibility="Collapsed" VerticalAlignment="Center" Click="OkayDirectoryButton_Click">
-                        CONTINUE
-                    </Button>
-                </Grid>
             </Grid>
 
         </Grid>
