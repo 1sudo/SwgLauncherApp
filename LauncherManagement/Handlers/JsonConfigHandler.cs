@@ -10,7 +10,7 @@ namespace LauncherManagement
     {
         public static Action<string> OnJsonReadError;
 
-        public async Task EnableAutoLoginAsync()
+        public async Task ToggleAutoLoginAsync(bool flag)
         {
             string configLocation = Path.Join(Directory.GetCurrentDirectory(), "config.json");
 
@@ -26,7 +26,14 @@ namespace LauncherManagement
 
             ConfigProperties configProperties = JsonConvert.DeserializeObject<ConfigProperties>(json.ToString());
 
-            configProperties.AutoLogin = true;
+            if (flag)
+            {
+                configProperties.AutoLogin = true;
+            }
+            else
+            {
+                configProperties.AutoLogin = false;
+            }
 
             string newJson = JsonConvert.SerializeObject(configProperties, Formatting.Indented);
 

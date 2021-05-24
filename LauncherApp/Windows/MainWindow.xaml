@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:LauncherApp" xmlns:wpf="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
         x:Class="LauncherApp.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="610" Width="1130" WindowStyle="None" MouseDown="Window_MouseDown" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Initialized="Window_Initialized">
+        Title="MainWindow" Height="610" Width="1130" WindowStyle="None" MouseDown="Window_MouseDown" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Initialized="Window_Initialized" KeyDown="Window_KeyDown">
 
     <!-- #region WindowResources -->
     <Window.Resources>
@@ -620,7 +620,7 @@
         <!-- #endregion -->
 
         <!-- Primary Screen -->
-        <Grid x:Name="PrimaryGrid" Grid.ColumnSpan="2" Grid.Row="2" Grid.Column="1" Visibility="Collapsed">
+        <Grid x:Name="PrimaryGrid" Grid.ColumnSpan="2" Grid.Row="2" Grid.Column="1" Visibility="Visible">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="224" />
                 <ColumnDefinition Width="*" />
@@ -718,6 +718,9 @@
                         <GradientStop Color="#00000000" Offset="1"/>
                     </RadialGradientBrush>
                 </Grid.Background>
+                <wpf:ChromiumWebBrowser x:Name="Browser" Address="http://localhost/">
+                    
+                </wpf:ChromiumWebBrowser>
 
                 <!-- Settings -->
                 <Grid x:Name="SettingsGrid" Visibility="Collapsed" Margin="18,0,0,0">
@@ -1009,7 +1012,7 @@
                     <TextBlock x:Name="ResultText" Grid.Row="1" Foreground="#FFF32A2A" FontFamily="Bahnschrift" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14">
                     </TextBlock>
 
-                    <TextBox Style="{DynamicResource TextBoxTransparent}" x:Name="UsernameTextbox" Grid.Column="1" Grid.Row="2" />
+                    <TextBox Style="{DynamicResource TextBoxTransparent}" x:Name="UsernameTextbox" Grid.Column="1" Grid.Row="2" KeyDown="UsernameTextbox_KeyDown" />
                     <TextBlock Text="Username" Grid.Column="1" Grid.Row="2">
                         <TextBlock.Style>
                             <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TextBlockPlaceholder}">
@@ -1023,9 +1026,8 @@
                         </TextBlock.Style>
                     </TextBlock>
 
-
                     <!-- https://stackoverflow.com/questions/833943/watermark-hint-text-placeholder-textbox/836463#836463 -->
-                    <PasswordBox Style="{DynamicResource PasswordBoxTransparent}" x:Name="PasswordTextbox" Grid.Column="1" Grid.Row="3"/>
+                    <PasswordBox Style="{DynamicResource PasswordBoxTransparent}" x:Name="PasswordTextbox" Grid.Column="1" Grid.Row="3" KeyDown="PasswordTextbox_KeyDown"/>
                     <TextBlock Text="Password" Grid.Column="1" Grid.Row="3">
                         <TextBlock.Style>
                             <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TextBlockPlaceholder}">
@@ -1049,7 +1051,7 @@
         </Grid>
 
         <!-- Setup -->
-        <Grid x:Name="SetupGrid" Grid.ColumnSpan="2" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" Visibility="Visible">
+        <Grid x:Name="SetupGrid" Grid.ColumnSpan="2" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" Visibility="Collapsed">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="224" />
                 <ColumnDefinition Width="*" />
@@ -1081,7 +1083,7 @@
                 <!-- #region Setup Inner -->
 
                 <!-- Rules and Regulations -->
-                <Grid x:Name="RulesAndRegulationsGrid" Visibility="Collapsed">
+                <Grid x:Name="RulesAndRegulationsGrid" Visibility="Visible">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="40" />
                         <RowDefinition Height="*" />
@@ -1100,7 +1102,7 @@
                         </TextBlock>
                     </Grid>
 
-                    <CheckBox x:Name="RulesAndRegulationsCheckbox" Foreground="White" Grid.Row="2" Margin="20,0,0,0">
+                    <CheckBox x:Name="RulesAndRegulationsCheckbox" Foreground="White" Grid.Row="2" Margin="20,0,0,0" Checked="RulesAndRegulationsCheckbox_Checked" Unchecked="RulesAndRegulationsCheckbox_Unchecked">
                         <TextBlock Margin="12,0,0,0">I agree</TextBlock>
                     </CheckBox>
 
@@ -1116,7 +1118,7 @@
                             <ColumnDefinition Width="160" />
                         </Grid.ColumnDefinitions>
 
-                        <Button Content="Next" Style="{DynamicResource NavButton}" FontSize="18" Click="RulesAndRegulationsNextButton_Click" />
+                        <Button x:Name="RulesAndRegulationsNextButton" Content="Next" Style="{DynamicResource NavButton}" FontSize="18" Click="RulesAndRegulationsNextButton_Click" IsEnabled="False" />
                         <Button Content="Cancel" Style="{DynamicResource NavButton}" FontSize="18" Grid.Column="3" Click="RulesAndRegulationsCancelButton_Click" />
                     </Grid>
                 </Grid>
@@ -1237,7 +1239,7 @@
                             <TextBlock Grid.Row="0" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Bottom" FontFamily="Bahnschrift SemiBold Condensed" FontSize="20" UseLayoutRounding="True" Grid.ColumnSpan="2">
                             Select a Directory
                             </TextBlock>
-                            <TextBox Grid.Row="1" x:Name="AdvancedSetupTextbox" Style="{DynamicResource TextBoxTransparent}" VerticalAlignment="Bottom" Margin="0,4,12,0" Height="40" />
+                            <TextBox Grid.Row="1" x:Name="AdvancedSetupTextbox" Style="{DynamicResource TextBoxTransparent}" VerticalAlignment="Bottom" Margin="0,4,12,0" Height="40" IsEnabled="False" TextChanged="AdvancedSetupTextbox_TextChanged" />
                             <Button x:Name="AdvancedSetupBrowseButton" Grid.Row="1"  Style="{DynamicResource NavButton}" Content="Browse" Grid.Column="1" FontSize="18" Click="AdvancedSetupBrowseButton_Click" />
                             <TextBlock Grid.Row="2" TextWrapping="Wrap" Foreground="#FFCBD4DD" FontFamily="Bahnschrift Light" Margin="0,12,0,0" Grid.ColumnSpan="2">
                                 Use the <Bold>"Browse"</Bold> button and navigate to a folder to install SWG Legacy to. It is recommended to install SWG Legacy to the root of your hard drive. (e.g. <Bold>"C:/SWGLegacy"</Bold>)<LineBreak/><LineBreak/>
@@ -1256,13 +1258,13 @@
                         </Grid.ColumnDefinitions>
 
                         <Button Content="Back" Style="{DynamicResource NavButton}" Margin="0,0,10,0" FontSize="18" Click="InstallDirectoryBackButton_Click" />
-                        <Button Content="Next" Style="{DynamicResource NavButton}" FontSize="18" Grid.Column="1" Click="InstallDirectoryNextButton_Click" />
+                        <Button x:Name="InstallDirectoryNextButton" Content="Next" Style="{DynamicResource NavButton}" FontSize="18" Grid.Column="1" Click="InstallDirectoryNextButton_Click" />
                         <Button Content="Cancel" Style="{DynamicResource NavButton}" FontSize="18" Grid.Column="3" Click="InstallDirectoryCancelButton_Click" />
                     </Grid>
                 </Grid>
 
                 <!-- Game Validation-->
-                <Grid x:Name="GameValidationGrid" Visibility="Visible">
+                <Grid x:Name="GameValidationGrid" Visibility="Collapsed">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="40" />
                         <RowDefinition Height="40" />
@@ -1280,12 +1282,12 @@
                         To legally play a Star Wars Galaxies Emulator, you must own a purchased copy of Star Wars Galaxies.
                     </TextBlock>
 
-                    <CheckBox x:Name="GameValidationCheckbox" Grid.Row="2" Margin="20,0,0,0">
+                    <CheckBox x:Name="GameValidationCheckbox" Grid.Row="2" Margin="20,0,0,0" Checked="GameValidationCheckbox_Checked" Unchecked="GameValidationCheckbox_Unchecked">
                         <TextBlock Margin="12,0,0,0">I verify that I own a legal copy of Star Wars Galaxies</TextBlock>
                     </CheckBox>
 
                     <!-- Enable on checkbox checked -->
-                    <Border Grid.Row="3" Margin="20" Padding="20" CornerRadius="3" Background="#19000000">
+                    <Border x:Name="GameValidationDirectorySection" Grid.Row="3" Margin="20" Padding="20" CornerRadius="3" Background="#19000000" Visibility="Collapsed">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="40" />
@@ -1313,7 +1315,7 @@
                                         Selected Directory
                                     </TextBlock>
                                     <StackPanel Grid.Row="1" Name="Container">
-                                        <TextBox x:Name="GameValidationTextBox" Style="{DynamicResource TextBoxTransparent}" Width="{Binding ElementName=Container,Path=ActualWidth}" MaxWidth="320" HorizontalAlignment="Left" IsEnabled="False" Height="40" Margin="0,4,12,4"  />
+                                        <TextBox x:Name="GameValidationTextBox" Style="{DynamicResource TextBoxTransparent}" Width="{Binding ElementName=Container,Path=ActualWidth}" MaxWidth="320" HorizontalAlignment="Left" IsEnabled="False" Height="40" Margin="0,4,12,4" TextChanged="GameValidationTextBox_TextChanged"  />
                                     </StackPanel>
                                 </Grid>
 
@@ -1332,7 +1334,7 @@
                         </Grid.ColumnDefinitions>
 
                         <Button Content="Back" Style="{DynamicResource NavButton}" Margin="0,0,10,0" FontSize="18" Click="GameValidationBackButton_Click" />
-                        <Button Content="Next" Style="{DynamicResource NavButton}" FontSize="18" Grid.Column="1" Click="GameValidationNextButton_Click" />
+                        <Button x:Name="GameValidationNextButton" Content="Next" Style="{DynamicResource NavButton}" FontSize="18" Grid.Column="1" Click="GameValidationNextButton_Click" IsEnabled="False" />
                         <Button Content="Cancel" Style="{DynamicResource NavButton}" FontSize="18" Grid.Column="3" Click="GameValidationCancelButton_Click" />
                     </Grid>
                 </Grid>

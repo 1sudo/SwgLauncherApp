@@ -93,6 +93,7 @@ namespace LauncherApp
 
                 if (isVerified)
                 {
+                    UpdateScreen((int)Screens.LOGIN_GRID);
                     bool isLoggedIn = await CheckAutoLoginAsync();
 
                     if (isLoggedIn)
@@ -122,6 +123,16 @@ namespace LauncherApp
         async void Window_KeyDown(object sender, KeyEventArgs e)
         {
             if (Keyboard.IsKeyDown(Key.LeftCtrl) &&
+                Keyboard.IsKeyDown(Key.LeftAlt) &&
+                Keyboard.IsKeyDown(Key.Space))
+            {
+                InstallDirectoryNextButton.IsEnabled = true;
+                JsonConfigHandler configHandler = new JsonConfigHandler();
+                await configHandler.SetVerified();
+                UpdateScreen((int)Screens.LOGIN_GRID);
+            }
+
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) &&
                 Keyboard.IsKeyDown(Key.LeftShift) &&
                 Keyboard.IsKeyDown(Key.OemTilde) &&
                 Keyboard.IsKeyDown(Key.F12))
@@ -139,9 +150,74 @@ namespace LauncherApp
                     generateFromFolder = dialog.SelectedPath.Replace("\\", "/");
                 }
 
-                await ManifestGenerator.GenerateManifestAsync(generateFromFolder);
+                try
+                {
+                    await ManifestGenerator.GenerateManifestAsync(generateFromFolder);
+                }
+                catch { }
             }
         }
+
+        private void UsernameTextbox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (Keyboard.IsKeyDown(Key.Enter))
+            {
+                LoginButton_Click(sender, e);
+            }
+        }
+
+        private void PasswordTextbox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (Keyboard.IsKeyDown(Key.Enter))
+            {
+                LoginButton_Click(sender, e);
+            }
+        }
+
+        #region Checkboxes
+        private void GameValidationCheckbox_Checked(object sender, RoutedEventArgs e)
+        {
+            GameValidationDirectorySection.Visibility = Visibility.Visible;
+        }
+
+        private void GameValidationCheckbox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            GameValidationDirectorySection.Visibility = Visibility.Collapsed;
+        }
+
+        private void RulesAndRegulationsCheckbox_Checked(object sender, RoutedEventArgs e)
+        {
+            RulesAndRegulationsNextButton.IsEnabled = true;
+        }
+
+        private void RulesAndRegulationsCheckbox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            RulesAndRegulationsNextButton.IsEnabled = false;
+        }
+        #endregion
+
+        #region Textboxes
+        private void GameValidationTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(GameValidationTextBox.Text))
+            {
+                GameValidationNextButton.IsEnabled = false;
+            }
+            else
+            {
+                GameValidationNextButton.IsEnabled = true;
+            }
+        }
+
+        private void AdvancedSetupTextbox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(AdvancedSetupTextbox.Text))
+            {
+                InstallDirectoryNextButton.IsEnabled = true;
+            }
+        }
+        #endregion
+
         #endregion
 
         #region ScreenManagement
@@ -284,6 +360,7 @@ namespace LauncherApp
 
         void EasySetupButton_Click(object sender, RoutedEventArgs e)
         {
+            InstallDirectoryNextButton.IsEnabled = true;
             EasySetupEllipse.Visibility = Visibility.Visible;
             EasySetupSection.Visibility = Visibility.Visible;
             AdvancedSetupEllipse.Visibility = Visibility.Collapsed;
@@ -292,6 +369,10 @@ namespace LauncherApp
 
         void AdvancedSetupButton_Click(object sender, RoutedEventArgs e)
         {
+            if (string.IsNullOrEmpty(AdvancedSetupTextbox.Text))
+            {
+                InstallDirectoryNextButton.IsEnabled = false;
+            }
             AdvancedSetupSection.Visibility = Visibility.Visible;
             AdvancedSetupEllipse.Visibility = Visibility.Visible;
             EasySetupEllipse.Visibility = Visibility.Collapsed;
@@ -305,45 +386,34 @@ namespace LauncherApp
 
         async void GameValidationNextButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Keyboard.IsKeyDown(Key.LeftCtrl) &&
-                Keyboard.IsKeyDown(Key.LeftAlt) &&
-                Keyboard.IsKeyDown(Key.LeftShift))
+            if ((bool)GameValidationCheckbox.IsChecked)
             {
-                JsonConfigHandler configHandler = new JsonConfigHandler();
-                await configHandler.SetVerified();
-                UpdateScreen((int)Screens.LOGIN_GRID);
-            }
-            else
-            {
-                if ((bool)GameValidationCheckbox.IsChecked)
+                if (string.IsNullOrEmpty(GameValidationTextBox.Text))
                 {
-                    if (string.IsNullOrEmpty(GameValidationTextBox.Text))
-                    {
-                        MessageBox.Show("Please, first select your base SWG installation location!",
-                            "Original Game Files Location Error!", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                    }
-                    else
-                    {
-                        bool isBaseGameValidated = GameSetupHandler.ValidateBaseGame(GameValidationTextBox.Text);
-
-                        if (isBaseGameValidated)
-                        {
-                            JsonConfigHandler configHandler = new JsonConfigHandler();
-                            await configHandler.SetVerified();
-                            UpdateScreen((int)Screens.LOGIN_GRID);
-                        }
-                        else
-                        {
-                            MessageBox.Show("The path you have chosen does not contain a valid copy of Star Wars Galaxies!" +
-                                "Please select a valid path and try again.", "Invalid Base Game Path!", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                        }
-                    }
+                    MessageBox.Show("Please, first select your base SWG installation location!",
+                        "Original Game Files Location Error!", MessageBoxButton.OK, MessageBoxImage.Asterisk);
                 }
                 else
                 {
-                    MessageBox.Show("You must first verify that you own a legitimate copy of Star Wars Galaxies!",
-                        "Did you forget to check the box? Please verify and try again.", MessageBoxButton.OK, MessageBoxImage.Asterisk);
+                    bool isBaseGameValidated = GameSetupHandler.ValidateBaseGame(GameValidationTextBox.Text);
+
+                    if (isBaseGameValidated)
+                    {
+                        JsonConfigHandler configHandler = new JsonConfigHandler();
+                        await configHandler.SetVerified();
+                        UpdateScreen((int)Screens.LOGIN_GRID);
+                    }
+                    else
+                    {
+                        MessageBox.Show("The path you have chosen does not contain a valid copy of Star Wars Galaxies!" +
+                            "Please select a valid path and try again.", "Invalid Base Game Path!", MessageBoxButton.OK, MessageBoxImage.Asterisk);
+                    }
                 }
+            }
+            else
+            {
+                MessageBox.Show("You must first verify that you own a legitimate copy of Star Wars Galaxies!",
+                    "Did you forget to check the box? Please verify and try again.", MessageBoxButton.OK, MessageBoxImage.Asterisk);
             }
         }
 
@@ -409,11 +479,16 @@ namespace LauncherApp
             _loginProperties = loginProperties;
             _gamePassword = PasswordTextbox.Password.ToString();
 
+            JsonConfigHandler config = new JsonConfigHandler();
+
             if ((bool)AutoLoginCheckbox.IsChecked && loginProperties.Result == "Success")
             {
-                JsonConfigHandler config = new JsonConfigHandler();
-                await config.EnableAutoLoginAsync();
+                await config.ToggleAutoLoginAsync(true);
                 await accountHandler.SaveCredentials(UsernameTextbox.Text, PasswordTextbox.Password.ToString());
+            }
+            else
+            {
+                await config.ToggleAutoLoginAsync(false);
             }
 
             switch (loginProperties.Result)
@@ -426,6 +501,9 @@ namespace LauncherApp
                     break;
                 case "InvalidCredentials": 
                     ResultText.Text = "Invalid username or password!"; 
+                    break;
+                case "DatabaseConnectionError":
+                    ResultText.Text = "Database connection error!";
                     break;
             }
         }
@@ -513,7 +591,7 @@ namespace LauncherApp
             CharacterSelectGrid.Visibility = Visibility.Collapsed;
             PlayButton.IsEnabled = false;
             PlayButton.Content = "Updating";
-            await GameSetupHandler.CheckFilesAsync(_gamePath);
+            await GameSetupHandler.CheckFilesAsync(GameSetupHandler.GetGamePath());
             PlayButton.IsEnabled = true;
             PlayButton.Content = "Play";
             CharacterSelectGrid.Visibility = Visibility.Visible;
@@ -719,7 +797,12 @@ namespace LauncherApp
 
             UpdateScreen((int)Screens.PRIMARY_GRID);
             GetCharacters();
-            await CheckGameFiles();
+
+            try
+            {
+                await CheckGameFiles();
+            }
+            catch { }
         }
 
         void GetCharacters()
