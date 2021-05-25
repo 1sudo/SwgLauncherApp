@@ -140,21 +140,38 @@ namespace LauncherManagement
 
             Dictionary<string, List<string>> JsonFileKeys = new Dictionary<string, List<string>>()
             {
-                { "config.json", new List<string>()
+                { 
+                    "config.json", new List<string>()
                     {
-                        "GameLocation", "AutoLogin", "Verified"
+                        "GameLocation", 
+                        "AutoLogin", 
+                        "Verified"
                     } 
                 },
-                { "account.json", new List<string>()
+                { 
+                    "account.json", new List<string>()
                     {
-                        "Username", "Password"
+                        "Username", 
+                        "Password"
                     }
                 },
-                { "character.json", new List<string>()
+                { 
+                    "character.json", new List<string>()
                     {
                         "Character"
                     }
                 },
+                { 
+                    "launcher-settings.json", new List<string>()
+                    {
+                        "ApiUrl", 
+                        "ManifestUrl", 
+                        "BackupManifestUrl", 
+                        "ManifestFilePath", 
+                        "SWGLoginAddress", 
+                        "SWGLoginPort"
+                    }
+                }
             };
 
             foreach (KeyValuePair<string, List<string>> kvp in JsonFileKeys)

@@ -778,10 +778,6 @@ namespace LauncherApp
         #endregion
 
         #region Misc
-        void PlayHoverSound(object sender, RoutedEventArgs e)
-        {
-            _audioHandler.PlayHoverSound();
-        }
 
         async Task HandleLogin()
         {
@@ -796,6 +792,7 @@ namespace LauncherApp
                 );
 
             UpdateScreen((int)Screens.PRIMARY_GRID);
+
             GetCharacters();
 
             try
@@ -832,6 +829,28 @@ namespace LauncherApp
                 }
             }
         }
+
+        void PlayHoverSound(object sender, MouseEventArgs e)
+        {
+            _audioHandler.PlayHoverSound();
+        }
+
         #endregion
+
+        void GetLauncherSettings()
+        {
+            bool isSettingsValid = GameSetupHandler.ValidateJsonFile("launcher-settings.json");
+
+            if (isSettingsValid)
+            {
+                
+            }
+            else
+            {
+                
+            }
+        }
+
+
     }
 }

@@ -14,17 +14,17 @@ namespace LauncherManagement
         {
             string configLocation = Path.Join(Directory.GetCurrentDirectory(), "config.json");
 
-            JObject json = new JObject();
+            string json = "";
             try
             {
-                json = JObject.Parse(File.ReadAllText(configLocation));
+                json = File.ReadAllText(configLocation);
             }
             catch
             {
                 OnJsonReadError?.Invoke("Error reading config.json! Please report this to staff!");
             }
 
-            ConfigProperties configProperties = JsonConvert.DeserializeObject<ConfigProperties>(json.ToString());
+            ConfigProperties configProperties = JsonConvert.DeserializeObject<ConfigProperties>(json);
 
             if (flag)
             {
@@ -44,17 +44,17 @@ namespace LauncherManagement
         {
             string configLocation = Path.Join(Directory.GetCurrentDirectory(), "config.json");
 
-            JObject json = new JObject();
+            string json = "";
             try
             {
-                json = JObject.Parse(File.ReadAllText(configLocation));
+                json = File.ReadAllText(configLocation);
             }
             catch
             {
                 OnJsonReadError?.Invoke("Error reading config.json! Please report this to staff!");
             }
 
-            ConfigProperties configProperties = JsonConvert.DeserializeObject<ConfigProperties>(json.ToString());
+            ConfigProperties configProperties = JsonConvert.DeserializeObject<ConfigProperties>(json);
 
             return configProperties.AutoLogin;
         }
@@ -159,6 +159,16 @@ namespace LauncherManagement
             }
 
             return false;
+        }
+
+        public static void GetLauncherSettings()
+        {
+
+        }
+
+        public static void GenerateLauncherDefaultSettings()
+        {
+
         }
     }
 }

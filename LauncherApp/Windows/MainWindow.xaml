@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:LauncherApp" xmlns:wpf="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
+        xmlns:local="clr-namespace:LauncherApp"
         x:Class="LauncherApp.MainWindow"
         mc:Ignorable="d"
         Title="MainWindow" Height="610" Width="1130" WindowStyle="None" MouseDown="Window_MouseDown" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Initialized="Window_Initialized" KeyDown="Window_KeyDown">
@@ -557,11 +557,11 @@
                 <ColumnDefinition Width="auto" />
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
-            <Button x:Name="MinimizeButton" Style="{DynamicResource TitleButton}" Grid.Column="1" MouseEnter="PlayHoverSound" Click="MinimizeButton_Click">
+            <Button x:Name="MinimizeButton" Style="{DynamicResource TitleButton}" Grid.Column="1" MouseEnter="PlayHoverSound" Click="MinimizeButton_Click" Cursor="Hand">
                 <Image Style="{DynamicResource minimizeImage}" />
             </Button>
-            <Button x:Name="CloseButton" Style="{DynamicResource closeBtn}" Grid.Column="2" MouseEnter="PlayHoverSound" Click="CloseButton_Click">
-                <Image Style="{DynamicResource closeImage}" />
+            <Button x:Name="CloseButton" Style="{DynamicResource closeBtn}" Grid.Column="2" MouseEnter="PlayHoverSound" Click="CloseButton_Click" Cursor="Hand">
+                <Image x:Name="CloseButtonHoverImage" Style="{DynamicResource closeImage}" />
             </Button>
         </Grid>
 
@@ -718,9 +718,10 @@
                         <GradientStop Color="#00000000" Offset="1"/>
                     </RadialGradientBrush>
                 </Grid.Background>
-                <wpf:ChromiumWebBrowser x:Name="Browser" Address="http://localhost/">
+
+                <Grid x:Name="WebGrid">
                     
-                </wpf:ChromiumWebBrowser>
+                </Grid>
 
                 <!-- Settings -->
                 <Grid x:Name="SettingsGrid" Visibility="Collapsed" Margin="18,0,0,0">
