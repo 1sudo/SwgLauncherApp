@@ -26,28 +26,6 @@ namespace LauncherManagement
             await DownloadFilesFromListAsync(fileList, downloadLocation);
         }
 
-        public static string GetGamePath()
-        {
-            JObject json = new JObject();
-            try
-            {
-                json = JObject.Parse(File.ReadAllText(Path.Join(Directory.GetCurrentDirectory(), "config.json")));
-            } 
-            catch { }
-
-            JToken location;
-            try
-            {
-                if (json.TryGetValue("GameLocation", out location))
-                {
-                    return location.ToString();
-                }
-            }
-            catch { }
-
-            return string.Empty;
-        }
-
         public static bool ValidateBaseGame(string location)
         {
             return CheckBaseInstallation(location);

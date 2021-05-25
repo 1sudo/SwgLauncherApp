@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
@@ -38,12 +39,17 @@ namespace LauncherApp
         readonly AudioHandler _audioHandler;
         readonly AppHandler _appHandler;
         LoginProperties _loginProperties = new LoginProperties();
+        LauncherConfigHandler _configHandler = new LauncherConfigHandler();
         string _gamePassword;
+        Dictionary<string, string> _launcherSettings;
         #endregion
 
         #region Constructor
         public MainWindow()
         {
+            DatabaseHandler db = new DatabaseHandler();
+            db.CreateTables();
+
             ServerProperties.ServerName = "SWGLegacy";
             ServerProperties.ApiUrl = "http://localhost:5000";
             ServerProperties.ManifestFileUrl = "http://localhost/files/";
@@ -70,6 +76,9 @@ namespace LauncherApp
         #region WindowManagement
         async void Window_Initialized(object sender, EventArgs e)
         {
+            await _configHandler.InsertDefaultRow();
+            _launcherSettings = await _configHandler.GetLauncherSettings();
+
             _screens = new List<Grid>()
             {
                 SetupGrid,
@@ -83,13 +92,11 @@ namespace LauncherApp
                 DeveloperGrid
             };
 
-            bool isGameConfigValidated = ValidateGameConfig();
+            bool isGameConfigValidated = await ValidateGameConfig();
 
             if (isGameConfigValidated)
             {
-                JsonConfigHandler config = new JsonConfigHandler();
-
-                bool isVerified = config.GetVerified();
+                bool isVerified = await _configHandler.GetVerifiedAsync();
 
                 if (isVerified)
                 {
@@ -127,8 +134,7 @@ namespace LauncherApp
                 Keyboard.IsKeyDown(Key.Space))
             {
                 InstallDirectoryNextButton.IsEnabled = true;
-                JsonConfigHandler configHandler = new JsonConfigHandler();
-                await configHandler.SetVerified();
+                await _configHandler.SetVerifiedAsync();
                 UpdateScreen((int)Screens.LOGIN_GRID);
             }
 
@@ -399,8 +405,7 @@ namespace LauncherApp
 
                     if (isBaseGameValidated)
                     {
-                        JsonConfigHandler configHandler = new JsonConfigHandler();
-                        await configHandler.SetVerified();
+                        await _configHandler.SetVerifiedAsync();
                         UpdateScreen((int)Screens.LOGIN_GRID);
                     }
                     else
@@ -441,8 +446,7 @@ namespace LauncherApp
         {
             if (EasySetupEllipse.IsVisible)
             {
-                JsonConfigHandler config = new JsonConfigHandler();
-                await config.ConfigureLocationsAsync($"C:/{ServerProperties.ServerName}");
+                await _configHandler.ConfigureLocationsAsync($"C:/{await _configHandler.GetServerNameAsync()}");
                 UpdateScreen((int)Screens.GAME_VALIDATION_GRID);
             }
             else
@@ -455,8 +459,7 @@ namespace LauncherApp
                 else
                 {
                     string location = AdvancedSetupTextbox.Text.Replace("\\", "/");
-                    JsonConfigHandler config = new JsonConfigHandler();
-                    await config.ConfigureLocationsAsync(location);
+                    await _configHandler.ConfigureLocationsAsync(location);
                     UpdateScreen((int)Screens.GAME_VALIDATION_GRID);
                 }
             }
@@ -479,16 +482,14 @@ namespace LauncherApp
             _loginProperties = loginProperties;
             _gamePassword = PasswordTextbox.Password.ToString();
 
-            JsonConfigHandler config = new JsonConfigHandler();
-
             if ((bool)AutoLoginCheckbox.IsChecked && loginProperties.Result == "Success")
             {
-                await config.ToggleAutoLoginAsync(true);
+                await _configHandler.ToggleAutoLoginAsync(true);
                 await accountHandler.SaveCredentials(UsernameTextbox.Text, PasswordTextbox.Password.ToString());
             }
             else
             {
-                await config.ToggleAutoLoginAsync(false);
+                await _configHandler.ToggleAutoLoginAsync(false);
             }
 
             switch (loginProperties.Result)
@@ -591,7 +592,7 @@ namespace LauncherApp
             CharacterSelectGrid.Visibility = Visibility.Collapsed;
             PlayButton.IsEnabled = false;
             PlayButton.Content = "Updating";
-            await GameSetupHandler.CheckFilesAsync(GameSetupHandler.GetGamePath());
+            await GameSetupHandler.CheckFilesAsync(await _configHandler.GetGameLocationAsync());
             PlayButton.IsEnabled = true;
             PlayButton.Content = "Play";
             CharacterSelectGrid.Visibility = Visibility.Visible;
@@ -601,11 +602,10 @@ namespace LauncherApp
         {
             JsonAccountHandler accountHandler = new JsonAccountHandler();
             AccountProperties account = accountHandler.GetAccountCredentials();
-            JsonConfigHandler configHandler = new JsonConfigHandler();
 
             if (GameSetupHandler.ValidateJsonFile("account.json"))
             {
-                if (configHandler.CheckAutoLoginEnabled())
+                if (await _configHandler.CheckAutoLoginEnabledAsync())
                 {
                     if (account != null)
                     {
@@ -632,9 +632,9 @@ namespace LauncherApp
             return false;
         }
 
-        bool ValidateGameConfig()
+        async Task<bool> ValidateGameConfig()
         {
-            bool isGameValidated = IsGameValidated();
+            bool isGameValidated = await IsGameValidated();
 
             if (!isGameValidated)
             {
@@ -645,20 +645,15 @@ namespace LauncherApp
             return true;
         }
 
-        bool IsGameValidated()
+        async Task<bool> IsGameValidated()
         {
-            bool configValidated = GameSetupHandler.ValidateJsonFile("config.json");
+            string path = await _configHandler.GetGameLocationAsync();
 
-            if (configValidated)
+            if (!string.IsNullOrEmpty(path) && Directory.Exists(path))
             {
-                string path = GameSetupHandler.GetGamePath();
-
-                if (!string.IsNullOrEmpty(path) && Directory.Exists(path))
-                {
-                    _gamePath = path;
-                    return true;
-                }
-            }
+                _gamePath = path;
+                return true;
+            }   
 
             return false;
         }
