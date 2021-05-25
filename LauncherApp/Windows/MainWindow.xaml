@@ -280,25 +280,13 @@
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="minimizeImage" TargetType="{x:Type Image}">
-            <Setter Property="Source" Value="/Images/icons/minimize.png" />
+        <Style x:Key="titleButtonImage" TargetType="{x:Type Image}">
             <Setter Property="Opacity" Value="0.8" />
             <Setter Property="Cursor" Value="Hand"/>
             <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="true">
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Button,AncestorLevel=1}, Path=IsMouseOver}" Value="True" >
                     <Setter Property="Opacity" Value="1" />
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="closeImage" TargetType="{x:Type Image}">
-            <Setter Property="Source" Value="/Images/icons/close.png" />
-            <Setter Property="Opacity" Value="0.8" />
-            <Setter Property="Cursor" Value="Hand"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="true">
-                    <Setter Property="Opacity" Value="1" />
-                </Trigger>
+                </DataTrigger>
             </Style.Triggers>
         </Style>
 
@@ -484,6 +472,20 @@
             <Setter Property="FontSize" Value="16"/>
         </Style>
 
+        <Style x:Key="ServerStatusText" TargetType="{x:Type TextBlock}">
+            <Setter Property="Foreground" Value="#97FFFFFF"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="FontFamily" Value="Bahnschrift SemiLight Condensed"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="0,0,4,0"/>
+        </Style>
+
+        <Style x:Key="ServerStatusData" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource ServerStatusText}">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="FontFamily" Value="Bahnschrift SemiBold Condensed"/>
+        </Style>
+
         <Style x:Key="{x:Type CheckBox}" TargetType="{x:Type CheckBox}">
             <Setter Property="SnapsToDevicePixels" Value="true"/>
             <Setter Property="Background" Value="#99082C49"/>
@@ -545,25 +547,28 @@
         </Grid.ColumnDefinitions>
 
         <!-- Title Bar -->
-        <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Grid.ColumnSpan="4">
-            <Grid.Background>
-                <LinearGradientBrush EndPoint="1,0" StartPoint="0,0">
+        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Grid.ColumnSpan="4" FlowDirection="RightToLeft">
+            <StackPanel.Background>
+                <LinearGradientBrush EndPoint="0,0" StartPoint="1,0">
                     <GradientStop Color="#00000000"/>
                     <GradientStop Color="#4C000000" Offset="0.8"/>
                 </LinearGradientBrush>
-            </Grid.Background>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="auto" />
-                <ColumnDefinition Width="auto" />
-            </Grid.ColumnDefinitions>
-            <Button x:Name="MinimizeButton" Style="{DynamicResource TitleButton}" Grid.Column="1" MouseEnter="PlayHoverSound" Click="MinimizeButton_Click" Cursor="Hand">
-                <Image Style="{DynamicResource minimizeImage}" />
-            </Button>
-            <Button x:Name="CloseButton" Style="{DynamicResource closeBtn}" Grid.Column="2" MouseEnter="PlayHoverSound" Click="CloseButton_Click" Cursor="Hand">
-                <Image x:Name="CloseButtonHoverImage" Style="{DynamicResource closeImage}" />
-            </Button>
-        </Grid>
+            </StackPanel.Background>
+            <StackPanel Orientation="Horizontal" FlowDirection="LeftToRight">
+                <Button x:Name="MuteButton" Style="{DynamicResource TitleButton}" Grid.Column="1" MouseEnter="PlayHoverSound">
+                    <Image Style="{DynamicResource titleButtonImage}" Source="/Images/icons/volume.png" />
+                </Button>
+                <Button x:Name="AboutButton" Style="{DynamicResource TitleButton}" Grid.Column="1" MouseEnter="PlayHoverSound">
+                    <Image Style="{DynamicResource titleButtonImage}" Source="/Images/icons/info.png" />
+                </Button>
+                <Button x:Name="MinimizeButton" Style="{DynamicResource TitleButton}" Grid.Column="1" MouseEnter="PlayHoverSound" Click="MinimizeButton_Click">
+                    <Image Style="{DynamicResource titleButtonImage}" Source="/Images/icons/minimize.png" />
+                </Button>
+                <Button x:Name="CloseButton" Style="{DynamicResource closeBtn}" Grid.Column="2" MouseEnter="PlayHoverSound" Click="CloseButton_Click">
+                    <Image Style="{DynamicResource titleButtonImage}" Source="/Images/icons/close.png" />
+                </Button>
+            </StackPanel>
+        </StackPanel>
 
         <!-- Logo Background -->
         <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" Grid.ColumnSpan="2147483647" Grid.RowSpan="2147483647" IsHitTestVisible="false">
@@ -587,8 +592,9 @@
             </Border.Background>
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal">
                     <Button Content="UPDATES" Style="{DynamicResource MainMenuButton}" MouseEnter="PlayHoverSound" Click="PatchNotesButton_Click"></Button>
@@ -606,13 +612,22 @@
                         </Button.Background>
                     </Button>
                 </StackPanel>
-                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="24,0,18,0" Opacity="0.8">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{DynamicResource ServerStatusText}">SERVER STATUS: </TextBlock>
+                        <TextBlock Style="{DynamicResource ServerStatusData}" Foreground="#CCFFFFFF">Online</TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{DynamicResource ServerStatusText}">UPTIME: </TextBlock>
+                        <TextBlock Style="{DynamicResource ServerStatusData}" Foreground="#CCFFFFFF">6 Days 23 Hours 59 Minutes</TextBlock>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    <!-- Username, max 20 characters -->
                     <TextBlock x:Name="UsernameTextBlock" Style="{DynamicResource h3}" Visibility="Collapsed">
                         USERNAME
                     </TextBlock>
-                    <TextBlock x:Name="LogoutButton" Foreground="#97FFFFFF" FontFamily="Bahnschrift Light Condensed" HorizontalAlignment="Right" Padding="2,2,0,2" Visibility="Collapsed">
-                        Logout
-                    </TextBlock>
+                    <Button x:Name="LogoutButton" Content="Logout" Style="{DynamicResource MainMenuButton}" MouseEnter="PlayHoverSound" Padding="0,0,0,0" Visibility="Collapsed" HorizontalAlignment="Right" FontFamily="Bahnschrift Light Condensed" Margin="0,0,0,0" HorizontalContentAlignment="Right" FontSize="14"></Button>
                 </StackPanel>
             </Grid>
         </Border>
@@ -663,12 +678,12 @@
                         </Button>
                         <Button x:Name="SettingsButton" Content="Game Settings" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="SettingsButton_Click">
                             <Button.Background>
-                                <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/swg-logo.png"/>
+                                <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/settings.png"/>
                             </Button.Background>
                         </Button>
                         <Button x:Name="OptionsButton" Content="Options &amp; Mods" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="OptionsButton_Click">
                             <Button.Background>
-                                <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/settings.png"/>
+                                <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/mods.png"/>
                             </Button.Background>
                         </Button>
                         <Button x:Name="DeveloperButton" Content="Developer" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="DeveloperButton_Click">

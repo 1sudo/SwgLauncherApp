@@ -28,7 +28,10 @@
     <None Remove="Images\donate-active.png" />
     <None Remove="Images\donate.png" />
     <None Remove="Images\icons\close.png" />
+    <None Remove="images\icons\info.png" />
     <None Remove="Images\icons\minimize.png" />
+    <None Remove="images\icons\volume-mute.png" />
+    <None Remove="images\icons\volume.png" />
     <None Remove="Images\launcher-bg.jpg" />
     <None Remove="Images\mantis-active.png" />
     <None Remove="Images\mantis.png" />
@@ -45,6 +48,7 @@
     <None Remove="Images\sidebar\icons\developer.png" />
     <None Remove="Images\sidebar\icons\discord.png" />
     <None Remove="Images\sidebar\icons\facebook.png" />
+    <None Remove="images\sidebar\icons\mods.png" />
     <None Remove="Images\sidebar\icons\paypal.png" />
     <None Remove="Images\sidebar\icons\resources.png" />
     <None Remove="Images\sidebar\icons\settings.png" />
@@ -85,7 +89,10 @@
     <Resource Include="Images\donate-active.png" />
     <Resource Include="Images\donate.png" />
     <Resource Include="Images\icons\close.png" />
+    <Resource Include="images\icons\info.png" />
     <Resource Include="Images\icons\minimize.png" />
+    <Resource Include="images\icons\volume-mute.png" />
+    <Resource Include="images\icons\volume.png" />
     <Resource Include="Images\launcher-bg.jpg" />
     <Resource Include="Images\mantis-active.png" />
     <Resource Include="Images\mantis.png" />
@@ -101,6 +108,7 @@
     <Resource Include="Images\sidebar\icons\developer.png" />
     <Resource Include="Images\sidebar\icons\discord.png" />
     <Resource Include="Images\sidebar\icons\facebook.png" />
+    <Resource Include="images\sidebar\icons\mods.png" />
     <Resource Include="Images\sidebar\icons\paypal.png" />
     <Resource Include="Images\sidebar\icons\resources.png" />
     <Resource Include="Images\sidebar\icons\settings.png" />
