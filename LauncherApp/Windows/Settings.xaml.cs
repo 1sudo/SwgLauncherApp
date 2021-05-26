@@ -47,7 +47,8 @@ namespace LauncherApp
 
             if (File.Exists(file))
             {
-                JsonCharacterHandler characterHandler = new JsonCharacterHandler();
+                /*
+                CharacterHandler characterHandler = new CharacterHandler();
 
                 characterHandler.GetLastSavedCharacter();
 
@@ -58,6 +59,7 @@ namespace LauncherApp
                         ResolutionBox.SelectedIndex = i;
                     }
                 }
+                */
             }
         }
 

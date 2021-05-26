@@ -36,26 +36,20 @@ namespace LauncherApp
         double _currentFileStatus;
         double _totalFileStatus;
         string _gamePath;
+        string _gamePassword;
+        Dictionary<string, string> _launcherSettings;
+
         readonly AudioHandler _audioHandler;
         readonly AppHandler _appHandler;
         LoginProperties _loginProperties = new LoginProperties();
         LauncherConfigHandler _configHandler = new LauncherConfigHandler();
-        string _gamePassword;
-        Dictionary<string, string> _launcherSettings;
+        AccountsHandler _accountHandler = new AccountsHandler();
+        CharacterHandler _characterHandler = new CharacterHandler();
         #endregion
 
         #region Constructor
         public MainWindow()
         {
-            DatabaseHandler db = new DatabaseHandler();
-            db.CreateTables();
-
-            ServerProperties.ServerName = "SWGLegacy";
-            ServerProperties.ApiUrl = "http://localhost:5000";
-            ServerProperties.ManifestFileUrl = "http://localhost/files/";
-            ServerProperties.BackupManifestFileUrl = "http://localhost:8080/files/";
-            ServerProperties.ManifestFilePath = "manifest/required.json";
-
             AudioHandler audioHandler = new AudioHandler();
             _audioHandler = audioHandler;
 
@@ -76,6 +70,9 @@ namespace LauncherApp
         #region WindowManagement
         async void Window_Initialized(object sender, EventArgs e)
         {
+            DatabaseHandler db = new DatabaseHandler();
+            await db.CreateTables();
+
             await _configHandler.InsertDefaultRow();
             _launcherSettings = await _configHandler.GetLauncherSettings();
 
@@ -129,15 +126,17 @@ namespace LauncherApp
 
         async void Window_KeyDown(object sender, KeyEventArgs e)
         {
+            // Dev - Skip verification
             if (Keyboard.IsKeyDown(Key.LeftCtrl) &&
                 Keyboard.IsKeyDown(Key.LeftAlt) &&
-                Keyboard.IsKeyDown(Key.Space))
+                Keyboard.IsKeyDown(Key.F1))
             {
                 InstallDirectoryNextButton.IsEnabled = true;
                 await _configHandler.SetVerifiedAsync();
                 UpdateScreen((int)Screens.LOGIN_GRID);
             }
 
+            // Generate manifest file
             if (Keyboard.IsKeyDown(Key.LeftCtrl) &&
                 Keyboard.IsKeyDown(Key.LeftShift) &&
                 Keyboard.IsKeyDown(Key.OemTilde) &&
@@ -296,8 +295,6 @@ namespace LauncherApp
             // FullScanButton.IsEnabled = false;
             SettingsButton.IsEnabled = false;
 
-            var selectedValue = CharacterNameComboBox.SelectedValue.ToString();
-
             GameOptionsProperties gameOptions = new GameOptionsProperties()
             {
                 Fps = 144,
@@ -305,11 +302,11 @@ namespace LauncherApp
                 MaxZoom = 10
             };
 
-            if (selectedValue != "System.Windows.Controls.ComboBoxItem: None")
+            var selectedCharacter = CharacterNameComboBox.SelectedValue.ToString();
+
+            if (selectedCharacter != "None")
             {
-                await _appHandler.StartGameAsync(gameOptions, _gamePath, _gamePassword, _loginProperties.Username, selectedValue, true);
-                JsonCharacterHandler characterHandler = new JsonCharacterHandler();
-                characterHandler.SaveCharacter(selectedValue);
+                await _appHandler.StartGameAsync(gameOptions, _gamePath, _gamePassword, _loginProperties.Username, selectedCharacter, true);
             }
             else
             {
@@ -329,10 +326,6 @@ namespace LauncherApp
         void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
             _audioHandler.PlayClickSound();
-            // _appHandler.StartGameConfig(_gamePath);
-
-            // Settings settings = new Settings(this);
-            // settings.Show();
         }
 
         void OptionsButton_Click(object sender, RoutedEventArgs e)
@@ -475,9 +468,9 @@ namespace LauncherApp
         async void LoginButton_Click(object sender, RoutedEventArgs e)
         {
             ApiHandler apiHandler = new ApiHandler();
-            JsonAccountHandler accountHandler = new JsonAccountHandler();
 
-            LoginProperties loginProperties = await apiHandler.AccountLoginAsync(ServerProperties.ApiUrl, UsernameTextbox.Text, PasswordTextbox.Password.ToString());
+            _launcherSettings.TryGetValue("ApiUrl", out string apiUrl);
+            LoginProperties loginProperties = await apiHandler.AccountLoginAsync(apiUrl, UsernameTextbox.Text.ToLower(), PasswordTextbox.Password.ToString());
 
             _loginProperties = loginProperties;
             _gamePassword = PasswordTextbox.Password.ToString();
@@ -485,7 +478,7 @@ namespace LauncherApp
             if ((bool)AutoLoginCheckbox.IsChecked && loginProperties.Result == "Success")
             {
                 await _configHandler.ToggleAutoLoginAsync(true);
-                await accountHandler.SaveCredentials(UsernameTextbox.Text, PasswordTextbox.Password.ToString());
+                await _accountHandler.SaveCredentialsAsync(UsernameTextbox.Text.ToLower(), PasswordTextbox.Password.ToString());
             }
             else
             {
@@ -600,31 +593,29 @@ namespace LauncherApp
 
         async Task<bool> CheckAutoLoginAsync()
         {
-            JsonAccountHandler accountHandler = new JsonAccountHandler();
-            AccountProperties account = accountHandler.GetAccountCredentials();
+            
+            Dictionary<string, string> accounts = await _accountHandler.GetAccountCredentialsAsync();
 
-            if (GameSetupHandler.ValidateJsonFile("account.json"))
+            accounts.TryGetValue("Username", out string username);
+            accounts.TryGetValue("Password", out string password);
+
+            if (await _configHandler.CheckAutoLoginEnabledAsync())
             {
-                if (await _configHandler.CheckAutoLoginEnabledAsync())
+                if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
                 {
-                    if (account != null)
+                    ApiHandler apiHandler = new ApiHandler();
+
+                    _launcherSettings.TryGetValue("ApiUrl", out string apiUrl);
+                    LoginProperties loginProperties = await apiHandler.AccountLoginAsync(apiUrl, username, password);
+
+                    _loginProperties = loginProperties;
+                    _gamePassword = password;
+
+                    switch (loginProperties.Result)
                     {
-                        if (account.Username != "" && account.Password != "")
-                        {
-                            ApiHandler apiHandler = new ApiHandler();
-
-                            LoginProperties loginProperties = await apiHandler.AccountLoginAsync(ServerProperties.ApiUrl, account.Username, account.Password);
-
-                            _loginProperties = loginProperties;
-                            _gamePassword = account.Password;
-
-                            switch (loginProperties.Result)
-                            {
-                                case "Success": return true;
-                                case "ServerDown": ResultText.Text = "API server down!"; break;
-                                case "InvalidCredentials": ResultText.Text = "Invalid username or password!"; break;
-                            }
-                        }
+                        case "Success": return true;
+                        case "ServerDown": ResultText.Text = "API server down!"; break;
+                        case "InvalidCredentials": ResultText.Text = "Invalid username or password!"; break;
                     }
                 }
             }
@@ -776,19 +767,20 @@ namespace LauncherApp
 
         async Task HandleLogin()
         {
-            JsonAccountHandler accountHandler = new JsonAccountHandler();
-            AccountProperties account = accountHandler.GetAccountCredentials();
+            Dictionary<string, string> accounts = await _accountHandler.GetAccountCredentialsAsync();
+
+            accounts.TryGetValue("Username", out string username);
 
             LogoutButton.Visibility = Visibility.Visible;
             UsernameTextBlock.Visibility = Visibility.Visible;
             UsernameTextBlock.Text =
                 System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(
-                    account.Username.ToLower()
+                    username.ToLower()
                 );
 
             UpdateScreen((int)Screens.PRIMARY_GRID);
 
-            GetCharacters();
+            await GetCharactersAsync();
 
             try
             {
@@ -797,31 +789,29 @@ namespace LauncherApp
             catch { }
         }
 
-        void GetCharacters()
+        async Task GetCharactersAsync()
         {
-            if (_loginProperties.Characters != null)
+            string lastCharacter = await _characterHandler.GetLastSavedCharacterAsync();
+
+            CharacterNameComboBox.Items.Add(lastCharacter);
+
+            bool noneExists = false;
+            foreach (string character in _loginProperties.Characters)
             {
-                foreach (string character in _loginProperties.Characters)
+                if (character != lastCharacter)
                 {
                     CharacterNameComboBox.Items.Add(character);
                 }
+
+                if (character == "None" || lastCharacter == "None")
+                {
+                    noneExists = true;
+                }
             }
 
-            string file = Path.Join(Directory.GetCurrentDirectory(), "character.json");
-
-            if (File.Exists(file))
+            if (!noneExists)
             {
-                JsonCharacterHandler characterHandler = new JsonCharacterHandler();
-
-                characterHandler.GetLastSavedCharacter();
-
-                for (int i = 0; i < CharacterNameComboBox.Items.Count; i++)
-                {
-                    if (characterHandler.GetLastSavedCharacter() == CharacterNameComboBox.Items[i].ToString())
-                    {
-                        CharacterNameComboBox.SelectedIndex = i;
-                    }
-                }
+                CharacterNameComboBox.Items.Add("None");
             }
         }
 
@@ -832,20 +822,13 @@ namespace LauncherApp
 
         #endregion
 
-        void GetLauncherSettings()
+        async void CharacterNameComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            bool isSettingsValid = GameSetupHandler.ValidateJsonFile("launcher-settings.json");
+            var selectedCharacter = CharacterNameComboBox.SelectedValue.ToString();
 
-            if (isSettingsValid)
-            {
-                
-            }
-            else
-            {
-                
-            }
+            Trace.WriteLine(selectedCharacter);
+
+            await _characterHandler.SaveCharacterAsync(selectedCharacter);
         }
-
-
     }
 }

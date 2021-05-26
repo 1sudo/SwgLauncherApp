@@ -7,9 +7,15 @@ namespace LauncherManagement
 {
     public class GameSetupHandler : ValidationHandler
     {
+        static LauncherConfigHandler _configHandler = new LauncherConfigHandler();
+        static Dictionary<string, string> _launcherSettings = new Dictionary<string, string>();
+
         public static async Task CheckFilesAsync(string downloadLocation, bool isFullScan = false)
         {
-            var downloadableFiles = await DownloadManifestAsync(ServerProperties.ManifestFilePath);
+            _launcherSettings = await _configHandler.GetLauncherSettings();
+
+            _launcherSettings.TryGetValue("ManifestFilePath", out string manifestFilePath);
+            var downloadableFiles = await DownloadManifestAsync(manifestFilePath);
 
             List<string> fileList;
             if (isFullScan)

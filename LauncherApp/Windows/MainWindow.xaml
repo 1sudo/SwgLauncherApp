@@ -716,9 +716,7 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock Text="Character Select" TextWrapping="Wrap" HorizontalAlignment="Left" FontFamily="Bahnschrift SemiBold" Foreground="White" Grid.Row="0" VerticalAlignment="Bottom"/>
-                        <ComboBox x:Name="CharacterNameComboBox" Style="{DynamicResource ComboBoxTransparent}" Grid.Row="1" SelectedIndex="0">
-                            <ComboBoxItem Content="None"/>
-                        </ComboBox>
+                        <ComboBox x:Name="CharacterNameComboBox" Style="{DynamicResource ComboBoxTransparent}" Grid.Row="1" SelectedIndex="0" SelectionChanged="CharacterNameComboBox_SelectionChanged" />
                     </Grid>
 
                     <Button x:Name="PlayButton" Style="{DynamicResource NavButton}" Content="Play" VerticalAlignment="Bottom" Grid.Row="2" Click="PlayButton_Click" />

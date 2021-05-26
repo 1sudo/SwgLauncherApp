@@ -1,25 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace LauncherManagement
 {
-    public class LauncherConfigHandler
+    public class LauncherConfigHandler : DatabaseHandler
     {
-        public static Action<string> OnJsonReadError;
-        DatabaseHandler _db;
-
-        public LauncherConfigHandler()
-        {
-            _db = new DatabaseHandler();
-        }
+        string _defaultGameLocation = "";
+        int defaultAutoLogin = 0;
+        int defaultVerified = 0;
+        string defaultServername = "SWGLegacy";
+        string defaultApiUrl = "http://localhost:5000";
+        string defaultManifestFilePath = "manifest/required.json";
+        string defaultManifestFileUrl = "http://localhost/files/";
+        string defaultBackupManifestFileUrl = "http://localhost:8080/files/";
+        string defaultSWGLoginHost = "localhost";
+        int defaultSWGLoginPort = 44453;
 
         public async Task ToggleAutoLoginAsync(bool flag)
         {
             if (flag)
             {
-                await _db.ExecuteLauncherConfig
+                await ExecuteLauncherConfigAsync
                     (
                         "UPDATE LauncherConfig " +
                         "SET AutoLogin = 1 " +
@@ -28,7 +29,7 @@ namespace LauncherManagement
             }
             else
             {
-                await _db.ExecuteLauncherConfig
+                await ExecuteLauncherConfigAsync
                     (
                         "UPDATE LauncherConfig " +
                         "SET Verified = 0 " +
@@ -39,7 +40,7 @@ namespace LauncherManagement
 
         public async Task<bool> CheckAutoLoginEnabledAsync()
         {
-            List<DatabaseProperties.LauncherConfig> config = await _db.ExecuteLauncherConfig
+            List<DatabaseProperties.LauncherConfig> config = await ExecuteLauncherConfigAsync
                 (
                     "SELECT AutoLogin " +
                     "FROM LauncherConfig " +
@@ -51,7 +52,7 @@ namespace LauncherManagement
 
         public async Task ConfigureLocationsAsync(string gamePath)
         {
-            await _db.ExecuteLauncherConfig
+            await ExecuteLauncherConfigAsync
                 (
                     "UPDATE LauncherConfig SET " +
                     $"GameLocation = '{gamePath}' " +
@@ -61,21 +62,21 @@ namespace LauncherManagement
 
         public async Task<string> GetServerNameAsync()
         {
-            List<DatabaseProperties.LauncherConfig> config = await _db.ExecuteLauncherConfig($"SELECT ServerName FROM LauncherConfig where Id = 1;");
+            List<DatabaseProperties.LauncherConfig> config = await ExecuteLauncherConfigAsync($"SELECT ServerName FROM LauncherConfig where Id = 1;");
 
             return (config.Count > 0) ? config[0].ServerName : "";
         }
 
         public async Task<string> GetGameLocationAsync()
         {
-            List<DatabaseProperties.LauncherConfig> config = await _db.ExecuteLauncherConfig($"SELECT GameLocation FROM LauncherConfig where Id = 1;");
+            List<DatabaseProperties.LauncherConfig> config = await ExecuteLauncherConfigAsync($"SELECT GameLocation FROM LauncherConfig where Id = 1;");
 
             return (config.Count > 0) ? config[0].GameLocation : "";
         }
 
         public async Task SetVerifiedAsync()
         {
-            await _db.ExecuteLauncherConfig
+            await ExecuteLauncherConfigAsync
                 (
                     "UPDATE LauncherConfig " +
                     "SET Verified = 1 " +
@@ -85,7 +86,7 @@ namespace LauncherManagement
 
         public async Task<bool> GetVerifiedAsync()
         {
-            List<DatabaseProperties.LauncherConfig> config = await _db.ExecuteLauncherConfig
+            List<DatabaseProperties.LauncherConfig> config = await ExecuteLauncherConfigAsync
                 (
                     $"SELECT Verified " +
                     $"FROM LauncherConfig " +
@@ -97,7 +98,7 @@ namespace LauncherManagement
 
         public async Task<Dictionary<string, string>> GetLauncherSettings()
         {
-            List<DatabaseProperties.LauncherConfig> config = await _db.ExecuteLauncherConfig
+            List<DatabaseProperties.LauncherConfig> config = await ExecuteLauncherConfigAsync
                 (
                     "SELECT " +
                     "ServerName, ApiUrl, ManifestFilePath, ManifestFileUrl, " +
@@ -120,18 +121,18 @@ namespace LauncherManagement
 
         public async Task InsertDefaultRow()
         {
-            List<DatabaseProperties.LauncherConfig> config = await _db.ExecuteLauncherConfig("SELECT * FROM LauncherConfig;");
+            List<DatabaseProperties.LauncherConfig> config = await ExecuteLauncherConfigAsync("SELECT * FROM LauncherConfig;");
 
             if (config.Count < 1)
             {
-                await _db.ExecuteLauncherConfig
+                await ExecuteLauncherConfigAsync
                     (
                         "INSERT into LauncherConfig" +
                         "(GameLocation, AutoLogin, Verified, ServerName, ApiUrl, ManifestFilePath, " +
                         "ManifestFileUrl, BackupManifestFileUrl, SWGLoginHost, SWGLoginPort) " +
                         "VALUES " +
-                        "('', 0, 0, 'SWGLegacy', 'http://localhost/', 'manifest/required.json', " +
-                        "'http://localhost/files/', 'http://localhost:8080/files/', 'localhost', 44453);"
+                        $"('{_defaultGameLocation}', {defaultAutoLogin}, {defaultVerified}, '{defaultServername}', '{defaultApiUrl}', '{defaultManifestFilePath}', " +
+                        $"'{defaultManifestFileUrl}', '{defaultBackupManifestFileUrl}', '{defaultSWGLoginHost}', {defaultSWGLoginPort});"
                     );
             }
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Net;
+using System.Collections.Generic;
 
 namespace LauncherManagement
 {
@@ -8,9 +9,13 @@ namespace LauncherManagement
     {
         public static Action<long, long, int> OnDownloadProgressUpdated;
         public static Action<string> OnServerError;
+        static LauncherConfigHandler _configHandler = new LauncherConfigHandler();
+        static Dictionary<string, string> _launcherSettings = new Dictionary<string, string>();
 
         internal static async Task<byte[]> DownloadAsync(string file)
         {
+            _launcherSettings = await _configHandler.GetLauncherSettings();
+
             byte[] data;
 
             using (var client = new WebClient())
@@ -18,11 +23,13 @@ namespace LauncherManagement
                 Uri uri;
                 if (ServerProperties.PrimaryServerOffline)
                 {
-                    uri = new Uri(ServerProperties.BackupManifestFileUrl + file);
+                    _launcherSettings.TryGetValue("BackupManifestFileUrl", out string backupManifestFileUrl);
+                    uri = new Uri(backupManifestFileUrl + file);
                 }
                 else
                 {
-                    uri = new Uri(ServerProperties.ManifestFileUrl + file);
+                    _launcherSettings.TryGetValue("ManifestFileUrl", out string manifestFileUrl);
+                    uri = new Uri(manifestFileUrl + file);
                 }
                 
 
@@ -38,7 +45,8 @@ namespace LauncherManagement
                 {
                     ServerProperties.PrimaryServerOffline = true;
 
-                    Uri uri2 = new Uri(ServerProperties.BackupManifestFileUrl + file);
+                    _launcherSettings.TryGetValue("BackupManifestFileUrl", out string backupManifestFileUrl);
+                    Uri uri2 = new Uri(backupManifestFileUrl + file);
 
                     client.DownloadProgressChanged += OnDownloadProgressChanged;
 

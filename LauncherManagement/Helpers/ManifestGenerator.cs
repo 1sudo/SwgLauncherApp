@@ -37,7 +37,7 @@ namespace LauncherManagement
 
             string output = JsonConvert.SerializeObject(listOfFiles, Formatting.Indented);
 
-            await File.WriteAllTextAsync(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "manifest.json"), output);
+            await File.WriteAllTextAsync(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "required.json"), output);
         }
     }
 }
