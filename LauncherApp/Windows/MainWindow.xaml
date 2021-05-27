@@ -737,7 +737,7 @@
                 </Grid>
 
                 <!-- Settings -->
-                <Grid x:Name="SettingsGrid" Visibility="Visible" Margin="18,0,0,0">
+                <Grid x:Name="SettingsGrid" Visibility="Collapsed" Margin="18,0,0,0">
                     <StackPanel>
                         <Border BorderThickness="0,0,0,1" Margin="0,0,0,10" Padding="0,0,0,2">
                             <Border.BorderBrush>
@@ -939,7 +939,7 @@
                 </Grid>
 
                 <!-- Developer Options -->
-                <Grid x:Name="DeveloperGrid" Visibility="Collapsed" Margin="18,0,0,0">
+                <Grid x:Name="DeveloperGrid" Visibility="Visible" Margin="18,0,0,0">
                     <StackPanel>
                         <Border BorderThickness="0,0,0,1" Margin="0,0,0,10" Padding="0,0,0,2">
                             <Border.BorderBrush>
@@ -960,47 +960,101 @@
                         </Border>
 
                         <StackPanel>
-                            <UniformGrid Columns="4">
-                                <UniformGrid Rows="4" Margin="0,0,12,0">
-                                    <StackPanel Style="{DynamicResource SettingsColumn}">
-                                        <TextBlock Style="{DynamicResource h3}">
-                                        API URL
-                                        </TextBlock>
-                                        <TextBox x:Name="DevAPIurl" Style="{DynamicResource TextBoxTransparent}" Height="30" />
-                                    </StackPanel>
-                                    <StackPanel Style="{DynamicResource SettingsColumn}">
-                                        <TextBlock Style="{DynamicResource h3}">
-                                        Manifest URL
-                                        </TextBlock>
-                                        <TextBox x:Name="DevManifestURL" Style="{DynamicResource TextBoxTransparent}" Height="30" />
-                                    </StackPanel>
-                                    <StackPanel Style="{DynamicResource SettingsColumn}">
-                                        <TextBlock Style="{DynamicResource h3}">
-                                        Manifest File Path
-                                        </TextBlock>
-                                        <TextBox x:Name="DevManifestFilePath" Style="{DynamicResource TextBoxTransparent}" Height="30" />
-                                    </StackPanel>
-                                </UniformGrid>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                </Grid.RowDefinitions>
 
-                                <UniformGrid Rows="4" Margin="0,0,12,0">
-                                    <StackPanel Style="{DynamicResource SettingsColumn}">
-                                        <TextBlock Style="{DynamicResource h3}">
-                                        SWG Login / Hostname
+                                <StackPanel Style="{DynamicResource SettingsColumn}">
+                                    <Border BorderThickness="0,0,0,1" Margin="0,0,0,4">
+                                        <Border.BorderBrush>
+                                            <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                                                <GradientStop Color="#4C000000"/>
+                                                <GradientStop Color="#00000000" Offset="0.8"/>
+                                            </LinearGradientBrush>
+                                        </Border.BorderBrush>
+                                        <TextBlock Style="{DynamicResource h2}" VerticalAlignment="Bottom">
+                                            Game Admin Options
                                         </TextBlock>
-                                        <TextBox x:Name="DevSWGhostname" Style="{DynamicResource TextBoxTransparent}" Height="30" />
-                                    </StackPanel>
-                                    <StackPanel Style="{DynamicResource SettingsColumn}">
-                                        <TextBlock Style="{DynamicResource h3}">
-                                        SWG Login Port
+                                    </Border>
+                                    <UniformGrid Columns="4" Margin="0,0,0,8">
+                                        <CheckBox x:Name="DevAdminCheckbox">
+                                            <TextBlock Margin="12,0,0,0">God Mode</TextBlock>
+                                        </CheckBox>
+                                        <CheckBox x:Name="DevDebugCheckbox">
+                                            <TextBlock Margin="12,0,0,0">Examine Debug</TextBlock>
+                                        </CheckBox>
+                                    </UniformGrid>
+                                </StackPanel>
+
+                                <StackPanel Style="{DynamicResource SettingsColumn}" Grid.Row="1">
+                                    <Border BorderThickness="0,0,0,1" Margin="0,0,0,4">
+                                        <Border.BorderBrush>
+                                            <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                                                <GradientStop Color="#4C000000"/>
+                                                <GradientStop Color="#00000000" Offset="0.8"/>
+                                            </LinearGradientBrush>
+                                        </Border.BorderBrush>
+                                        <TextBlock Style="{DynamicResource h2}" VerticalAlignment="Bottom">
+                                            API &amp; Manifest
                                         </TextBlock>
-                                        <TextBox x:Name="DevSWGport" Style="{DynamicResource TextBoxTransparent}" Height="30" />
-                                    </StackPanel>
-                                </UniformGrid>
-                            </UniformGrid>
+                                    </Border>
+                                    <UniformGrid Columns="4">
+                                        <StackPanel Style="{DynamicResource SettingsColumn}" Margin="0,0,4,0">
+                                            <TextBlock Style="{DynamicResource h3}">
+                                            API URL
+                                            </TextBlock>
+                                            <TextBox x:Name="DevAPIurl" Style="{DynamicResource TextBoxTransparent}" Height="30" />
+                                        </StackPanel>
+                                        <StackPanel Style="{DynamicResource SettingsColumn}" Margin="4,0,4,0">
+                                            <TextBlock Style="{DynamicResource h3}">
+                                            Manifest URL
+                                            </TextBlock>
+                                            <TextBox x:Name="DevManifestURL" Style="{DynamicResource TextBoxTransparent}" Height="30" />
+                                        </StackPanel>
+                                        <StackPanel Style="{DynamicResource SettingsColumn}" Margin="4,0,0,0">
+                                            <TextBlock Style="{DynamicResource h3}">
+                                            Manifest File Path
+                                            </TextBlock>
+                                            <TextBox x:Name="DevManifestFilePath" Style="{DynamicResource TextBoxTransparent}" Height="30" />
+                                        </StackPanel>
+                                    </UniformGrid>
+                                </StackPanel>
+
+                                <StackPanel Style="{DynamicResource SettingsColumn}" Grid.Row="2">
+                                    <Border BorderThickness="0,0,0,1" Margin="0,0,0,4">
+                                        <Border.BorderBrush>
+                                            <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                                                <GradientStop Color="#4C000000"/>
+                                                <GradientStop Color="#00000000" Offset="0.8"/>
+                                            </LinearGradientBrush>
+                                        </Border.BorderBrush>
+                                        <TextBlock Style="{DynamicResource h2}" VerticalAlignment="Bottom">
+                                            Login
+                                        </TextBlock>
+                                    </Border>
+
+                                    <UniformGrid Columns="4">
+                                        <StackPanel Style="{DynamicResource SettingsColumn}" Margin="0,0,4,0">
+                                            <TextBlock Style="{DynamicResource h3}">
+                                            SWG Login / Hostname
+                                            </TextBlock>
+                                            <TextBox x:Name="DevSWGhostname" Style="{DynamicResource TextBoxTransparent}" Height="30" />
+                                        </StackPanel>
+                                        <StackPanel Style="{DynamicResource SettingsColumn}" Margin="4,0,0,0">
+                                            <TextBlock Style="{DynamicResource h3}">
+                                            SWG Login Port
+                                            </TextBlock>
+                                            <TextBox x:Name="DevSWGport" Style="{DynamicResource TextBoxTransparent}" Height="30" />
+                                        </StackPanel>
+                                    </UniformGrid>
+                                </StackPanel>
+                            </Grid>
                         </StackPanel>
                     </StackPanel>
                 </Grid>
-
             </Grid>
         </Grid>
 
