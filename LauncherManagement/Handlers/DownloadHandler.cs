@@ -1,22 +1,33 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace LauncherManagement
 {
-    public class DownloadHandler : FileDownloader
+    public class DownloadHandler
     {
         public static Action OnDownloadCompleted;
         public static Action<string, string, double, double> OnCurrentFileDownloading;
         public static Action<string, double, double> OnFullScanFileCheck;
+        public static Action<string> OnInstallCheckFailed;
+        public static Action<long, long, int> OnDownloadProgressUpdated;
+        public static Action<string> OnServerError;
+
+        static LauncherConfigHandler _configHandler = new LauncherConfigHandler();
+        static Dictionary<string, string> _launcherSettings = new Dictionary<string, string>();
+
+        static bool _primaryServerOffline = false;
 
         internal static async Task<List<DownloadableFile>> DownloadManifestAsync(string manifestFile)
         {
             var contents = await Task.Run(() => DownloadAsync(manifestFile).Result);
 
-            return JsonManifestHandler.GetFileList(System.Text.Encoding.UTF8.GetString(contents));
+            return GetFileList(System.Text.Encoding.UTF8.GetString(contents));
         }
 
         internal static async Task DownloadFilesFromListAsync(List<string> fileList, string downloadLocation)
@@ -91,6 +102,225 @@ namespace LauncherManagement
                     await source.CopyToAsync(destination);
                 }
             }
+        }
+
+        internal static List<DownloadableFile> GetFileList(string listData)
+        {
+            List<DownloadableFile> fileList = new List<DownloadableFile>();
+
+            // Parses a JSON array and iterates through items in the array
+            foreach (var item in JArray.Parse(listData))
+            {
+                // Deserialize the JSON string, add it to a new 'DownloadableFile' object and add it to the file list
+                DownloadableFile downloadableFile = JsonConvert.DeserializeObject<DownloadableFile>(item.ToString());
+
+                fileList.Add(downloadableFile);
+            }
+
+            return fileList;
+        }
+
+        internal static async Task<List<string>> GetBadFilesAsync(string downloadLocation, List<DownloadableFile> fileList, bool isFullScan = false)
+        {
+            var newFileList = new List<string>();
+
+            double listLength = fileList.Count;
+
+            double i = 1;
+            await Task.Run(() =>
+            {
+                foreach (var file in fileList)
+                {
+                    if (isFullScan)
+                    {
+                        try
+                        {
+                            if (File.Exists(Path.Join(downloadLocation, file.Name)))
+                            {
+                                OnFullScanFileCheck?.Invoke($"Checking File { file.Name }...", i, listLength);
+
+                                using (var md5 = MD5.Create())
+                                {
+                                    using (var stream = File.OpenRead(Path.Join(downloadLocation, file.Name)))
+                                    {
+                                        var result = BitConverter.ToString(md5.ComputeHash(stream))
+                                            .Replace("-", "").ToLowerInvariant();
+
+                                        // If checksum doesn't match, add to download list
+                                        if (result != file.Md5)
+                                        {
+                                            newFileList.Add(file.Name);
+                                        }
+                                    }
+                                }
+                            }
+                            // If file doesn't exist, add to download list
+                            else
+                            {
+                                newFileList.Add(file.Name);
+                            }
+                        }
+                        // Some other dumb shit happened, add file to list
+                        catch
+                        {
+                            newFileList.Add(file.Name);
+                        }
+
+                        ++i;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            if (File.Exists(Path.Join(downloadLocation, file.Name)))
+                            {
+                                // If file is wrong size, add to download list
+                                if (new FileInfo(Path.Join(downloadLocation, file.Name)).Length != file.Size)
+                                {
+                                    newFileList.Add(file.Name);
+                                }
+                            }
+                            // If file doesn't exist, add to download list
+                            else
+                            {
+                                newFileList.Add(file.Name);
+                            }
+                        }
+                        // Some other dumb shit happened, add file to list
+                        catch
+                        {
+                            newFileList.Add(file.Name);
+                        }
+                    }
+                }
+            });
+
+            return newFileList;
+        }
+
+        public static bool CheckBaseInstallation(string location)
+        {
+            try
+            {
+                if (!Directory.Exists(location))
+                {
+                    return false;
+                }
+
+                // Files that are required to exist
+                List<string> filesToCheck = new List<string> {
+                    "dpvs.dll",
+                    "Mss32.dll",
+                    "dbghelp.dll"
+                };
+
+                // Files in supposed SWG directory
+                string[] files = Directory.GetFiles(location, "*.*", SearchOption.AllDirectories);
+
+                int numRequiredFiles = 0;
+
+                foreach (string fileToCheck in filesToCheck)
+                {
+                    foreach (string file in files)
+                    {
+                        if (fileToCheck == file.Split(location + "\\")[1].Trim())
+                        {
+                            numRequiredFiles++;
+                        }
+                    }
+                }
+
+                if (numRequiredFiles == 3)
+                {
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                OnInstallCheckFailed?.Invoke(ex.Message.ToString());
+            }
+
+            return false;
+        }
+
+        public static async Task CheckFilesAsync(string downloadLocation, bool isFullScan = false)
+        {
+            _launcherSettings = await _configHandler.GetLauncherSettings();
+
+            _launcherSettings.TryGetValue("ManifestFilePath", out string manifestFilePath);
+            var downloadableFiles = await DownloadManifestAsync(manifestFilePath);
+
+            List<string> fileList;
+            if (isFullScan)
+            {
+                fileList = await Task.Run(() => GetBadFilesAsync(downloadLocation, downloadableFiles, true));
+            }
+            else
+            {
+                fileList = await Task.Run(() => GetBadFilesAsync(downloadLocation, downloadableFiles));
+                await Task.Run(() => AttemptCopyFilesFromListAsync(fileList, downloadLocation));
+                fileList = await Task.Run(() => GetBadFilesAsync(downloadLocation, downloadableFiles));
+            }
+
+            await DownloadFilesFromListAsync(fileList, downloadLocation);
+        }
+
+        internal static async Task<byte[]> DownloadAsync(string file)
+        {
+            _launcherSettings = await _configHandler.GetLauncherSettings();
+
+            byte[] data;
+
+            using (var client = new WebClient())
+            {
+                Uri uri;
+                if (_primaryServerOffline)
+                {
+                    _launcherSettings.TryGetValue("BackupManifestFileUrl", out string backupManifestFileUrl);
+                    uri = new Uri(backupManifestFileUrl + file);
+                }
+                else
+                {
+                    _launcherSettings.TryGetValue("ManifestFileUrl", out string manifestFileUrl);
+                    uri = new Uri(manifestFileUrl + file);
+                }
+
+
+                client.DownloadProgressChanged += OnDownloadProgressChanged;
+
+                try
+                {
+                    data = await client.DownloadDataTaskAsync(uri);
+                    return data;
+                }
+                // If the download server is unavailable, try the backup server
+                catch
+                {
+                    _primaryServerOffline = true;
+
+                    _launcherSettings.TryGetValue("BackupManifestFileUrl", out string backupManifestFileUrl);
+                    Uri uri2 = new Uri(backupManifestFileUrl + file);
+
+                    client.DownloadProgressChanged += OnDownloadProgressChanged;
+
+                    try
+                    {
+                        data = await client.DownloadDataTaskAsync(uri2);
+                        return data;
+                    }
+                    // If the backup server is unavailable, error
+                    catch (Exception e)
+                    {
+                        OnServerError?.Invoke(e.ToString());
+                        return new byte[0];
+                    }
+                }
+            }
+        }
+
+        static void OnDownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        {
+            OnDownloadProgressUpdated?.Invoke(e.BytesReceived, e.TotalBytesToReceive, e.ProgressPercentage);
         }
     }
 }

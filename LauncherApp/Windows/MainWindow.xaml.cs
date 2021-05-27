@@ -59,11 +59,11 @@ namespace LauncherApp
             InitializeComponent();
 
             DownloadHandler.OnCurrentFileDownloading += ShowFileBeingDownloaded;
-            FileDownloader.OnDownloadProgressUpdated += DownloadProgressUpdated;
+            DownloadHandler.OnDownloadProgressUpdated += DownloadProgressUpdated;
             DownloadHandler.OnDownloadCompleted += OnDownloadCompleted;
-            FileDownloader.OnServerError += CaughtServerError;
+            DownloadHandler.OnServerError += CaughtServerError;
             DownloadHandler.OnFullScanFileCheck += OnFullScanFileCheck;
-            ValidationHandler.OnInstallCheckFailed += BaseGameVerificationFailed;
+            DownloadHandler.OnInstallCheckFailed += BaseGameVerificationFailed;
         }
         #endregion
 
@@ -394,7 +394,7 @@ namespace LauncherApp
                 }
                 else
                 {
-                    bool isBaseGameValidated = GameSetupHandler.ValidateBaseGame(GameValidationTextBox.Text);
+                    bool isBaseGameValidated = DownloadHandler.CheckBaseInstallation(GameValidationTextBox.Text);
 
                     if (isBaseGameValidated)
                     {
@@ -514,7 +514,7 @@ namespace LauncherApp
             // FullScanButton.IsEnabled = false;
             SettingsButton.IsEnabled = false;
 
-            await GameSetupHandler.CheckFilesAsync(_gamePath, true);
+            await DownloadHandler.CheckFilesAsync(_gamePath, true);
         }
 
         void SubmitSettingsButton_Click(object sender, RoutedEventArgs e)
@@ -585,7 +585,7 @@ namespace LauncherApp
             CharacterSelectGrid.Visibility = Visibility.Collapsed;
             PlayButton.IsEnabled = false;
             PlayButton.Content = "Updating";
-            await GameSetupHandler.CheckFilesAsync(await _configHandler.GetGameLocationAsync());
+            await DownloadHandler.CheckFilesAsync(await _configHandler.GetGameLocationAsync());
             PlayButton.IsEnabled = true;
             PlayButton.Content = "Play";
             CharacterSelectGrid.Visibility = Visibility.Visible;

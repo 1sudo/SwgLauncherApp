@@ -1,13 +1,10 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace LauncherManagement
 {
     public class CharacterHandler : DatabaseHandler
     {
-
         public async Task<string> GetLastSavedCharacterAsync()
         {
             List<DatabaseProperties.Characters> characters = await ExecuteCharacterAsync
