@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace LauncherManagement
 {
-    public class ApiHandler
+    public static class ApiHandler
     {
-        public async Task<LoginProperties> AccountLoginAsync(string url, string username, string password)
+        public static async Task<GameLoginResponseProperties> AccountLoginAsync(string url, string username, string password)
         {
             var client = new HttpClient();
             var request = new HttpRequestMessage
@@ -36,17 +36,65 @@ namespace LauncherManagement
                     JToken token = JToken.Parse(body);
                     JObject json = JObject.Parse((string)token);
 
-                    LoginProperties loginProperties = JsonConvert.DeserializeObject<LoginProperties>(json.ToString());
+                    GameLoginResponseProperties loginProperties = JsonConvert.DeserializeObject<GameLoginResponseProperties>(json.ToString());
 
                     return loginProperties;
                 }
             }
             catch
             {
-                return new LoginProperties
+                return new GameLoginResponseProperties
                 {
                     Result = "ServerDown",
                     Username = ""
+                };
+            }
+        }
+
+        public static async Task<GameAccountCreationResponseProperties> AccountCreationAsync(
+            string url, GameAccountCreationProperties accountProperties, CaptchaProperties captchaProperties)
+        {
+            var client = new HttpClient();
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                RequestUri = new Uri($"{url}/account/create/{accountProperties.Username}"),
+                Headers =
+                {
+                    { "Accept", "application/json" },
+                },
+                Content = new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    { "Password", accountProperties.Password },
+                    { "Email", accountProperties.Email },
+                    { "Discord", accountProperties.Discord },
+                    { "SubscribeToNewsletter", accountProperties.SubscribeToNewsletter.ToString() },
+                    { "CaptchaValue1", captchaProperties.Value1.ToString() },
+                    { "CaptchaValue2", captchaProperties.Value2.ToString() },
+                    { "CaptchaAnswer", captchaProperties.Answer.ToString() }
+                })
+            };
+
+            try
+            {
+                using (var response = await client.SendAsync(request))
+                {
+                    response.EnsureSuccessStatusCode();
+                    var body = await response.Content.ReadAsStringAsync();
+
+                    JToken token = JToken.Parse(body);
+                    JObject json = JObject.Parse((string)token);
+
+                    GameAccountCreationResponseProperties accountCreationProperties = JsonConvert.DeserializeObject<GameAccountCreationResponseProperties>(json.ToString());
+
+                    return accountCreationProperties;
+                }
+            }
+            catch
+            {
+                return new GameAccountCreationResponseProperties
+                {
+                    Result = "ServerDown",
                 };
             }
         }

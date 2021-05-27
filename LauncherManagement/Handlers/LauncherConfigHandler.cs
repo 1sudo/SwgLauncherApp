@@ -32,7 +32,7 @@ namespace LauncherManagement
                 await ExecuteLauncherConfigAsync
                     (
                         "UPDATE LauncherConfig " +
-                        "SET Verified = 0 " +
+                        "SET AutoLogin = 0 " +
                         "where Id = 1;"
                     );
             }
