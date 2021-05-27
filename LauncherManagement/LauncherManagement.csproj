@@ -4,6 +4,9 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>LauncherManagement</RootNamespace>
     <Platforms>AnyCPU;x64</Platforms>
+    <Authors>Zac Jones, Tyler Berlin</Authors>
+    <Company>N/A</Company>
+    <Copyright>SWGLegacy</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

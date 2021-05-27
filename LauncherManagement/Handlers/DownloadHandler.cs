@@ -19,9 +19,15 @@ namespace LauncherManagement
         public static Action<string> OnServerError;
 
         static LauncherConfigHandler _configHandler = new LauncherConfigHandler();
+
         static Dictionary<string, string> _launcherSettings = new Dictionary<string, string>();
+        static List<string> ClientChecksums = new List<string>
+        {
+            "", "", "", ""
+        };
 
         static bool _primaryServerOffline = false;
+        public static string baseGameLocation;
 
         internal static async Task<List<DownloadableFile>> DownloadManifestAsync(string manifestFile)
         {
@@ -56,16 +62,8 @@ namespace LauncherManagement
 
         internal static async Task AttemptCopyFilesFromListAsync(List<string> fileList, string copyLocation)
         {
-            /* Needs refactored to not use config file for path
-             * ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-             * 
             double listLength = fileList.Count;
             List<string> newFileList = new List<string>();
-
-            // Get source installation properties
-            string configLocation = Path.Join(Directory.GetCurrentDirectory(), "config.json");
-            using StreamReader sr = File.OpenText(configLocation);
-            ConfigProperties configProperties = JsonConvert.DeserializeObject<ConfigProperties>(sr.ReadToEnd());
 
             double i = 1;
             // Key == name, Value == url
@@ -77,20 +75,22 @@ namespace LauncherManagement
                 // Create directory before writing to file if it doesn't exist
                 new FileInfo(Path.Join(copyLocation, file)).Directory.Create();
 
-                // If file exists at source installation, copy it
-                if (File.Exists(Path.Join(configProperties.SWGLocation, file)))
+                if (copyLocation != baseGameLocation)
                 {
-                    await CopyFileAsync(Path.Join(configProperties.SWGLocation, file), Path.Join(copyLocation, file));
+                    // If file exists at source installation, copy it
+                    if (File.Exists(Path.Join(baseGameLocation, file)))
+                    {
+                        await CopyFileAsync(Path.Join(baseGameLocation, file), Path.Join(copyLocation, file));
+                    }
+                    // If file doesn't exist in source location, add to new list to be returned
+                    else
+                    {
+                        newFileList.Add(file);
+                    }
                 }
-                // If file doesn't exist in source location, add to new list to be returned
-                else
-                {
-                    newFileList.Add(file);
-                }
-                
+
                 ++i;
             }
-            */
         }
 
         static async Task CopyFileAsync(string sourcePath, string destinationPath)
@@ -120,6 +120,14 @@ namespace LauncherManagement
             return fileList;
         }
 
+        internal static string GetMd5Checksum(string filePath)
+        {
+            using var md5 = MD5.Create();
+            using var stream = File.OpenRead(filePath);
+            
+            return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLowerInvariant();    
+        }
+
         internal static async Task<List<string>> GetBadFilesAsync(string downloadLocation, List<DownloadableFile> fileList, bool isFullScan = false)
         {
             var newFileList = new List<string>();
@@ -139,19 +147,12 @@ namespace LauncherManagement
                             {
                                 OnFullScanFileCheck?.Invoke($"Checking File { file.Name }...", i, listLength);
 
-                                using (var md5 = MD5.Create())
-                                {
-                                    using (var stream = File.OpenRead(Path.Join(downloadLocation, file.Name)))
-                                    {
-                                        var result = BitConverter.ToString(md5.ComputeHash(stream))
-                                            .Replace("-", "").ToLowerInvariant();
+                                string result = GetMd5Checksum(Path.Join(downloadLocation, file.Name));
 
-                                        // If checksum doesn't match, add to download list
-                                        if (result != file.Md5)
-                                        {
-                                            newFileList.Add(file.Name);
-                                        }
-                                    }
+                                // If checksum doesn't match, add to download list
+                                if (result != file.Md5)
+                                {
+                                    newFileList.Add(file.Name);
                                 }
                             }
                             // If file doesn't exist, add to download list
@@ -178,6 +179,29 @@ namespace LauncherManagement
                                 if (new FileInfo(Path.Join(downloadLocation, file.Name)).Length != file.Size)
                                 {
                                     newFileList.Add(file.Name);
+                                }
+
+                                // Check MD5 sums for game client regardless of full scan or file size check
+                                // This ensures the executable doesn't get re-downloaded when it is patched on the fly (FPS edits, for example)
+                                if (file.Name == "SWGEmu.exe" || file.Name == "SwgClient_r.exe")
+                                {
+                                    // Calculate MD5 checksum
+                                    string result = GetMd5Checksum(Path.Join(downloadLocation, file.Name));
+
+                                    bool fileAdded = false;
+                                    ClientChecksums.ForEach(checksum =>
+                                    {
+                                        // Check to see if the file has already been added, prevent it from being downloaded multiple times
+                                        if (!fileAdded)
+                                        {
+                                            // If MD5 checksum doesn't match the manifest, or the hardcoded patched sums, add to list
+                                            if (result != file.Md5 || result != checksum)
+                                            {
+                                                newFileList.Add(file.Name);
+                                                fileAdded = true;
+                                            }
+                                        }
+                                    });
                                 }
                             }
                             // If file doesn't exist, add to download list

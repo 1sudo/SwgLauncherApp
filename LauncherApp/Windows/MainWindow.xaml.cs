@@ -398,6 +398,7 @@ namespace LauncherApp
 
                     if (isBaseGameValidated)
                     {
+                        DownloadHandler.baseGameLocation = GameValidationTextBox.Text;
                         await _configHandler.SetVerifiedAsync();
                         UpdateScreen((int)Screens.LOGIN_GRID);
                     }
