@@ -635,7 +635,7 @@
         <!-- #endregion -->
 
         <!-- Primary Screen -->
-        <Grid x:Name="PrimaryGrid" Grid.ColumnSpan="2" Grid.Row="2" Grid.Column="1" Visibility="Visible">
+        <Grid x:Name="PrimaryGrid" Grid.ColumnSpan="2" Grid.Row="2" Grid.Column="1" Visibility="Collapsed">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="224" />
                 <ColumnDefinition Width="*" />
@@ -732,7 +732,7 @@
                     </RadialGradientBrush>
                 </Grid.Background>
 
-                <Grid x:Name="WebGrid">
+                <Grid x:Name="WebGrid" Margin="18,0,0,0">
                     
                 </Grid>
 
@@ -985,7 +985,7 @@
         </Grid>
 
         <!-- Login -->
-        <Grid x:Name="LoginGrid" Grid.ColumnSpan="2" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" Visibility="Collapsed">
+        <Grid x:Name="LoginGrid" Grid.ColumnSpan="2" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" Visibility="Visible">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="224" />
                 <ColumnDefinition Width="*" />
@@ -996,70 +996,246 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="110" />
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="30" />
-                    <RowDefinition Height="30" />
                 </Grid.RowDefinitions>
 
                 <TextBlock TextWrapping="Wrap" Foreground="#FFCBD4DD" FontFamily="Bahnschrift Light">
                     Welcome to SWG Legacy.<LineBreak/><LineBreak/>Here is where I'm going to eventually write a whole bunch of bullshit about the server. It's going to be super cool sounding and make people want to click that log in button.
                 </TextBlock>
 
-                <Button x:Name="LoginHelp" Content="Support / Help" Grid.Row="2" Style="{DynamicResource SidebarButton}" Padding="0,2,0,2" HorizontalAlignment="Left" VerticalAlignment="Center"></Button>
-                <Button x:Name="LoginRules" Content="Rules &amp; Regulations" Grid.Row="3" Style="{DynamicResource SidebarButton}" Padding="0,2,0,2" HorizontalAlignment="Left" VerticalAlignment="Center"></Button>
+                <StackPanel VerticalAlignment="Bottom" Grid.Row="1">
+                    <Button x:Name="CreateAccount" Content="Create Account" Style="{DynamicResource SidebarButton}" Padding="0,2,0,2" HorizontalAlignment="Left" VerticalAlignment="Center"></Button>
+                    <Button x:Name="PasswordReset" Content="Password Reset" Style="{DynamicResource SidebarButton}" Padding="0,2,0,2" HorizontalAlignment="Left" VerticalAlignment="Center"></Button>
+                    <Button x:Name="LoginHelp" Content="Support / Help" Style="{DynamicResource SidebarButton}" Padding="0,2,0,2" HorizontalAlignment="Left" VerticalAlignment="Center"></Button>
+                    <Button x:Name="LoginRules" Content="Rules &amp; Regulations" Style="{DynamicResource SidebarButton}" Padding="0,2,0,2" HorizontalAlignment="Left" VerticalAlignment="Center"></Button>
+                </StackPanel>
             </Grid>
 
             <!-- Login Window -->
-            <Grid Grid.Column="1" Margin="18,0,0,0">
-                <Grid MaxWidth="280" MaxHeight="280">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="18" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <TextBlock x:Name="AccountLoginText" Grid.Row="0" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="20">
+            <Grid Grid.Column="1" Margin="18,0,0,0" Visibility="Visible">
+                <StackPanel MaxWidth="280" MaxHeight="280">
+                    <TextBlock x:Name="AccountLoginText" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="20">
                         ACCOUNT LOGIN
                     </TextBlock>
 
-                    <TextBlock x:Name="ResultText" Grid.Row="1" Foreground="#FFF32A2A" FontFamily="Bahnschrift" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14">
+                    <TextBlock x:Name="ResultText" Foreground="#FFF32A2A" FontFamily="Bahnschrift" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14">
                     </TextBlock>
 
-                    <TextBox Style="{DynamicResource TextBoxTransparent}" x:Name="UsernameTextbox" Grid.Column="1" Grid.Row="2" KeyDown="UsernameTextbox_KeyDown" />
-                    <TextBlock Text="Username" Grid.Column="1" Grid.Row="2">
-                        <TextBlock.Style>
-                            <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TextBlockPlaceholder}">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Text, ElementName=UsernameTextbox}" Value="">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
+                    <Grid>
+                        <TextBox Style="{DynamicResource TextBoxTransparent}" x:Name="UsernameTextbox" KeyDown="UsernameTextbox_KeyDown" Height="40" />
+                        <TextBlock Text="Username">
+                            <TextBlock.Style>
+                                <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TextBlockPlaceholder}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text, ElementName=UsernameTextbox}" Value="">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
 
                     <!-- https://stackoverflow.com/questions/833943/watermark-hint-text-placeholder-textbox/836463#836463 -->
-                    <PasswordBox Style="{DynamicResource PasswordBoxTransparent}" x:Name="PasswordTextbox" Grid.Column="1" Grid.Row="3" KeyDown="PasswordTextbox_KeyDown"/>
-                    <TextBlock Text="Password" Grid.Column="1" Grid.Row="3">
-                        <TextBlock.Style>
-                            <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TextBlockPlaceholder}">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Text, ElementName=PasswordTextbox}" Value="">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
+                    <Grid>
+                        <PasswordBox Style="{DynamicResource PasswordBoxTransparent}" x:Name="PasswordTextbox" KeyDown="PasswordTextbox_KeyDown" Height="40"/>
+                        <TextBlock Text="Password">
+                            <TextBlock.Style>
+                                <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TextBlockPlaceholder}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text, ElementName=PasswordTextbox}" Value="">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
                     </TextBlock>
+                    </Grid>
 
-                    <CheckBox x:Name="AutoLoginCheckbox" Grid.Column="1" Grid.Row="4" VerticalAlignment="Center" IsChecked="True">
+                    <CheckBox x:Name="AutoLoginCheckbox" VerticalAlignment="Center" IsChecked="True" Margin="0,6,0,12">
                         <TextBlock Margin="12,0,0,0">Keep me logged in</TextBlock>
                     </CheckBox>
 
-                    <Button x:Name="LoginButton" Style="{DynamicResource NavButton}" Grid.Column="1" Grid.Row="5" Click="LoginButton_Click" TabIndex="4">LOG IN</Button>
+                    <Button x:Name="LoginButton" Style="{DynamicResource NavButton}" Click="LoginButton_Click" TabIndex="4">Log in</Button>
+
+                    <UniformGrid Rows="1" Margin="0,2,0,0">
+                        <Button x:Name="LoginCreateAccount" Content="Create Account" Style="{DynamicResource SidebarButton}" Padding="0,2,0,2" HorizontalAlignment="Left" VerticalAlignment="Center"></Button>
+                        <Button x:Name="LoginForgotPassword" Content="Forgot Password?" Style="{DynamicResource SidebarButton}" Padding="0,2,0,2" HorizontalAlignment="Right" VerticalAlignment="Center"></Button>
+                    </UniformGrid>
+                </StackPanel>
+            </Grid>
+
+            <!-- Create Account -->
+            <Grid Grid.Column="1" Margin="18,0,0,0" Visibility="Collapsed">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="50"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel>
+                        <StackPanel>
+                            <Border BorderThickness="0,0,0,1" Margin="0,0,0,10" Padding="0,0,0,2">
+                                <Border.BorderBrush>
+                                    <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                                        <GradientStop Color="#4C000000"/>
+                                        <GradientStop Color="#00000000" Offset="0.8"/>
+                                    </LinearGradientBrush>
+                                </Border.BorderBrush>
+                                <TextBlock Style="{DynamicResource MainWindowTitle}" VerticalAlignment="Bottom">
+                                    Create Account
+                                </TextBlock>
+                            </Border>
+                        </StackPanel>
+                    
+                        <UniformGrid Rows="1" HorizontalAlignment="Stretch">
+                            <StackPanel Margin="0,0,4,0">
+                                <TextBlock Style="{DynamicResource h3}">
+                                Required Information
+                                </TextBlock>
+                                <!-- Username -->
+                                <Grid>
+                                    <TextBox Style="{DynamicResource TextBoxTransparent}" x:Name="CreateUsernameTextbox" Height="40" />
+                                    <TextBlock Text="Username">
+                                        <TextBlock.Style>
+                                            <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TextBlockPlaceholder}">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Text, ElementName=CreateUsernameTextbox}" Value="">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+
+                                <!-- Email -->
+                                <Grid>
+                                    <TextBox Style="{DynamicResource TextBoxTransparent}" x:Name="CreateEmailTextbox" Height="40" />
+                                    <TextBlock Text="Email Address">
+                                        <TextBlock.Style>
+                                            <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TextBlockPlaceholder}">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Text, ElementName=CreateEmailTextbox}" Value="">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+
+                                <!-- Password -->
+                                <Grid>
+                                    <PasswordBox Style="{DynamicResource PasswordBoxTransparent}" x:Name="CreatePasswordTextbox" Height="40"/>
+                                    <TextBlock Text="Password">
+                                        <TextBlock.Style>
+                                            <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TextBlockPlaceholder}">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Text, ElementName=CreatePasswordTextbox}" Value="">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+
+                                <!-- Confirm Password -->
+                                <Grid>
+                                    <PasswordBox Style="{DynamicResource PasswordBoxTransparent}" x:Name="CreateConfirmPasswordTextbox" Height="40"/>
+                                    <TextBlock Text="Confirm Password">
+                                        <TextBlock.Style>
+                                            <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TextBlockPlaceholder}">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Text, ElementName=CreateConfirmPasswordTextbox}" Value="">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            
+                                <!-- Newsletter-->
+                                <CheckBox x:Name="NewsletterCheckbox" VerticalAlignment="Center" IsChecked="True" Margin="0,6,0,12">
+                                    <TextBlock Margin="12,0,0,0">Subscribe to the SWG Legacy Newletter</TextBlock>
+                                </CheckBox>
+                            
+                                <!-- Security Question -->
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{DynamicResource h3}">
+                                            Security Question:
+                                        </TextBlock>
+                                        <TextBlock x:Name="CreateSecurityQuestionTextblock" TextWrapping="Wrap" Foreground="#FFCBD4DD" FontFamily="Bahnschrift Light" Margin="8,0,0,0" VerticalAlignment="Center">
+                                            1 + 1 =
+                                        </TextBlock>
+                                    </StackPanel>
+                                    <Grid>
+                                        <TextBox Style="{DynamicResource TextBoxTransparent}" x:Name="CreateSecurityQuestionTextbox" Height="40" />
+                                        <TextBlock Text="Answer">
+                                            <TextBlock.Style>
+                                                <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TextBlockPlaceholder}">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Text, ElementName=CreateSecurityQuestionTextbox}" Value="">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+                            
+                            <StackPanel Margin="4,0,0,0">
+                                <TextBlock Style="{DynamicResource h3}">
+                                Optional
+                                </TextBlock>
+                                <!-- Discord -->
+                                <Grid>
+                                    <TextBox Style="{DynamicResource TextBoxTransparent}" x:Name="CreateDiscordTextbox" Height="40" />
+                                    <TextBlock Text="Discord ID - e.g. User#1234">
+                                        <TextBlock.Style>
+                                            <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TextBlockPlaceholder}">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Text, ElementName=CreateDiscordTextbox}" Value="">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </StackPanel>
+                            <StackPanel Margin="18,0,0,0">
+                                <TextBlock TextWrapping="Wrap" Foreground="#FFCBD4DD" FontFamily="Bahnschrift Light" VerticalAlignment="Stretch" Margin="0,19,0,0">
+                                After creating an account, you will be sent an automated email from the SWG Legacy team to confirm your email address.<LineBreak/><LineBreak/>Follow the instructions in the confirmation email before signing into your account via the launcher or website.
+                                </TextBlock>
+                            </StackPanel>
+                        </UniformGrid>
+                    </StackPanel>
+
+                    <!-- Setup Navigation Buttons -->
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="180" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="160" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button x:Name="CreateAccountButton" Content="Create Account" Style="{DynamicResource NavButton}" FontSize="18" IsEnabled="False" />
+                        <TextBlock x:Name="CreateAccountResultText" Grid.Column="1" Foreground="#FFF32A2A" FontFamily="Bahnschrift" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14"></TextBlock>
+                        <Button Content="Cancel" Style="{DynamicResource NavButton}" FontSize="18" Grid.Column="3" Click="RulesAndRegulationsCancelButton_Click" />
+                    </Grid>
                 </Grid>
             </Grid>
         </Grid>
@@ -1074,11 +1250,8 @@
             <!-- Setup Sidebar -->
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="100" />
+                    <RowDefinition Height="auto" />
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="30" />
-                    <RowDefinition Height="30" />
-                    <RowDefinition Height="30" />
                 </Grid.RowDefinitions>
 
                 <TextBlock TextWrapping="Wrap" Foreground="#FFCBD4DD" FontFamily="Bahnschrift Light">
@@ -1086,9 +1259,12 @@
                     Questions about the setup process? Please follow the <Bold>"Support / Help" link in the sidebar.</Bold>
                 </TextBlock>
 
-                <Button x:Name="SetupCreateAccount" Content="Create Account" Grid.Row="2" Style="{DynamicResource SidebarButton}" Padding="0,2,0,2" HorizontalAlignment="Left" VerticalAlignment="Center"></Button>
-                <Button x:Name="SetupHelp" Content="Support / Help" Grid.Row="3" Style="{DynamicResource SidebarButton}" Padding="0,2,0,2" HorizontalAlignment="Left" VerticalAlignment="Center"></Button>
-                <Button x:Name="SetupRules" Content="Rules &amp; Regulations" Grid.Row="4" Style="{DynamicResource SidebarButton}" Padding="0,2,0,2" HorizontalAlignment="Left" VerticalAlignment="Center"></Button>
+                <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
+                    <Button x:Name="SetupCreateAccount" Content="Create Account" Style="{DynamicResource SidebarButton}" Padding="0,2,0,2" HorizontalAlignment="Left" VerticalAlignment="Center"></Button>
+                    <Button x:Name="SetupPasswordReset" Content="Password Reset" Style="{DynamicResource SidebarButton}" Padding="0,2,0,2" HorizontalAlignment="Left" VerticalAlignment="Center"></Button>
+                    <Button x:Name="SetupHelp" Content="Support / Help" Style="{DynamicResource SidebarButton}" Padding="0,2,0,2" HorizontalAlignment="Left" VerticalAlignment="Center"></Button>
+                    <Button x:Name="SetupRules" Content="Rules &amp; Regulations" Style="{DynamicResource SidebarButton}" Padding="0,2,0,2" HorizontalAlignment="Left" VerticalAlignment="Center"></Button>
+                </StackPanel>
             </Grid>
 
             <!-- Setup Window -->
@@ -1116,7 +1292,7 @@
                         </TextBlock>
                     </Grid>
 
-                    <CheckBox x:Name="RulesAndRegulationsCheckbox" Foreground="White" Grid.Row="2" Margin="20,0,0,0" Checked="RulesAndRegulationsCheckbox_Checked" Unchecked="RulesAndRegulationsCheckbox_Unchecked">
+                    <CheckBox x:Name="RulesAndRegulationsCheckbox" Foreground="White" Grid.Row="2" Checked="RulesAndRegulationsCheckbox_Checked" Unchecked="RulesAndRegulationsCheckbox_Unchecked">
                         <TextBlock Margin="12,0,0,0">I agree</TextBlock>
                     </CheckBox>
 
