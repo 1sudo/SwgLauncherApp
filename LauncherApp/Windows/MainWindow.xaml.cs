@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
@@ -188,9 +187,12 @@ namespace LauncherApp
 
         async void CharacterNameComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var selectedCharacter = CharacterNameComboBox.SelectedValue.ToString();
+            var selectedCharacter = "";
 
-            Trace.WriteLine(selectedCharacter);
+            if (CharacterNameComboBox.SelectedValue != null)
+            {
+                selectedCharacter = CharacterNameComboBox.SelectedValue.ToString();
+            }
 
             await _characterHandler.SaveCharacterAsync(selectedCharacter);
         }
