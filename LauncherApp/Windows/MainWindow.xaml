@@ -614,11 +614,11 @@
                 </StackPanel>
                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="24,0,18,0" Opacity="0.8">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Style="{DynamicResource ServerStatusText}">SERVER STATUS: </TextBlock>
+                        <TextBlock Style="{DynamicResource ServerStatusText}">SERVER STATUS:</TextBlock>
                         <TextBlock Style="{DynamicResource ServerStatusData}" Foreground="#CCFFFFFF">Online</TextBlock>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Style="{DynamicResource ServerStatusText}">UPTIME: </TextBlock>
+                        <TextBlock Style="{DynamicResource ServerStatusText}">UPTIME:</TextBlock>
                         <TextBlock Style="{DynamicResource ServerStatusData}" Foreground="#CCFFFFFF">6 Days 23 Hours 59 Minutes</TextBlock>
                     </StackPanel>
                 </StackPanel>
@@ -733,7 +733,7 @@
                 </Grid.Background>
 
                 <Grid x:Name="UpdatesGrid" Margin="18,0,0,0">
-                    
+
                 </Grid>
 
                 <!-- Settings -->
@@ -757,17 +757,24 @@
                             </DockPanel>
                         </Border>
                         <StackPanel Style="{DynamicResource SettingsColumn}">
-                            <UniformGrid Columns="4">
-                                <StackPanel Margin="0,0,8,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="140" />
+                                    <ColumnDefinition Width="140" />
+                                    <ColumnDefinition Width="140" />
+                                    <ColumnDefinition Width="140" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Margin="0,0,4,0">
                                     <TextBlock Style="{DynamicResource h3}">
-                                Game Resolution
+                                    Game Resolution
                                     </TextBlock>
                                     <ComboBox x:Name="ResolutionBox" SelectedIndex="1" Style="{DynamicResource ComboBoxTransparent}" />
                                 </StackPanel>
 
-                                <StackPanel Margin="0,0,8,0">
+                                <StackPanel Margin="4,0,4,0" Grid.Column="1">
                                     <TextBlock Style="{DynamicResource h3}">
-                                Shader
+                                    Shader
                                     </TextBlock>
                                     <ComboBox x:Name="ShaderBox" SelectedIndex="0" Style="{DynamicResource ComboBoxTransparent}">
                                         <ComboBoxItem Content="Optimal" />
@@ -778,9 +785,9 @@
                                     </ComboBox>
                                 </StackPanel>
 
-                                <StackPanel Margin="0,0,8,0">
+                                <StackPanel Margin="4,0,4,0" Grid.Column="2">
                                     <TextBlock Style="{DynamicResource h3}">
-                                Memory
+                                    Memory
                                     </TextBlock>
                                     <ComboBox x:Name="MemoryBox" SelectedIndex="0" Style="{DynamicResource ComboBoxTransparent}">
                                         <ComboBoxItem Content="4GB" />
@@ -790,9 +797,9 @@
                                     </ComboBox>
                                 </StackPanel>
 
-                                <StackPanel>
+                                <StackPanel Margin="4,0,4,0" Grid.Column="3">
                                     <TextBlock Style="{DynamicResource h3}">
-                                FPS Limit
+                                    FPS Limit
                                     </TextBlock>
                                     <ComboBox x:Name="FpsBox" SelectedIndex="2" Style="{DynamicResource ComboBoxTransparent}">
                                         <ComboBoxItem Content="240" />
@@ -801,7 +808,20 @@
                                         <ComboBoxItem Content="30" />
                                     </ComboBox>
                                 </StackPanel>
-                            </UniformGrid>
+
+                                <StackPanel Margin="4,0,0,0" Grid.Column="4">
+                                    <TextBlock Style="{DynamicResource h3}">
+                                    Camera Zoom
+                                    </TextBlock>
+                                    <ComboBox x:Name="ZoomBox" SelectedIndex="0" Style="{DynamicResource ComboBoxTransparent}">
+                                        <ComboBoxItem Content="1 (Default)" />
+                                        <ComboBoxItem Content="3" />
+                                        <ComboBoxItem Content="5 (Medium)" />
+                                        <ComboBoxItem Content="7" />
+                                        <ComboBoxItem Content="10 (Far)" />
+                                    </ComboBox>
+                                </StackPanel>
+                            </Grid>
                         </StackPanel>
 
                         <StackPanel Style="{DynamicResource SettingsColumn}">
@@ -896,7 +916,7 @@
                 </Grid>
 
                 <!-- Options and Mods -->
-                <Grid x:Name="OptionsAndModsGrid" Visibility="Collapsed" Margin="18,0,0,0">
+                <Grid x:Name="OptionsAndModsGrid" Visibility="Visible" Margin="18,0,0,0">
                     <StackPanel>
                         <Border BorderThickness="0,0,0,1" Margin="0,0,0,10" Padding="0,0,0,2">
                             <Border.BorderBrush>
@@ -907,7 +927,7 @@
                             </Border.BorderBrush>
                             <DockPanel>
                                 <TextBlock Style="{DynamicResource MainWindowTitle}" VerticalAlignment="Bottom">
-                            Options &amp; Modifications
+                                Options &amp; Modifications
                                 </TextBlock>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                     <Button x:Name="RevertModsButton" Style="{DynamicResource NavButton}" FontSize="12" Margin="0,0,12,0" Padding="15,5,15,5">Revert</Button>
@@ -915,6 +935,116 @@
                                 </StackPanel>
                             </DockPanel>
                         </Border>
+
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Style="{DynamicResource SettingsColumn}">
+                                <UniformGrid Columns="2">
+                                    <StackPanel Margin="0,0,9,0">
+                                        <Border BorderThickness="0,0,0,1" Margin="0,0,0,4">
+                                            <Border.BorderBrush>
+                                                <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                                                    <GradientStop Color="#4C000000"/>
+                                                    <GradientStop Color="#00000000" Offset="0.8"/>
+                                                </LinearGradientBrush>
+                                            </Border.BorderBrush>
+                                            <TextBlock Style="{DynamicResource h2}" VerticalAlignment="Bottom">
+                                                Game Options
+                                            </TextBlock>
+                                        </Border>
+                                        <UniformGrid Columns="1">
+                                            <StackPanel Style="{DynamicResource SettingsColumn}">
+                                                <TextBlock Style="{DynamicResource h3}">
+                                                Installation Directory
+                                                </TextBlock>
+                                                <DockPanel FlowDirection="RightToLeft">
+                                                    <Button x:Name="OptionsInstallDirectoryButton" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Click="OptionsInstallDirectoryButton_Click" Height="30" VerticalAlignment="Top">Change</Button>
+                                                    <TextBox x:Name="OptionsInstallDirectoryTextbox" Style="{DynamicResource TextBoxTransparent}" Height="30" Margin="8,0,0,0" IsEnabled="False" VerticalAlignment="Top" />
+                                                </DockPanel>
+                                            </StackPanel>
+                                        </UniformGrid>
+
+                                        <UniformGrid Columns="2" Margin="0,0,0,8">
+                                            <UniformGrid Rows="1">
+                                                <StackPanel Style="{DynamicResource SettingsColumn}" Margin="0,0,4,0">
+                                                    <TextBlock Style="{DynamicResource h3}">
+                                                    Full Scan
+                                                    </TextBlock>
+                                                    <Button x:Name="OptionsFullScanButton" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Height="30" VerticalAlignment="Top">Full Scan</Button>
+                                                </StackPanel>
+                                                <StackPanel Style="{DynamicResource SettingsColumn}" Margin="4,0,4,0">
+                                                    <TextBlock Style="{DynamicResource h3}">
+                                                    Game Setup
+                                                    </TextBlock>
+                                                    <Button x:Name="OptionsRerunSetupButton" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Height="30" VerticalAlignment="Top">Run Setup</Button>
+                                                </StackPanel>
+                                            </UniformGrid>
+                                        </UniformGrid>
+                                    </StackPanel>
+
+                                    <StackPanel Margin="9,0,0,0">
+                                        <Border BorderThickness="0,0,0,1" Margin="0,0,0,4">
+                                            <Border.BorderBrush>
+                                                <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                                                    <GradientStop Color="#4C000000"/>
+                                                    <GradientStop Color="#00000000" Offset="0.8"/>
+                                                </LinearGradientBrush>
+                                            </Border.BorderBrush>
+                                            <TextBlock Style="{DynamicResource h2}" VerticalAlignment="Bottom">
+                                                Server Options
+                                            </TextBlock>
+                                        </Border>
+                                        
+                                        <UniformGrid Columns="1">
+                                            <StackPanel Style="{DynamicResource SettingsColumn}" Margin="0,0,4,0">
+                                                <TextBlock Style="{DynamicResource h3}">
+                                                    Server Selection
+                                                </TextBlock>
+                                                <ComboBox x:Name="OptionsLoginServerBox" SelectedIndex="1" Style="{DynamicResource ComboBoxTransparent}" />
+                                            </StackPanel>
+                                        </UniformGrid>
+                                    </StackPanel>
+
+                                </UniformGrid>
+                            </StackPanel>
+
+                            <StackPanel Style="{DynamicResource SettingsColumn}" Grid.Row="1">
+                                <Border BorderThickness="0,0,0,1" Margin="0,0,0,4">
+                                    <Border.BorderBrush>
+                                        <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                                            <GradientStop Color="#4C000000"/>
+                                            <GradientStop Color="#00000000" Offset="0.8"/>
+                                        </LinearGradientBrush>
+                                    </Border.BorderBrush>
+                                    <TextBlock Style="{DynamicResource h2}" VerticalAlignment="Bottom">
+                                        Modifications
+                                    </TextBlock>
+                                </Border>
+                                <UniformGrid Columns="2" Margin="0,0,0,9">
+                                    <DockPanel Margin="0,0,8,0">
+                                        <CheckBox x:Name="ModsHdTextureCheckbox">
+                                            <TextBlock Margin="12,0,0,0">HD Textures Mod</TextBlock>
+                                        </CheckBox>
+                                        <TextBlock TextWrapping="Wrap" Foreground="#FFCBD4DD" FontFamily="Bahnschrift Light" Margin="18,0,0,0">
+                                            High resolution texture upscaling of the original Star Wars Galaxies assets which signifcantly increases the fidelity of most in game textures.<LineBreak/><LineBreak/>Requires an additional <Bold>17.3GB</Bold> of hard drive space.
+                                        </TextBlock>
+                                    </DockPanel>
+                                    <DockPanel Margin="9,0,0,0">
+                                        <CheckBox x:Name="ModsReshadeCheckbox">
+                                            <TextBlock Margin="12,0,0,0">ReShade</TextBlock>
+                                        </CheckBox>
+                                        <TextBlock TextWrapping="Wrap" Foreground="#FFCBD4DD" FontFamily="Bahnschrift Light" Margin="18,0,0,0">
+                                            Custom shader preset for ReShade which sharpens details and enhances the colors.<LineBreak/><LineBreak/>Requires an additional <Bold>50MB</Bold> of hard drive space.
+                                        </TextBlock>
+                                    </DockPanel>
+                                </UniformGrid>
+                            </StackPanel>
+                        </Grid>
                     </StackPanel>
                 </Grid>
 
@@ -939,45 +1069,98 @@
                             </DockPanel>
                         </Border>
 
-                        <StackPanel>
-                            <UniformGrid Columns="4">
-                                <UniformGrid Rows="4" Margin="0,0,12,0">
-                                    <StackPanel Style="{DynamicResource SettingsColumn}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Style="{DynamicResource SettingsColumn}">
+                                <Border BorderThickness="0,0,0,1" Margin="0,0,0,4">
+                                    <Border.BorderBrush>
+                                        <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                                            <GradientStop Color="#4C000000"/>
+                                            <GradientStop Color="#00000000" Offset="0.8"/>
+                                        </LinearGradientBrush>
+                                    </Border.BorderBrush>
+                                    <TextBlock Style="{DynamicResource h2}" VerticalAlignment="Bottom">
+                                        Game Admin Options
+                                    </TextBlock>
+                                </Border>
+                                <UniformGrid Columns="4" Margin="0,0,0,8">
+                                    <CheckBox x:Name="DevAdminCheckbox">
+                                        <TextBlock Margin="12,0,0,0">God Mode</TextBlock>
+                                    </CheckBox>
+                                    <CheckBox x:Name="DevDebugCheckbox">
+                                        <TextBlock Margin="12,0,0,0">Examine Debug</TextBlock>
+                                    </CheckBox>
+                                </UniformGrid>
+                            </StackPanel>
+
+                            <StackPanel Style="{DynamicResource SettingsColumn}" Grid.Row="1">
+                                <Border BorderThickness="0,0,0,1" Margin="0,0,0,4">
+                                    <Border.BorderBrush>
+                                        <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                                            <GradientStop Color="#4C000000"/>
+                                            <GradientStop Color="#00000000" Offset="0.8"/>
+                                        </LinearGradientBrush>
+                                    </Border.BorderBrush>
+                                    <TextBlock Style="{DynamicResource h2}" VerticalAlignment="Bottom">
+                                        API &amp; Manifest
+                                    </TextBlock>
+                                </Border>
+                                <UniformGrid Columns="4">
+                                    <StackPanel Style="{DynamicResource SettingsColumn}" Margin="0,0,4,0">
                                         <TextBlock Style="{DynamicResource h3}">
                                         API URL
                                         </TextBlock>
                                         <TextBox x:Name="DevAPIurl" Style="{DynamicResource TextBoxTransparent}" Height="30" />
                                     </StackPanel>
-                                    <StackPanel Style="{DynamicResource SettingsColumn}">
+                                    <StackPanel Style="{DynamicResource SettingsColumn}" Margin="4,0,4,0">
                                         <TextBlock Style="{DynamicResource h3}">
                                         Manifest URL
                                         </TextBlock>
                                         <TextBox x:Name="DevManifestURL" Style="{DynamicResource TextBoxTransparent}" Height="30" />
                                     </StackPanel>
-                                    <StackPanel Style="{DynamicResource SettingsColumn}">
+                                    <StackPanel Style="{DynamicResource SettingsColumn}" Margin="4,0,0,0">
                                         <TextBlock Style="{DynamicResource h3}">
                                         Manifest File Path
                                         </TextBlock>
                                         <TextBox x:Name="DevManifestFilePath" Style="{DynamicResource TextBoxTransparent}" Height="30" />
                                     </StackPanel>
                                 </UniformGrid>
+                            </StackPanel>
 
-                                <UniformGrid Rows="4" Margin="0,0,12,0">
-                                    <StackPanel Style="{DynamicResource SettingsColumn}">
+                            <StackPanel Style="{DynamicResource SettingsColumn}" Grid.Row="2">
+                                <Border BorderThickness="0,0,0,1" Margin="0,0,0,4">
+                                    <Border.BorderBrush>
+                                        <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                                            <GradientStop Color="#4C000000"/>
+                                            <GradientStop Color="#00000000" Offset="0.8"/>
+                                        </LinearGradientBrush>
+                                    </Border.BorderBrush>
+                                    <TextBlock Style="{DynamicResource h2}" VerticalAlignment="Bottom">
+                                        Login
+                                    </TextBlock>
+                                </Border>
+
+                                <UniformGrid Columns="4">
+                                    <StackPanel Style="{DynamicResource SettingsColumn}" Margin="0,0,4,0">
                                         <TextBlock Style="{DynamicResource h3}">
                                         SWG Login / Hostname
                                         </TextBlock>
                                         <TextBox x:Name="DevSWGhostname" Style="{DynamicResource TextBoxTransparent}" Height="30" />
                                     </StackPanel>
-                                    <StackPanel Style="{DynamicResource SettingsColumn}">
+                                    <StackPanel Style="{DynamicResource SettingsColumn}" Margin="4,0,0,0">
                                         <TextBlock Style="{DynamicResource h3}">
                                         SWG Login Port
                                         </TextBlock>
                                         <TextBox x:Name="DevSWGport" Style="{DynamicResource TextBoxTransparent}" Height="30" />
                                     </StackPanel>
                                 </UniformGrid>
-                            </UniformGrid>
-                        </StackPanel>
+                            </StackPanel>
+                        </Grid>
                     </StackPanel>
                 </Grid>
 
@@ -1050,7 +1233,7 @@
                                     </Style.Triggers>
                                 </Style>
                             </TextBlock.Style>
-                    </TextBlock>
+                        </TextBlock>
                     </Grid>
 
                     <CheckBox x:Name="AutoLoginCheckbox" VerticalAlignment="Center" IsChecked="True" Margin="0,6,0,12">
@@ -1088,7 +1271,7 @@
                                 </TextBlock>
                             </Border>
                         </StackPanel>
-                    
+
                         <UniformGrid Rows="1" HorizontalAlignment="Stretch">
                             <StackPanel Margin="0,0,4,0">
                                 <TextBlock Style="{DynamicResource h3}">
@@ -1161,12 +1344,12 @@
                                         </TextBlock.Style>
                                     </TextBlock>
                                 </Grid>
-                            
+
                                 <!-- Newsletter-->
                                 <CheckBox x:Name="NewsletterCheckbox" VerticalAlignment="Center" IsChecked="True" Margin="0,6,0,12">
                                     <TextBlock Margin="12,0,0,0">Subscribe to the SWG Legacy Newletter</TextBlock>
                                 </CheckBox>
-                            
+
                                 <!-- Security Question -->
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
@@ -1194,7 +1377,7 @@
                                     </Grid>
                                 </StackPanel>
                             </StackPanel>
-                            
+
                             <StackPanel Margin="4,0,0,0">
                                 <TextBlock Style="{DynamicResource h3}">
                                 Optional
