@@ -737,7 +737,7 @@
                 </Grid>
 
                 <!-- Settings -->
-                <Grid x:Name="SettingsGrid" Visibility="Collapsed" Margin="18,0,0,0">
+                <Grid x:Name="SettingsGrid" Visibility="Visible" Margin="18,0,0,0">
                     <StackPanel>
                         <Border BorderThickness="0,0,0,1" Margin="0,0,0,10" Padding="0,0,0,2">
                             <Border.BorderBrush>
@@ -757,17 +757,24 @@
                             </DockPanel>
                         </Border>
                         <StackPanel Style="{DynamicResource SettingsColumn}">
-                            <UniformGrid Columns="4">
-                                <StackPanel Margin="0,0,8,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="140" />
+                                    <ColumnDefinition Width="140" />
+                                    <ColumnDefinition Width="140" />
+                                    <ColumnDefinition Width="140" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Margin="0,0,4,0">
                                     <TextBlock Style="{DynamicResource h3}">
-                                Game Resolution
+                                    Game Resolution
                                     </TextBlock>
                                     <ComboBox x:Name="ResolutionBox" SelectedIndex="1" Style="{DynamicResource ComboBoxTransparent}" />
                                 </StackPanel>
 
-                                <StackPanel Margin="0,0,8,0">
+                                <StackPanel Margin="4,0,4,0" Grid.Column="1">
                                     <TextBlock Style="{DynamicResource h3}">
-                                Shader
+                                    Shader
                                     </TextBlock>
                                     <ComboBox x:Name="ShaderBox" SelectedIndex="0" Style="{DynamicResource ComboBoxTransparent}">
                                         <ComboBoxItem Content="Optimal" />
@@ -778,9 +785,9 @@
                                     </ComboBox>
                                 </StackPanel>
 
-                                <StackPanel Margin="0,0,8,0">
+                                <StackPanel Margin="4,0,4,0" Grid.Column="2">
                                     <TextBlock Style="{DynamicResource h3}">
-                                Memory
+                                    Memory
                                     </TextBlock>
                                     <ComboBox x:Name="MemoryBox" SelectedIndex="0" Style="{DynamicResource ComboBoxTransparent}">
                                         <ComboBoxItem Content="4GB" />
@@ -790,9 +797,9 @@
                                     </ComboBox>
                                 </StackPanel>
 
-                                <StackPanel>
+                                <StackPanel Margin="4,0,4,0" Grid.Column="3">
                                     <TextBlock Style="{DynamicResource h3}">
-                                FPS Limit
+                                    FPS Limit
                                     </TextBlock>
                                     <ComboBox x:Name="FpsBox" SelectedIndex="2" Style="{DynamicResource ComboBoxTransparent}">
                                         <ComboBoxItem Content="240" />
@@ -801,7 +808,20 @@
                                         <ComboBoxItem Content="30" />
                                     </ComboBox>
                                 </StackPanel>
-                            </UniformGrid>
+
+                                <StackPanel Margin="4,0,0,0" Grid.Column="4">
+                                    <TextBlock Style="{DynamicResource h3}">
+                                    Camera Zoom
+                                    </TextBlock>
+                                    <ComboBox x:Name="ZoomBox" SelectedIndex="0" Style="{DynamicResource ComboBoxTransparent}">
+                                        <ComboBoxItem Content="1 (Default)" />
+                                        <ComboBoxItem Content="3" />
+                                        <ComboBoxItem Content="5 (Medium)" />
+                                        <ComboBoxItem Content="7" />
+                                        <ComboBoxItem Content="10 (Far)" />
+                                    </ComboBox>
+                                </StackPanel>
+                            </Grid>
                         </StackPanel>
 
                         <StackPanel Style="{DynamicResource SettingsColumn}">
