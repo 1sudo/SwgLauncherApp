@@ -19,6 +19,7 @@ namespace LauncherApp
         GAME_VALIDATION_GRID,
         LOGIN_GRID,
         PRIMARY_GRID,
+        UPDATES_GRID,
         SETTINGS_GRID,
         OPTIONS_MODS_GRID,
         DEVELOPER_GRID
@@ -84,6 +85,7 @@ namespace LauncherApp
                 GameValidationGrid,
                 LoginGrid,
                 PrimaryGrid,
+                UpdatesGrid,
                 SettingsGrid,
                 OptionsAndModsGrid,
                 DeveloperGrid
@@ -237,9 +239,10 @@ namespace LauncherApp
                 case (int)Screens.GAME_VALIDATION_GRID: EnableScreens(new int[] { 0, 3 }); break;
                 case (int)Screens.LOGIN_GRID: EnableScreens(new int[] { 4 }); break;
                 case (int)Screens.PRIMARY_GRID: EnableScreens(new int[] { 5 }); break;
-                case (int)Screens.SETTINGS_GRID: EnableScreens(new int[] { 5, 6 }); break;
-                case (int)Screens.OPTIONS_MODS_GRID: EnableScreens(new int[] { 5, 7 }); break;
-                case (int)Screens.DEVELOPER_GRID: EnableScreens(new int[] { 5, 8 }); break;
+                case (int)Screens.UPDATES_GRID: EnableScreens(new int[] { 5, 6 }); break;
+                case (int)Screens.SETTINGS_GRID: EnableScreens(new int[] { 5, 7 }); break;
+                case (int)Screens.OPTIONS_MODS_GRID: EnableScreens(new int[] { 5, 8 }); break;
+                case (int)Screens.DEVELOPER_GRID: EnableScreens(new int[] { 5, 9 }); break;
             }
         }
 
@@ -318,24 +321,22 @@ namespace LauncherApp
             SettingsButton.IsEnabled = true;
         }
 
-        void ModsButton_Click(object sender, RoutedEventArgs e)
-        {
-            _audioHandler.PlayClickSound();
-        }
-
         void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
             _audioHandler.PlayClickSound();
+            UpdateScreen((int)Screens.SETTINGS_GRID);
         }
 
         void OptionsButton_Click(object sender, RoutedEventArgs e)
         {
-
+            _audioHandler.PlayClickSound();
+            UpdateScreen((int)Screens.OPTIONS_MODS_GRID);
         }
 
         void DeveloperButton_Click(object sender, RoutedEventArgs e)
         {
-
+            _audioHandler.PlayClickSound();
+            UpdateScreen((int)Screens.DEVELOPER_GRID);
         }
         #endregion
 
@@ -549,27 +550,28 @@ namespace LauncherApp
         }
         void PatchNotesButton_Click(object sender, RoutedEventArgs e)
         {
-
+            _audioHandler.PlayClickSound();
+            UpdateScreen((int)Screens.PRIMARY_GRID);
         }
 
         void WebsiteButton_Click(object sender, RoutedEventArgs e)
         {
-
+            _audioHandler.PlayClickSound();
         }
 
         void ForumsButton_Click(object sender, RoutedEventArgs e)
         {
-
+            _audioHandler.PlayClickSound();
         }
 
         void WikiButton_Click(object sender, RoutedEventArgs e)
         {
-
+            _audioHandler.PlayClickSound();
         }
 
         void FacebookButton_Click(object sender, RoutedEventArgs e)
         {
-
+            _audioHandler.PlayClickSound();
         }
 
         void DiscordButton_Click(object sender, RoutedEventArgs e)
