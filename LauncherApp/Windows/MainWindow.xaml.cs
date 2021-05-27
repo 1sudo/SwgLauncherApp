@@ -17,7 +17,9 @@ namespace LauncherApp
         RULES_GRID,
         INSTALL_DIR_GRID,
         GAME_VALIDATION_GRID,
+        ACCOUNT_GRID,
         LOGIN_GRID,
+        CREATE_ACCOUNT_GRID,
         PRIMARY_GRID,
         UPDATES_GRID,
         SETTINGS_GRID,
@@ -42,10 +44,11 @@ namespace LauncherApp
 
         readonly AudioHandler _audioHandler;
         readonly AppHandler _appHandler;
-        LoginProperties _loginProperties = new LoginProperties();
+        GameLoginResponseProperties _loginProperties = new GameLoginResponseProperties();
         LauncherConfigHandler _configHandler = new LauncherConfigHandler();
         AccountsHandler _accountHandler = new AccountsHandler();
         CharacterHandler _characterHandler = new CharacterHandler();
+        CaptchaProperties _captchaProperties = CaptchaController.QuestionAndAnswer();
         #endregion
 
         #region Constructor
@@ -83,7 +86,9 @@ namespace LauncherApp
                 RulesAndRegulationsGrid,
                 InstallDirectoryGrid,
                 GameValidationGrid,
+                AccountGrid,
                 LoginGrid,
+                CreateAccountGrid,
                 PrimaryGrid,
                 UpdatesGrid,
                 SettingsGrid,
@@ -181,6 +186,15 @@ namespace LauncherApp
             }
         }
 
+        async void CharacterNameComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var selectedCharacter = CharacterNameComboBox.SelectedValue.ToString();
+
+            Trace.WriteLine(selectedCharacter);
+
+            await _characterHandler.SaveCharacterAsync(selectedCharacter);
+        }
+
         #region Checkboxes
         private void GameValidationCheckbox_Checked(object sender, RoutedEventArgs e)
         {
@@ -237,12 +251,13 @@ namespace LauncherApp
                 case (int)Screens.RULES_GRID: EnableScreens(new int[] { 0, 1 }); break;
                 case (int)Screens.INSTALL_DIR_GRID: EnableScreens(new int[] { 0, 2 }); break;
                 case (int)Screens.GAME_VALIDATION_GRID: EnableScreens(new int[] { 0, 3 }); break;
-                case (int)Screens.LOGIN_GRID: EnableScreens(new int[] { 4 }); break;
-                case (int)Screens.PRIMARY_GRID: EnableScreens(new int[] { 5 }); break;
-                case (int)Screens.UPDATES_GRID: EnableScreens(new int[] { 5, 6 }); break;
-                case (int)Screens.SETTINGS_GRID: EnableScreens(new int[] { 5, 7 }); break;
-                case (int)Screens.OPTIONS_MODS_GRID: EnableScreens(new int[] { 5, 8 }); break;
-                case (int)Screens.DEVELOPER_GRID: EnableScreens(new int[] { 5, 9 }); break;
+                case (int)Screens.LOGIN_GRID: EnableScreens(new int[] { 4, 5 }); break;
+                case (int)Screens.CREATE_ACCOUNT_GRID: EnableScreens(new int[] { 4, 6 }); break;
+                case (int)Screens.PRIMARY_GRID: EnableScreens(new int[] { 7 }); break;
+                case (int)Screens.UPDATES_GRID: EnableScreens(new int[] { 7, 8 }); break;
+                case (int)Screens.SETTINGS_GRID: EnableScreens(new int[] { 7, 9 }); break;
+                case (int)Screens.OPTIONS_MODS_GRID: EnableScreens(new int[] { 7, 10 }); break;
+                case (int)Screens.DEVELOPER_GRID: EnableScreens(new int[] { 7, 11 }); break;
             }
         }
 
@@ -469,10 +484,8 @@ namespace LauncherApp
         #region LoginButtons
         async void LoginButton_Click(object sender, RoutedEventArgs e)
         {
-            ApiHandler apiHandler = new ApiHandler();
-
             _launcherSettings.TryGetValue("ApiUrl", out string apiUrl);
-            LoginProperties loginProperties = await apiHandler.AccountLoginAsync(apiUrl, UsernameTextbox.Text.ToLower(), PasswordTextbox.Password.ToString());
+            GameLoginResponseProperties loginProperties = await ApiHandler.AccountLoginAsync(apiUrl, UsernameTextbox.Text.ToLower(), PasswordTextbox.Password.ToString());
 
             _loginProperties = loginProperties;
             _gamePassword = PasswordTextbox.Password.ToString();
@@ -502,6 +515,28 @@ namespace LauncherApp
                     ResultText.Text = "Database connection error!";
                     break;
             }
+        }
+
+        void CreateAccount_Click(object sender, RoutedEventArgs e)
+        {
+            UpdateScreen((int)Screens.CREATE_ACCOUNT_GRID);
+        }
+
+        void CreateAccountCancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            UpdateScreen((int)Screens.LOGIN_GRID);
+        }
+
+        async void LogoutButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Turn off autologin
+            await _configHandler.ToggleAutoLoginAsync(false);
+
+            // Clear characters from combobox
+            CharacterNameComboBox.Items.Clear();
+
+            // Send back to login screen
+            UpdateScreen((int)Screens.LOGIN_GRID);
         }
         #endregion        
 
@@ -606,10 +641,8 @@ namespace LauncherApp
             {
                 if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
                 {
-                    ApiHandler apiHandler = new ApiHandler();
-
                     _launcherSettings.TryGetValue("ApiUrl", out string apiUrl);
-                    LoginProperties loginProperties = await apiHandler.AccountLoginAsync(apiUrl, username, password);
+                    GameLoginResponseProperties loginProperties = await ApiHandler.AccountLoginAsync(apiUrl, username, password);
 
                     _loginProperties = loginProperties;
                     _gamePassword = password;
@@ -825,13 +858,40 @@ namespace LauncherApp
 
         #endregion
 
-        async void CharacterNameComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        async void CreateAccountButton_Click(object sender, RoutedEventArgs e)
         {
-            var selectedCharacter = CharacterNameComboBox.SelectedValue.ToString();
+            _launcherSettings.TryGetValue("ApiUrl", out string apiUrl);
 
-            Trace.WriteLine(selectedCharacter);
+            if (CreatePasswordTextbox.Password == CreateConfirmPasswordTextbox.Password)
+            {
+                int.TryParse(CreateSecurityQuestionTextblock.Text, out int result);
+                if (result == _captchaProperties.Answer)
+                {
+                    GameAccountCreationProperties accountProperties = new GameAccountCreationProperties()
+                    {
+                        Username = CreateUsernameTextbox.Text,
+                        Email = CreateEmailTextbox.Text,
+                        Password = CreatePasswordTextbox.Password,
+                        Discord = CreateDiscordTextbox.Text,
+                        SubscribeToNewsletter = (bool)NewsletterCheckbox.IsChecked
+                    };
 
-            await _characterHandler.SaveCharacterAsync(selectedCharacter);
+                    await ApiHandler.AccountCreationAsync(apiUrl, accountProperties, _captchaProperties);
+                }
+                else
+                {
+                    MessageBox.Show("Captcha is incorrect!");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Passwords do not match!");
+            }
+        }
+
+        private void CreateSecurityQuestionTextblock_Initialized(object sender, EventArgs e)
+        {
+            CreateSecurityQuestionTextblock.Text = $"{_captchaProperties.Value1} + {_captchaProperties.Value2}";
         }
     }
 }

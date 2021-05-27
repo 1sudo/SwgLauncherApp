@@ -46,7 +46,7 @@ namespace LauncherManagement
             return new List<DatabaseProperties.Accounts>();
         }
 
-        public async Task<List<DatabaseProperties.LauncherConfig>> ExecuteLauncherConfigAsync(string data)
+        internal async Task<List<DatabaseProperties.LauncherConfig>> ExecuteLauncherConfigAsync(string data)
         {
             try
             {
@@ -61,7 +61,7 @@ namespace LauncherManagement
             return new List<DatabaseProperties.LauncherConfig>();
         }
 
-        public async Task<List<DatabaseProperties.Characters>> ExecuteCharacterAsync(string data)
+        internal async Task<List<DatabaseProperties.Characters>> ExecuteCharacterAsync(string data)
         {
             try
             {
@@ -76,7 +76,7 @@ namespace LauncherManagement
             return new List<DatabaseProperties.Characters>();
         }
 
-        public async Task<List<DatabaseProperties.GameSettings>> ExecuteGameSettingsAsync(string data)
+        internal async Task<List<DatabaseProperties.GameSettings>> ExecuteGameSettingsAsync(string data)
         {
             try
             {
