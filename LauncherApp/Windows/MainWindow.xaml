@@ -571,10 +571,37 @@
         </StackPanel>
 
         <!-- Logo Background -->
-        <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" Grid.ColumnSpan="2147483647" Grid.RowSpan="2147483647" IsHitTestVisible="false">
-            <Grid.Background>
-                <ImageBrush ImageSource="/Images/sidebar/swg-legacy-launcher-logo-bg.png" AlignmentX="Left" AlignmentY="Top" Stretch="None"/>
-            </Grid.Background>
+        <Grid Grid.ColumnSpan="2147483647" Grid.RowSpan="2147483647" IsHitTestVisible="false" Width="873" Height="449" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Grid.OpacityMask>
+                <ImageBrush ImageSource="/Images/sidebar/swg-legacy-nebula-opacity-mask.png" />
+            </Grid.OpacityMask>
+            <Grid x:Name="logoBackground" Grid.Row="0" Grid.Column="0" IsHitTestVisible="false" Width="2000" Height="2000" HorizontalAlignment="Left" VerticalAlignment="Top">
+                <Grid.Triggers>
+                    <EventTrigger RoutedEvent="Window.Loaded">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="Background.Transform.Angle" By="360" Duration="0:05:00" RepeatBehavior="Forever"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Grid.Triggers>
+
+                <Grid.Background>
+                    <ImageBrush ImageSource="/Images/sidebar/swg-legacy-nebula-bg.jpg" AlignmentX="Center" AlignmentY="Center" Stretch="None" Opacity="0.15">
+                        <ImageBrush.RelativeTransform>
+                            <TransformGroup>
+                                <ScaleTransform CenterY="0" CenterX="0"/>
+                                <SkewTransform CenterY="0" CenterX="0"/>
+                                <RotateTransform CenterY="0" CenterX="0" Angle="180"/>
+                                <TranslateTransform X="0.5" Y="0.5"/>
+                            </TransformGroup>
+                        </ImageBrush.RelativeTransform>
+                        <ImageBrush.Transform>
+                            <RotateTransform/>
+                        </ImageBrush.Transform>
+                    </ImageBrush>
+                </Grid.Background>
+            </Grid>
         </Grid>
 
         <!-- Logo -->
@@ -916,7 +943,7 @@
                 </Grid>
 
                 <!-- Options and Mods -->
-                <Grid x:Name="OptionsAndModsGrid" Visibility="Visible" Margin="18,0,0,0">
+                <Grid x:Name="OptionsAndModsGrid" Visibility="Collapsed" Margin="18,0,0,0">
                     <StackPanel>
                         <Border BorderThickness="0,0,0,1" Margin="0,0,0,10" Padding="0,0,0,2">
                             <Border.BorderBrush>
@@ -963,7 +990,7 @@
                                                 Installation Directory
                                                 </TextBlock>
                                                 <DockPanel FlowDirection="RightToLeft">
-                                                    <Button x:Name="OptionsInstallDirectoryButton" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Click="OptionsInstallDirectoryButton_Click" Height="30" VerticalAlignment="Top">Change</Button>
+                                                    <Button x:Name="OptionsInstallDirectoryButton" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Height="30" VerticalAlignment="Top">Change</Button>
                                                     <TextBox x:Name="OptionsInstallDirectoryTextbox" Style="{DynamicResource TextBoxTransparent}" Height="30" Margin="8,0,0,0" IsEnabled="False" VerticalAlignment="Top" />
                                                 </DockPanel>
                                             </StackPanel>
@@ -999,7 +1026,7 @@
                                                 Server Options
                                             </TextBlock>
                                         </Border>
-                                        
+
                                         <UniformGrid Columns="1">
                                             <StackPanel Style="{DynamicResource SettingsColumn}" Margin="0,0,4,0">
                                                 <TextBlock Style="{DynamicResource h3}">

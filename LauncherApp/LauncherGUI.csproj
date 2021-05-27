@@ -57,6 +57,8 @@
     <None Remove="Images\sidebar\icons\vote.png" />
     <None Remove="Images\sidebar\swg-legacy-launcher-logo-bg.png" />
     <None Remove="Images\sidebar\swg-legacy-launcher-logo.png" />
+    <None Remove="images\sidebar\swg-legacy-nebula-bg.jpg" />
+    <None Remove="images\sidebar\swg-legacy-nebula-opacity-mask.png" />
     <None Remove="Images\skillplanner-active.png" />
     <None Remove="Images\skillplanner.png" />
     <None Remove="Images\swg-legacy-launcher-bg.png" />
@@ -117,6 +119,8 @@
     <Resource Include="Images\sidebar\icons\vote.png" />
     <Resource Include="Images\sidebar\swg-legacy-launcher-logo-bg.png" />
     <Resource Include="Images\sidebar\swg-legacy-launcher-logo.png" />
+    <Resource Include="images\sidebar\swg-legacy-nebula-bg.jpg" />
+    <Resource Include="images\sidebar\swg-legacy-nebula-opacity-mask.png" />
     <Resource Include="Images\skillplanner-active.png" />
     <Resource Include="Images\skillplanner.png" />
     <Resource Include="Images\swg-legacy-launcher-bg.png" />
