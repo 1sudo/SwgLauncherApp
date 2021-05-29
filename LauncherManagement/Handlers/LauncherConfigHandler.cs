@@ -9,9 +9,9 @@ namespace LauncherManagement
         int defaultAutoLogin = 0;
         int defaultVerified = 0;
         string defaultServername = "SWGLegacy";
-        string defaultApiUrl = "http://localhost:5000";
+        string defaultApiUrl = "http://tc.darknaught.com:5000";
         string defaultManifestFilePath = "manifest/required.json";
-        string defaultManifestFileUrl = "http://localhost/files/";
+        string defaultManifestFileUrl = "http://tc.darknaught.com:8787/files/";
         string defaultBackupManifestFileUrl = "http://localhost:8080/files/";
         string defaultSWGLoginHost = "localhost";
         int defaultSWGLoginPort = 44453;
