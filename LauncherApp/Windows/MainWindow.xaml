@@ -1306,7 +1306,7 @@
                                 </TextBlock>
                                 <!-- Username -->
                                 <Grid>
-                                    <TextBox Style="{DynamicResource TextBoxTransparent}" x:Name="CreateUsernameTextbox" Height="40" />
+                                    <TextBox Style="{DynamicResource TextBoxTransparent}" x:Name="CreateUsernameTextbox" Height="40" TextChanged="CreateUsernameTextbox_TextChanged" />
                                     <TextBlock Text="Username">
                                         <TextBlock.Style>
                                             <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TextBlockPlaceholder}">
@@ -1323,7 +1323,7 @@
 
                                 <!-- Email -->
                                 <Grid>
-                                    <TextBox Style="{DynamicResource TextBoxTransparent}" x:Name="CreateEmailTextbox" Height="40" />
+                                    <TextBox Style="{DynamicResource TextBoxTransparent}" x:Name="CreateEmailTextbox" Height="40" TextChanged="CreateEmailTextbox_TextChanged" />
                                     <TextBlock Text="Email Address">
                                         <TextBlock.Style>
                                             <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TextBlockPlaceholder}">
@@ -1340,7 +1340,7 @@
 
                                 <!-- Password -->
                                 <Grid>
-                                    <PasswordBox Style="{DynamicResource PasswordBoxTransparent}" x:Name="CreatePasswordTextbox" Height="40"/>
+                                    <PasswordBox Style="{DynamicResource PasswordBoxTransparent}" x:Name="CreatePasswordTextbox" Height="40" PasswordChanged="CreatePasswordTextbox_PasswordChanged"/>
                                     <TextBlock Text="Password">
                                         <TextBlock.Style>
                                             <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TextBlockPlaceholder}">
@@ -1357,7 +1357,7 @@
 
                                 <!-- Confirm Password -->
                                 <Grid>
-                                    <PasswordBox Style="{DynamicResource PasswordBoxTransparent}" x:Name="CreateConfirmPasswordTextbox" Height="40"/>
+                                    <PasswordBox Style="{DynamicResource PasswordBoxTransparent}" x:Name="CreateConfirmPasswordTextbox" Height="40" PasswordChanged="CreateConfirmPasswordTextbox_PasswordChanged"/>
                                     <TextBlock Text="Confirm Password">
                                         <TextBlock.Style>
                                             <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TextBlockPlaceholder}">
@@ -1388,7 +1388,7 @@
                                         </TextBlock>
                                     </StackPanel>
                                     <Grid>
-                                        <TextBox Style="{DynamicResource TextBoxTransparent}" x:Name="CreateSecurityQuestionTextbox" Height="40" />
+                                        <TextBox Style="{DynamicResource TextBoxTransparent}" x:Name="CreateSecurityQuestionTextbox" Height="40" TextChanged="CreateSecurityQuestionTextbox_TextChanged" />
                                         <TextBlock Text="Answer">
                                             <TextBlock.Style>
                                                 <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TextBlockPlaceholder}">

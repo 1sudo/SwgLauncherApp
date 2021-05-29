@@ -66,6 +66,7 @@ namespace LauncherManagement
                 Content = new FormUrlEncodedContent(new Dictionary<string, string>
                 {
                     { "Password", accountProperties.Password },
+                    { "PasswordConfirmation", accountProperties.PasswordConfirmation },
                     { "Email", accountProperties.Email },
                     { "Discord", accountProperties.Discord },
                     { "SubscribeToNewsletter", accountProperties.SubscribeToNewsletter.ToString() },

@@ -13,6 +13,7 @@ namespace LauncherManagement
     {
         public string Username { get; set; }
         public string Password { get; set; }
+        public string PasswordConfirmation { get; set; }
         public string Email { get; set; }
         public string Discord { get; set; }
         public bool SubscribeToNewsletter { get; set; }
@@ -28,5 +29,14 @@ namespace LauncherManagement
     public class GameAccountCreationResponseProperties
     {
         public string Result { get; set; }
+    }
+
+    public static class AccountCreationWindowProperties
+    {
+        public static string UsernameTextBox { get; set; }
+        public static string EmailTextBox { get; set; }
+        public static string PasswordTextBox { get; set; }
+        public static string PasswordConfirmationTextBox { get; set; }
+        public static string CaptchaQuestionTextBox { get; set; }
     }
 }

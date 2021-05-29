@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
@@ -195,6 +196,56 @@ namespace LauncherApp
             }
 
             await _characterHandler.SaveCharacterAsync(selectedCharacter);
+        }
+
+        void CreateSecurityQuestionTextblock_Initialized(object sender, EventArgs e)
+        {
+            CreateSecurityQuestionTextblock.Text = $"{_captchaProperties.Value1} + {_captchaProperties.Value2}";
+        }
+
+        void CreateUsernameTextbox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            AccountCreationWindowProperties.UsernameTextBox = CreateUsernameTextbox.Text;
+        }
+
+        void CreateEmailTextbox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            AccountCreationWindowProperties.EmailTextBox = CreateEmailTextbox.Text;
+            CheckAccountCreationButton();
+        }
+
+        void CreatePasswordTextbox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            AccountCreationWindowProperties.PasswordTextBox = CreatePasswordTextbox.Password;
+            CheckAccountCreationButton();
+        }
+
+        void CreateConfirmPasswordTextbox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            AccountCreationWindowProperties.PasswordConfirmationTextBox = CreateConfirmPasswordTextbox.Password;
+            CheckAccountCreationButton();
+        }
+
+        void CreateSecurityQuestionTextbox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            AccountCreationWindowProperties.CaptchaQuestionTextBox = CreateSecurityQuestionTextbox.Text;
+            CheckAccountCreationButton();
+        }
+
+        void CheckAccountCreationButton()
+        {
+            if (!string.IsNullOrEmpty(AccountCreationWindowProperties.UsernameTextBox) &&
+                !string.IsNullOrEmpty(AccountCreationWindowProperties.EmailTextBox) &&
+                !string.IsNullOrEmpty(AccountCreationWindowProperties.PasswordTextBox) &&
+                !string.IsNullOrEmpty(AccountCreationWindowProperties.PasswordConfirmationTextBox) &&
+                !string.IsNullOrEmpty(AccountCreationWindowProperties.CaptchaQuestionTextBox))
+            {
+                CreateAccountButton.IsEnabled = true;
+            }
+            else
+            {
+                CreateAccountButton.IsEnabled = false;
+            }
         }
 
         #region Checkboxes
@@ -524,11 +575,6 @@ namespace LauncherApp
             UpdateScreen((int)Screens.CREATE_ACCOUNT_GRID);
         }
 
-        void CreateAccountCancelButton_Click(object sender, RoutedEventArgs e)
-        {
-            UpdateScreen((int)Screens.LOGIN_GRID);
-        }
-
         async void LogoutButton_Click(object sender, RoutedEventArgs e)
         {
             // Turn off autologin
@@ -538,6 +584,46 @@ namespace LauncherApp
             CharacterNameComboBox.Items.Clear();
 
             // Send back to login screen
+            UpdateScreen((int)Screens.LOGIN_GRID);
+        }
+
+        async void CreateAccountButton_Click(object sender, RoutedEventArgs e)
+        {
+            _launcherSettings.TryGetValue("ApiUrl", out string apiUrl);
+
+            if (CreatePasswordTextbox.Password == CreateConfirmPasswordTextbox.Password)
+            {
+                int.TryParse(CreateSecurityQuestionTextbox.Text, out int result);
+
+                if (result == _captchaProperties.Answer)
+                {
+                    GameAccountCreationProperties accountProperties = new GameAccountCreationProperties()
+                    {
+                        Username = CreateUsernameTextbox.Text,
+                        Email = CreateEmailTextbox.Text,
+                        Password = CreatePasswordTextbox.Password,
+                        PasswordConfirmation = CreateConfirmPasswordTextbox.Password,
+                        Discord = CreateDiscordTextbox.Text,
+                        SubscribeToNewsletter = (bool)NewsletterCheckbox.IsChecked
+                    };
+
+                    GameAccountCreationResponseProperties creation = await ApiHandler.AccountCreationAsync(apiUrl, accountProperties, _captchaProperties);
+
+                    MessageBox.Show(creation.Result);
+                }
+                else
+                {
+                    MessageBox.Show("Captcha is incorrect!");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Passwords do not match!");
+            }
+        }
+
+        void CreateAccountCancelButton_Click(object sender, RoutedEventArgs e)
+        {
             UpdateScreen((int)Screens.LOGIN_GRID);
         }
         #endregion        
@@ -859,41 +945,5 @@ namespace LauncherApp
         }
 
         #endregion
-
-        async void CreateAccountButton_Click(object sender, RoutedEventArgs e)
-        {
-            _launcherSettings.TryGetValue("ApiUrl", out string apiUrl);
-
-            if (CreatePasswordTextbox.Password == CreateConfirmPasswordTextbox.Password)
-            {
-                int.TryParse(CreateSecurityQuestionTextblock.Text, out int result);
-                if (result == _captchaProperties.Answer)
-                {
-                    GameAccountCreationProperties accountProperties = new GameAccountCreationProperties()
-                    {
-                        Username = CreateUsernameTextbox.Text,
-                        Email = CreateEmailTextbox.Text,
-                        Password = CreatePasswordTextbox.Password,
-                        Discord = CreateDiscordTextbox.Text,
-                        SubscribeToNewsletter = (bool)NewsletterCheckbox.IsChecked
-                    };
-
-                    await ApiHandler.AccountCreationAsync(apiUrl, accountProperties, _captchaProperties);
-                }
-                else
-                {
-                    MessageBox.Show("Captcha is incorrect!");
-                }
-            }
-            else
-            {
-                MessageBox.Show("Passwords do not match!");
-            }
-        }
-
-        private void CreateSecurityQuestionTextblock_Initialized(object sender, EventArgs e)
-        {
-            CreateSecurityQuestionTextblock.Text = $"{_captchaProperties.Value1} + {_captchaProperties.Value2}";
-        }
     }
 }
