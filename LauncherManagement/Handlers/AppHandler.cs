@@ -7,7 +7,7 @@ namespace LauncherManagement
 {
     public class AppHandler
     {
-        public async Task StartGameAsync(GameOptionsProperties gameOptions, string serverPath, string password = "", 
+        public async Task StartGameAsync(string serverPath, string password = "", 
             string username = "", string charactername = "", bool autoEnterZone = false)
         {
             // Run Async to prevent launcher from locking up when starting game and writing bytes
@@ -22,7 +22,7 @@ namespace LauncherManagement
 
                     // Convert FPS integer (casted to float) to hex
                     string hexSelection = BitConverter.ToString(
-                        BitConverter.GetBytes((float)gameOptions.Fps)).Replace("-", "");
+                        BitConverter.GetBytes((float)GameOptionsProperties.Fps)).Replace("-", "");
 
                     // Read the next 3 bytes to ensure we're at the right position and 
                     // the binary hasn't been altered
@@ -48,7 +48,7 @@ namespace LauncherManagement
                             ws.Seek(0x1156, SeekOrigin.Begin);
 
                             // Create byte array of FPS value
-                            byte[] bytes = BitConverter.GetBytes((float)gameOptions.Fps);
+                            byte[] bytes = BitConverter.GetBytes((float)GameOptionsProperties.Fps);
 
                             // Write FPS float at 0x1156
                             foreach (byte b in bytes)
@@ -69,7 +69,7 @@ namespace LauncherManagement
                         startInfo.Arguments = $"-- -s ClientGame loginClientPassword={password} autoConnectToLoginServer=1 loginClientID={username} autoConnectToGameServer=0 -s Station -s SwgClient allowMultipleInstances=true";
                     }
 
-                    startInfo.EnvironmentVariables["SWGCLIENT_MEMORY_SIZE_MB"] = gameOptions.Ram.ToString();
+                    startInfo.EnvironmentVariables["SWGCLIENT_MEMORY_SIZE_MB"] = GameOptionsProperties.Ram.ToString();
                     startInfo.UseShellExecute = false;
                     startInfo.WorkingDirectory = serverPath;
                     startInfo.FileName = Path.Join(serverPath, "SWGEmu.exe");

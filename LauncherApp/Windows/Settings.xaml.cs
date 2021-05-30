@@ -125,8 +125,8 @@ namespace LauncherApp
                 gameSettingProperties.Add(gameSettingsProperty);
             }
 
-            GameSettingsHandler gameSettingsHandler = new GameSettingsHandler();
-            await gameSettingsHandler.SaveSettings(gameSettingProperties);
+            SettingsHandler gameSettingsHandler = new SettingsHandler();
+            //await gameSettingsHandler.SaveSettings(gameSettingProperties);
         }
     }
 }

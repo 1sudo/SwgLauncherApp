@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
@@ -47,7 +46,9 @@ namespace LauncherApp
         GameLoginResponseProperties _loginProperties = new GameLoginResponseProperties();
         LauncherConfigHandler _configHandler = new LauncherConfigHandler();
         AccountsHandler _accountHandler = new AccountsHandler();
+        ActiveServerHandler _activeServerHandler = new ActiveServerHandler();
         CharacterHandler _characterHandler = new CharacterHandler();
+        SettingsHandler _gameSettingsHandler = new SettingsHandler();
         CaptchaProperties _captchaProperties = CaptchaController.QuestionAndAnswer();
         #endregion
 
@@ -74,10 +75,9 @@ namespace LauncherApp
         #region WindowManagement
         async void Window_Initialized(object sender, EventArgs e)
         {
-            DatabaseHandler db = new DatabaseHandler();
-            await db.CreateTables();
+            await ConfigureDatabase();
+            await PopulateControls();
 
-            await _configHandler.InsertDefaultRow();
             _launcherSettings = await _configHandler.GetLauncherSettings();
 
             _screens = new List<Grid>()
@@ -100,7 +100,7 @@ namespace LauncherApp
 
             if (isGameConfigValidated)
             {
-                bool isVerified = await _configHandler.GetVerifiedAsync();
+                bool isVerified = await _gameSettingsHandler.GetVerifiedAsync();
 
                 if (isVerified)
                 {
@@ -123,6 +123,33 @@ namespace LauncherApp
             }
         }
 
+        async Task PopulateControls()
+        {
+            Dictionary<string, string> config = await _configHandler.GetLauncherSettings();
+            config.TryGetValue("ApiUrl", out string apiUrl);
+            config.TryGetValue("ManifestFilePath", out string manifestFilePath);
+            config.TryGetValue("ManifestFileUrl", out string manifestFileUrl);
+            config.TryGetValue("SWGLoginHost", out string swgLoginHost);
+            config.TryGetValue("SWGLoginPort", out string swgLoginPort);
+
+            DevAPIurl.Text = apiUrl;
+            DevManifestURL.Text = manifestFileUrl;
+            DevManifestFilePath.Text = manifestFilePath;
+            DevSWGhostname.Text = swgLoginHost;
+            DevSWGport.Text = swgLoginPort;
+
+            Dictionary<string, string> settings = await _gameSettingsHandler.GetGameOptionsControls();
+
+            settings.TryGetValue("GameLocation", out string gameLocation);
+
+            OptionsInstallDirectoryTextbox.Text = gameLocation;
+
+            foreach (string type in await _configHandler.GetServerTypes())
+            {
+                OptionsLoginServerBox.Items.Add(type);
+            }
+        }
+
         void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
@@ -139,7 +166,7 @@ namespace LauncherApp
                 Keyboard.IsKeyDown(Key.F1))
             {
                 InstallDirectoryNextButton.IsEnabled = true;
-                await _configHandler.SetVerifiedAsync();
+                await _gameSettingsHandler.SetVerifiedAsync();
                 UpdateScreen((int)Screens.LOGIN_GRID);
             }
 
@@ -155,7 +182,7 @@ namespace LauncherApp
 
                 if (result.ToString().Trim() == "Cancel")
                 {
-                    this.Close();
+                    Close();
                 }
                 else if (result.ToString().Trim() == "OK")
                 {
@@ -366,22 +393,18 @@ namespace LauncherApp
             // FullScanButton.IsEnabled = false;
             SettingsButton.IsEnabled = false;
 
-            GameOptionsProperties gameOptions = new GameOptionsProperties()
-            {
-                Fps = 144,
-                Ram = 4096,
-                MaxZoom = 10
-            };
+            // Get values from database and set to static properties
+            await _gameSettingsHandler.GetGameOptions();
 
             var selectedCharacter = CharacterNameComboBox.SelectedValue.ToString();
 
             if (selectedCharacter != "None")
             {
-                await _appHandler.StartGameAsync(gameOptions, _gamePath, _gamePassword, _loginProperties.Username, selectedCharacter, true);
+                await _appHandler.StartGameAsync(_gamePath, _gamePassword, _loginProperties.Username, selectedCharacter, true);
             }
             else
             {
-                await _appHandler.StartGameAsync(gameOptions, _gamePath, _gamePassword, _loginProperties.Username);
+                await _appHandler.StartGameAsync(_gamePath, _gamePassword, _loginProperties.Username);
             }
 
             PlayButton.IsEnabled = true;
@@ -468,7 +491,7 @@ namespace LauncherApp
                     if (isBaseGameValidated)
                     {
                         DownloadHandler.baseGameLocation = GameValidationTextBox.Text;
-                        await _configHandler.SetVerifiedAsync();
+                        await _gameSettingsHandler.SetVerifiedAsync();
                         UpdateScreen((int)Screens.LOGIN_GRID);
                     }
                     else
@@ -509,7 +532,7 @@ namespace LauncherApp
         {
             if (EasySetupEllipse.IsVisible)
             {
-                await _configHandler.ConfigureLocationsAsync($"C:/{await _configHandler.GetServerNameAsync()}");
+                await _gameSettingsHandler.ConfigureLocationsAsync($"C:/{await _gameSettingsHandler.GetServerNameAsync()}");
                 UpdateScreen((int)Screens.GAME_VALIDATION_GRID);
             }
             else
@@ -522,7 +545,7 @@ namespace LauncherApp
                 else
                 {
                     string location = AdvancedSetupTextbox.Text.Replace("\\", "/");
-                    await _configHandler.ConfigureLocationsAsync(location);
+                    await _gameSettingsHandler.ConfigureLocationsAsync(location);
                     UpdateScreen((int)Screens.GAME_VALIDATION_GRID);
                 }
             }
@@ -545,12 +568,12 @@ namespace LauncherApp
 
             if ((bool)AutoLoginCheckbox.IsChecked && loginProperties.Result == "Success")
             {
-                await _configHandler.ToggleAutoLoginAsync(true);
+                await _gameSettingsHandler.ToggleAutoLoginAsync(true);
                 await _accountHandler.SaveCredentialsAsync(UsernameTextbox.Text.ToLower(), PasswordTextbox.Password.ToString());
             }
             else
             {
-                await _configHandler.ToggleAutoLoginAsync(false);
+                await _gameSettingsHandler.ToggleAutoLoginAsync(false);
             }
 
             switch (loginProperties.Result)
@@ -578,10 +601,13 @@ namespace LauncherApp
         async void LogoutButton_Click(object sender, RoutedEventArgs e)
         {
             // Turn off autologin
-            await _configHandler.ToggleAutoLoginAsync(false);
+            await _gameSettingsHandler.ToggleAutoLoginAsync(false);
 
             // Clear characters from combobox
             CharacterNameComboBox.Items.Clear();
+
+            LogoutButton.Visibility = Visibility.Collapsed;
+            UsernameTextBlock.Visibility = Visibility.Collapsed;
 
             // Send back to login screen
             UpdateScreen((int)Screens.LOGIN_GRID);
@@ -597,7 +623,7 @@ namespace LauncherApp
 
                 if (result == _captchaProperties.Answer)
                 {
-                    GameAccountCreationProperties accountProperties = new GameAccountCreationProperties()
+                    GameAccountCreationResponseProperties creation = await ApiHandler.AccountCreationAsync(apiUrl, new GameAccountCreationProperties()
                     {
                         Username = CreateUsernameTextbox.Text,
                         Email = CreateEmailTextbox.Text,
@@ -605,9 +631,7 @@ namespace LauncherApp
                         PasswordConfirmation = CreateConfirmPasswordTextbox.Password,
                         Discord = CreateDiscordTextbox.Text,
                         SubscribeToNewsletter = (bool)NewsletterCheckbox.IsChecked
-                    };
-
-                    GameAccountCreationResponseProperties creation = await ApiHandler.AccountCreationAsync(apiUrl, accountProperties, _captchaProperties);
+                    }, _captchaProperties);
 
                     MessageBox.Show(creation.Result);
                 }
@@ -711,7 +735,7 @@ namespace LauncherApp
             CharacterSelectGrid.Visibility = Visibility.Collapsed;
             PlayButton.IsEnabled = false;
             PlayButton.Content = "Updating";
-            await DownloadHandler.CheckFilesAsync(await _configHandler.GetGameLocationAsync());
+            await DownloadHandler.CheckFilesAsync(await _gameSettingsHandler.GetGameLocationAsync());
             PlayButton.IsEnabled = true;
             PlayButton.Content = "Play";
             CharacterSelectGrid.Visibility = Visibility.Visible;
@@ -719,13 +743,12 @@ namespace LauncherApp
 
         async Task<bool> CheckAutoLoginAsync()
         {
-            
             Dictionary<string, string> accounts = await _accountHandler.GetAccountCredentialsAsync();
 
             accounts.TryGetValue("Username", out string username);
             accounts.TryGetValue("Password", out string password);
 
-            if (await _configHandler.CheckAutoLoginEnabledAsync())
+            if (await _gameSettingsHandler.CheckAutoLoginEnabledAsync())
             {
                 if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
                 {
@@ -762,7 +785,7 @@ namespace LauncherApp
 
         async Task<bool> IsGameValidated()
         {
-            string path = await _configHandler.GetGameLocationAsync();
+            string path = await _gameSettingsHandler.GetGameLocationAsync();
 
             if (!string.IsNullOrEmpty(path) && Directory.Exists(path))
             {
@@ -944,6 +967,25 @@ namespace LauncherApp
             _audioHandler.PlayHoverSound();
         }
 
+        async Task ConfigureDatabase()
+        {
+            DatabaseHandler db = new DatabaseHandler();
+            await db.CreateTables();
+
+            await _configHandler.InsertDefaultRows();
+            await _activeServerHandler.InsertDefaultRow();
+            await _gameSettingsHandler.InsertDefaultRow();
+            await _activeServerHandler.GetActiveServer();
+        }
+
         #endregion
+
+        private void ResolutionBox_Initialized(object sender, EventArgs e)
+        {
+            foreach (string resolution in DisplayResolutions.GetResolutions())
+            {
+                ResolutionBox.Items.Add(resolution);
+            }
+        }
     }
 }

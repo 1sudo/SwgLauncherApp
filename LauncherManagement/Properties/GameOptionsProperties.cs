@@ -1,9 +1,14 @@
 ﻿namespace LauncherManagement
 {
-    public class GameOptionsProperties
+    public static class ServerSelection
     {
-        public int Fps;
-        public int Ram;
-        public int MaxZoom;
+        public static int ActiveServer { get; set; }
+    }
+
+    public static class GameOptionsProperties
+    {
+        public static int Fps;
+        public static int Ram;
+        public static int MaxZoom;
     }
 }

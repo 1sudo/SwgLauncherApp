@@ -1,33 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace LauncherManagement
 {
     public class AccountsHandler : DatabaseHandler
     {
-        public static Action<string> OnJsonReadError;
-
         public async Task SaveCredentialsAsync(string username, string password)
         {
-            List<DatabaseProperties.Accounts> accounts = await ExecuteAccountAsync
+            List<DatabaseProperties.Accounts> searchedAccount = await ExecuteAccountAsync
                 (
                     "SELECT Username " +
                     "FROM Accounts " +
                     $"where Username = '{username.ToLower()}';"
                 );
 
-            if (accounts.Count > 0)
+            List<DatabaseProperties.Accounts> totalAccounts = await ExecuteAccountAsync
+                (
+                    "SELECT * " +
+                    "FROM Accounts;"
+                );
+
+
+            if (searchedAccount.Count > 0)
             {
                 return;
+            }
+            else if (totalAccounts.Count > 0)
+            {
+                await ExecuteAccountAsync
+                    (
+                        "UPDATE Accounts " +
+                        $"SET Username = '{username.ToLower()}', Password = '{password}' " +
+                        "WHERE Id = 1;"
+                    );
             }
             else
             {
                 await ExecuteAccountAsync
                     (
-                        $"INSERT into Accounts " +
-                        $"(Username, Password) " +
-                        $"VALUES " +
+                        "INSERT into Accounts " +
+                        "(Username, Password) " +
+                        "VALUES " +
                         $"('{username.ToLower()}', '{password}');"
                     );
             }

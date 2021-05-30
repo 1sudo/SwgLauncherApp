@@ -587,7 +587,7 @@
                 </Grid.Triggers>
 
                 <Grid.Background>
-                    <ImageBrush ImageSource="/Images/sidebar/swg-legacy-nebula-bg.jpg" AlignmentX="Center" AlignmentY="Center" Stretch="None" Opacity="0.15">
+                    <ImageBrush ImageSource="/Images/sidebar/swg-legacy-nebula-bg.jpg" AlignmentX="Center" AlignmentY="Center" Stretch="None" Opacity="0.30">
                         <ImageBrush.RelativeTransform>
                             <TransformGroup>
                                 <ScaleTransform CenterY="0" CenterX="0"/>
@@ -796,7 +796,7 @@
                                     <TextBlock Style="{DynamicResource h3}">
                                     Game Resolution
                                     </TextBlock>
-                                    <ComboBox x:Name="ResolutionBox" SelectedIndex="1" Style="{DynamicResource ComboBoxTransparent}" />
+                                    <ComboBox x:Name="ResolutionBox" SelectedIndex="1" Style="{DynamicResource ComboBoxTransparent}" Initialized="ResolutionBox_Initialized" />
                                 </StackPanel>
 
                                 <StackPanel Margin="4,0,4,0" Grid.Column="1">

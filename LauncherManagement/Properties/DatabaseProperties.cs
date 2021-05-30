@@ -19,14 +19,17 @@ namespace LauncherManagement
             public string Character { get; set; }
         }
 
+        public class ActiveServer
+        {
+            [PrimaryKey]
+            public int Id { get; set; }
+        }
+
         public class LauncherConfig
         {
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
-            public string GameLocation { get; set; }
-            public bool AutoLogin { get; set; }
-            public bool Verified { get; set; }
-            public string ServerName { get; set; }
+            public string ServerType { get; set; }
             public string ApiUrl { get; set; }
             public string ManifestFilePath { get; set; }
             public string ManifestFileUrl { get; set; }
@@ -35,10 +38,14 @@ namespace LauncherManagement
             public int SWGLoginPort { get; set; }
         }
 
-        public class GameSettings
+        public class Settings
         {
             [PrimaryKey, AutoIncrement]
             public int Id { get; set; }
+            public string GameLocation { get; set; }
+            public string ServerName { get; set; }
+            public bool AutoLogin { get; set; }
+            public bool Verified { get; set; }
             public int Fps { get; set; }
             public int Ram { get; set; }
             public int MaxZoom { get; set; }

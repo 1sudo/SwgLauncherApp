@@ -5,95 +5,37 @@ namespace LauncherManagement
 {
     public class LauncherConfigHandler : DatabaseHandler
     {
-        string _defaultGameLocation = "";
-        int defaultAutoLogin = 0;
-        int defaultVerified = 0;
-        string defaultServername = "SWGLegacy";
-        string defaultApiUrl = "http://tc.darknaught.com:5000";
-        string defaultManifestFilePath = "manifest/required.json";
-        string defaultManifestFileUrl = "http://tc.darknaught.com:8787/files/";
-        string defaultBackupManifestFileUrl = "http://localhost:8080/files/";
-        string defaultSWGLoginHost = "localhost";
-        int defaultSWGLoginPort = 44453;
+        readonly string     _defaultServerType = "live";
+        readonly string     _defaultApiUrl = "http://tc.darknaught.com:5000";
+        readonly string     _defaultManifestFilePath = "manifest/required.json";
+        readonly string     _defaultManifestFileUrl = "http://tc.darknaught.com:8787/files/";
+        readonly string     _defaultBackupManifestFileUrl = "http://localhost:8080/files/";
+        readonly string     _defaultSWGLoginHost = "localhost";
+        readonly int        _defaultSWGLoginPort = 44453;
 
-        public async Task ToggleAutoLoginAsync(bool flag)
-        {
-            if (flag)
-            {
-                await ExecuteLauncherConfigAsync
-                    (
-                        "UPDATE LauncherConfig " +
-                        "SET AutoLogin = 1 " +
-                        "where Id = 1;"
-                    );
-            }
-            else
-            {
-                await ExecuteLauncherConfigAsync
-                    (
-                        "UPDATE LauncherConfig " +
-                        "SET AutoLogin = 0 " +
-                        "where Id = 1;"
-                    );
-            }
-        }
+        readonly string     _defaultSecondaryServerType = "test";
+        readonly string     _defaultSecondaryApiUrl = "http://tc.darknaught.com:5000";
+        readonly string     _defaultSecondaryManifestFilePath = "manifest/test.json";
+        readonly string     _defaultSecondaryManifestFileUrl = "http://tc.darknaught.com:8787/files/";
+        readonly string     _defaultSecondaryBackupManifestFileUrl = "http://localhost:8080/files/";
+        readonly string     _defaultSecondarySWGLoginHost = "localhost";
+        readonly int        _defaultSecondarySWGLoginPort = 44453;
 
-        public async Task<bool> CheckAutoLoginEnabledAsync()
+        public async Task<List<string>> GetServerTypes()
         {
             List<DatabaseProperties.LauncherConfig> config = await ExecuteLauncherConfigAsync
                 (
-                    "SELECT AutoLogin " +
-                    "FROM LauncherConfig " +
-                    "where Id = 1;"
+                    "SELECT ServerType FROM LauncherConfig;"
                 );
 
-            return config[0].AutoLogin;
-        }
+            List<string> types = new List<string>();
 
-        public async Task ConfigureLocationsAsync(string gamePath)
-        {
-            await ExecuteLauncherConfigAsync
-                (
-                    "UPDATE LauncherConfig SET " +
-                    $"GameLocation = '{gamePath}' " +
-                    "where Id = 1;"
-                );
-        }
+            for (int i = 0; i < config.Count; i++)
+            {
+                types.Add(config[i].ServerType);
+            }
 
-        public async Task<string> GetServerNameAsync()
-        {
-            List<DatabaseProperties.LauncherConfig> config = await ExecuteLauncherConfigAsync($"SELECT ServerName FROM LauncherConfig where Id = 1;");
-
-            return (config.Count > 0) ? config[0].ServerName : "";
-        }
-
-        public async Task<string> GetGameLocationAsync()
-        {
-            List<DatabaseProperties.LauncherConfig> config = await ExecuteLauncherConfigAsync($"SELECT GameLocation FROM LauncherConfig where Id = 1;");
-
-            return (config.Count > 0) ? config[0].GameLocation : "";
-        }
-
-        public async Task SetVerifiedAsync()
-        {
-            await ExecuteLauncherConfigAsync
-                (
-                    "UPDATE LauncherConfig " +
-                    "SET Verified = 1 " +
-                    "where Id = 1;"
-                );
-        }
-
-        public async Task<bool> GetVerifiedAsync()
-        {
-            List<DatabaseProperties.LauncherConfig> config = await ExecuteLauncherConfigAsync
-                (
-                    $"SELECT Verified " +
-                    $"FROM LauncherConfig " +
-                    $"where Id = 1;"
-                );
-
-            return config[0].Verified;
+            return types;
         }
 
         public async Task<Dictionary<string, string>> GetLauncherSettings()
@@ -101,15 +43,15 @@ namespace LauncherManagement
             List<DatabaseProperties.LauncherConfig> config = await ExecuteLauncherConfigAsync
                 (
                     "SELECT " +
-                    "ServerName, ApiUrl, ManifestFilePath, ManifestFileUrl, " +
+                    "ServerType, ApiUrl, ManifestFilePath, ManifestFileUrl, " +
                     "BackupManifestFileUrl, SWGLoginHost, SWGLoginPort " +
                     "FROM LauncherConfig " +
-                    "where Id = 1;"
+                    $"where Id = {ServerSelection.ActiveServer};"
                 );
 
             return new Dictionary<string, string>()
             {
-                { "ServerName",             config[0].ServerName },
+                { "ServerType",             config[0].ServerType },
                 { "ApiUrl",                 config[0].ApiUrl },
                 { "ManifestFilePath",       config[0].ManifestFilePath },
                 { "ManifestFileUrl",        config[0].ManifestFileUrl },
@@ -119,7 +61,7 @@ namespace LauncherManagement
             };
         }
 
-        public async Task InsertDefaultRow()
+        public async Task InsertDefaultRows()
         {
             List<DatabaseProperties.LauncherConfig> config = await ExecuteLauncherConfigAsync("SELECT * FROM LauncherConfig;");
 
@@ -127,12 +69,14 @@ namespace LauncherManagement
             {
                 await ExecuteLauncherConfigAsync
                     (
-                        "INSERT into LauncherConfig" +
-                        "(GameLocation, AutoLogin, Verified, ServerName, ApiUrl, ManifestFilePath, " +
+                        "INSERT into LauncherConfig " +
+                        "(ServerType, ApiUrl, ManifestFilePath, " +
                         "ManifestFileUrl, BackupManifestFileUrl, SWGLoginHost, SWGLoginPort) " +
                         "VALUES " +
-                        $"('{_defaultGameLocation}', {defaultAutoLogin}, {defaultVerified}, '{defaultServername}', '{defaultApiUrl}', '{defaultManifestFilePath}', " +
-                        $"'{defaultManifestFileUrl}', '{defaultBackupManifestFileUrl}', '{defaultSWGLoginHost}', {defaultSWGLoginPort});"
+                        $"('{_defaultServerType}', '{_defaultApiUrl}', '{_defaultManifestFilePath}', " +
+                        $"'{_defaultManifestFileUrl}', '{_defaultBackupManifestFileUrl}', '{_defaultSWGLoginHost}', {_defaultSWGLoginPort}), " +
+                        $"('{_defaultSecondaryServerType}', '{_defaultSecondaryApiUrl}', '{_defaultSecondaryManifestFilePath}', " +
+                        $"'{_defaultSecondaryManifestFileUrl}', '{_defaultSecondaryBackupManifestFileUrl}', '{_defaultSecondarySWGLoginHost}', {_defaultSecondarySWGLoginPort});"
                     );
             }
         }

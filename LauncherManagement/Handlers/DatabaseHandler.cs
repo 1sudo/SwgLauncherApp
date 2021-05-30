@@ -1,5 +1,7 @@
 ﻿using SQLite;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -24,9 +26,10 @@ namespace LauncherManagement
             {
                 await _db.CreateTablesAsync<
                     DatabaseProperties.Accounts,
+                    DatabaseProperties.ActiveServer,
                     DatabaseProperties.Characters,
                     DatabaseProperties.LauncherConfig,
-                    DatabaseProperties.GameSettings>();
+                    DatabaseProperties.Settings>();
             } 
             catch { }
         }
@@ -44,6 +47,21 @@ namespace LauncherManagement
             catch { }
 
             return new List<DatabaseProperties.Accounts>();
+        }
+
+        public async Task<List<DatabaseProperties.ActiveServer>> ExecuteActiveServerAsync(string data)
+        {
+            try
+            {
+                var results = await _db.QueryAsync<DatabaseProperties.ActiveServer>(data);
+
+                await _db.CloseAsync();
+
+                return results;
+            }
+            catch { }
+
+            return new List<DatabaseProperties.ActiveServer>();
         }
 
         internal async Task<List<DatabaseProperties.LauncherConfig>> ExecuteLauncherConfigAsync(string data)
@@ -76,19 +94,22 @@ namespace LauncherManagement
             return new List<DatabaseProperties.Characters>();
         }
 
-        internal async Task<List<DatabaseProperties.GameSettings>> ExecuteGameSettingsAsync(string data)
+        internal async Task<List<DatabaseProperties.Settings>> ExecuteSettingsAsync(string data)
         {
             try
             {
-                var results = await _db.QueryAsync<DatabaseProperties.GameSettings>(data);
+                var results = await _db.QueryAsync<DatabaseProperties.Settings>(data);
 
                 await _db.CloseAsync();
 
                 return results;
             }
-            catch { }
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.Message);
+            }
 
-            return new List<DatabaseProperties.GameSettings>();
+            return new List<DatabaseProperties.Settings>();
         }
     }
 }
