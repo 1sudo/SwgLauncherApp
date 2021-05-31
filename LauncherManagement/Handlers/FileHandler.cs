@@ -19,27 +19,22 @@ namespace LauncherManagement
 
             if (!File.Exists(path))
             {
-                Trace.WriteLine("in the if not exists loop");
                 string lastCategory = "";
                 StringBuilder sb = new();
                 foreach (DatabaseProperties.AdditionalSettings setting in settings)
                 {
-                    Trace.WriteLine(setting.Category);
                     if (setting.Category != lastCategory)
                     {
-                        Trace.WriteLine("In the category doesn't exist if");
                         lastCategory = setting.Category;
                         sb.AppendLine($"\n[{setting.Category}]");
                         sb.AppendLine($"\t{setting.Key}={setting.Value}");
                     }
                     else
                     {
-                        Trace.WriteLine("Else");
                         sb.AppendLine($"\t{setting.Key}={setting.Value}");
                     }
                 }
 
-                Trace.WriteLine("Write!!");
                 await File.WriteAllTextAsync(path, sb.ToString());
             }
         }

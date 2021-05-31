@@ -417,6 +417,17 @@ namespace LauncherApp
         {
             _audioHandler.PlayClickSound();
             await _fileHandler.GenerateMissingFiles();
+            Dictionary<string, string> settings = await _settingsHandler.GetGameOptionsControls();
+
+            settings.TryGetValue("Fps", out string fps);
+            settings.TryGetValue("Ram", out string ram);
+            settings.TryGetValue("MaxZoom", out string maxZoom);
+
+            string screenHeight = "";
+            string screenWidth = "";
+            string refreshRate = "";
+            string vertexShaderVersion = "";
+            string pixelShaderVersion = "";
 
             List<GameSettingsProperty> properties = await _fileHandler.ParseOptionsCfg();
 
@@ -424,20 +435,23 @@ namespace LauncherApp
             {
                 switch (property.Key)
                 {
-                    case "\tuseHardwareMouseCursor": DisableHardwareMouseCheckbox.IsChecked = true; break;
-                    case "\tuseSafeRenderer": UseSafeRendererCheckbox.IsChecked = true; break;
-                    case "\tborderlessWindow": BorderlessWindowCheckbox.IsChecked = true; break;
-                    case "\twindowed": WindowModeCheckbox.IsChecked = true; break;
-                    case "\tdiscardHighestMipMapLevels": LowDetailTexturesCheckbox.IsChecked = true; break;
-                    case "\tdiscardHighestNormalMipMapLevels": LowDetailNormalsCheckbox.IsChecked = true; break;
-                    case "\tallowTearing": DisableVsyncCheckbox.IsChecked = true; break;
-                    case "\talwaysSetMouseCursor": DisableFastMouseCheckbox.IsChecked = true; break;
-                    case "\tskipIntro": SkipIntroCheckbox.IsChecked = true; break;
-                    case "\tpreloadWorldSnapshot": DisableWorldPreloadingCheckbox.IsChecked = true; break;
-                    case "\tlodManagerEnable": DisableLODManagerCheckbox.IsChecked = true; break;
-                    case "\tdisableTextureBaking": DisableTextureBakingCheckbox.IsChecked = true; break;
-                    case "\tdisableFileCaching": DisableFileCachingCheckbox.IsChecked = true; break;
-                    case "\tenableAsynchronousLoader": DisableAsyncLoaderCheckbox.IsChecked = true; break;
+                    case "\tscreenWidth":                       screenWidth                                 = property.Value; break;
+                    case "\tscreenHeight":                      screenHeight                                = property.Value; break;
+                    case "\tfullscreenRefreshRate":             refreshRate                                 = property.Value; break;
+                    case "\tuseSafeRenderer":                   UseSafeRendererCheckbox.IsChecked           = true; break;
+                    case "\tborderlessWindow":                  BorderlessWindowCheckbox.IsChecked          = true; break;
+                    case "\twindowed":                          WindowModeCheckbox.IsChecked                = true; break;
+                    case "\tdiscardHighestMipMapLevels":        LowDetailTexturesCheckbox.IsChecked         = true; break;
+                    case "\tdiscardHighestNormalMipMapLevels":  LowDetailNormalsCheckbox.IsChecked          = true; break;
+                    case "\tallowTearing":                      DisableVsyncCheckbox.IsChecked              = true; break;
+                    case "\talwaysSetMouseCursor":              DisableFastMouseCheckbox.IsChecked          = true; break;
+                    case "\tskipIntro":                         SkipIntroCheckbox.IsChecked                 = true; break;
+                    case "\tdisableMiles":                      DisableAudioCheckbox.IsChecked              = true; break;
+                    case "\tpreloadWorldSnapshot":              DisableWorldPreloadingCheckbox.IsChecked    = true; break;
+                    case "\tlodManagerEnable":                  DisableLODManagerCheckbox.IsChecked         = true; break;
+                    case "\tdisableTextureBaking":              DisableTextureBakingCheckbox.IsChecked      = true; break;
+                    case "\tdisableFileCaching":                DisableFileCachingCheckbox.IsChecked        = true; break;
+                    case "\tenableAsynchronousLoader":          DisableAsyncLoaderCheckbox.IsChecked        = true; break;
                     case "\tskipL0":
                         if (property.Category == "ClientSkeletalAnimation")
                             LowDetailCharactersCheckbox.IsChecked = true;
@@ -450,7 +464,64 @@ namespace LauncherApp
                         else
                             DisableMultiPassRenderingCheckbox.IsChecked = true;
                         break;
+                    case "\tuseHardwareMouseCursor":
+                        if (property.Value == "0")
+                            DisableHardwareMouseCheckbox.IsChecked = true;
+                        else
+                            DisableHardwareMouseCheckbox.IsChecked = false; 
+                        break;
                 }
+
+                if (property.Category == "Direct3d9")
+                {
+                    if (string.IsNullOrEmpty(property.Key) &&
+                        string.IsNullOrEmpty(property.Value))
+                    {
+                        ShaderBox.SelectedIndex = 0;
+                    }
+
+                    if (property.Key == "\tmaxVertexShaderVersion")
+                        vertexShaderVersion = property.Value;
+
+                    if (property.Key == "\tmaxPixelShaderVersion")
+                        pixelShaderVersion = property.Value;
+                }
+            }
+
+            if (vertexShaderVersion == "0x0200" && pixelShaderVersion == "0x0200")
+                ShaderBox.SelectedIndex = 1;
+            if (vertexShaderVersion == "0x0101" && pixelShaderVersion == "0x0104")
+                ShaderBox.SelectedIndex = 2;
+            if (vertexShaderVersion == "0x0101" && pixelShaderVersion == "0x0101")
+                ShaderBox.SelectedIndex = 3;
+            if (vertexShaderVersion == "0" && pixelShaderVersion == "0")
+                ShaderBox.SelectedIndex = 4;
+
+            ResolutionBox.SelectedValue = $"{screenWidth}x{screenHeight}@{refreshRate}";
+
+            switch (ram)
+            {
+                case "512": MemoryBox.SelectedIndex = 3; break;
+                case "1024": MemoryBox.SelectedIndex = 2; break;
+                case "2048": MemoryBox.SelectedIndex = 1; break;
+                case "4096": MemoryBox.SelectedIndex = 0; break;
+            }
+
+            switch (fps)
+            {
+                case "30": FpsBox.SelectedIndex = 3; break;
+                case "60": FpsBox.SelectedIndex = 2; break;
+                case "144": FpsBox.SelectedIndex = 1; break;
+                case "240": FpsBox.SelectedIndex = 0; break;
+            }
+
+            switch (maxZoom)
+            {
+                case "1": ZoomBox.SelectedIndex = 0; break;
+                case "3": ZoomBox.SelectedIndex = 1; break;
+                case "5": ZoomBox.SelectedIndex = 2; break;
+                case "7": ZoomBox.SelectedIndex = 3; break;
+                case "10": ZoomBox.SelectedIndex = 4; break;
             }
 
             UpdateScreen((int)Screens.SETTINGS_GRID);

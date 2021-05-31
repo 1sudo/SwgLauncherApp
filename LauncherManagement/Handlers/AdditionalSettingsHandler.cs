@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -51,6 +50,8 @@ namespace LauncherManagement
                         "('ClientGraphics', 'screenWidth', '1024'), " +
                         "('ClientGraphics', 'screenHeight', '768'), " +
                         "('ClientGraphics', 'allowTearing', '1'), " +
+                        "('ClientGraphics', 'useHardwareMouseCursor', '1')," +
+                        "('Direct3d9', 'fullscreenRefreshRate', '60')," +
                         "('ClientGame', 'skipIntro', '1'), " +
                         "('ClientGame', 'preloadWorldSnapshot', '0'), " +
                         "('ClientSkeletalAnimation', 'lodManagerEnable', '0'), " +
