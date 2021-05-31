@@ -80,7 +80,6 @@ namespace LauncherManagement
                 { "Ram", config[0].Ram.ToString() },
                 { "MaxZoom", config[0].MaxZoom.ToString() },
             };
-
         }
 
         public async Task<bool> CheckAutoLoginEnabledAsync()

@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace LauncherManagement
@@ -7,29 +9,38 @@ namespace LauncherManagement
     public class FileHandler
     {
         readonly SettingsHandler _settings = new();
+        readonly AdditionalSettingsHandler _additionalSettings = new();
 
         public async Task GenerateMissingFiles()
         {
+            List<DatabaseProperties.AdditionalSettings> settings = await _additionalSettings.GetSettings();
+
             string path = Path.Join(await _settings.GetGameLocationAsync(), "options.cfg");
+
             if (!File.Exists(path))
             {
-                string defaultConfiguration = 
-                    "[ClientGraphics]\n" +
-                    "\tscreenWidth=1920\n" +
-                    "\tscreenHeight=1080\n" +
-                    "\tallowTearing=1\n" +
-                    "\n" +
-                    "[ClientGame]\n" +
-                    "\tskipIntro=1\n" +
-                    "\tpreloadWorldSnapshot=0\n" +
-                    "\n" +
-                    "[ClientSkeletalAnimation]\n" +
-                    "\tlodManagerEnable=0\n" +
-                    "\n" +
-                    "[SharedUtility]\n" +
-                    "\tdisableFileCaching=1";
+                Trace.WriteLine("in the if not exists loop");
+                string lastCategory = "";
+                StringBuilder sb = new();
+                foreach (DatabaseProperties.AdditionalSettings setting in settings)
+                {
+                    Trace.WriteLine(setting.Category);
+                    if (setting.Category != lastCategory)
+                    {
+                        Trace.WriteLine("In the category doesn't exist if");
+                        lastCategory = setting.Category;
+                        sb.AppendLine($"\n[{setting.Category}]");
+                        sb.AppendLine($"\t{setting.Key}={setting.Value}");
+                    }
+                    else
+                    {
+                        Trace.WriteLine("Else");
+                        sb.AppendLine($"\t{setting.Key}={setting.Value}");
+                    }
+                }
 
-                await File.WriteAllTextAsync(path, defaultConfiguration);
+                Trace.WriteLine("Write!!");
+                await File.WriteAllTextAsync(path, sb.ToString());
             }
         }
 

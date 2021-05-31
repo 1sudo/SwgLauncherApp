@@ -50,5 +50,14 @@ namespace LauncherManagement
             public int Ram { get; set; }
             public int MaxZoom { get; set; }
         }
+
+        public class AdditionalSettings
+        {
+            [PrimaryKey, AutoIncrement]
+            public int Id { get; set; }
+            public string Category { get; set; }
+            public string Key { get; set; }
+            public string Value { get; set; }
+        }
     }
 }

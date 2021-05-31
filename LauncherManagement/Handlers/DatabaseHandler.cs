@@ -9,7 +9,7 @@ namespace LauncherManagement
 {
     public class DatabaseHandler
     {
-        SQLiteAsyncConnection _db;
+        readonly SQLiteAsyncConnection _db;
 
         public DatabaseHandler()
         {
@@ -29,9 +29,20 @@ namespace LauncherManagement
                     DatabaseProperties.ActiveServer,
                     DatabaseProperties.Characters,
                     DatabaseProperties.LauncherConfig,
-                    DatabaseProperties.Settings>();
+                    DatabaseProperties.Settings
+                    >();
             } 
             catch { }
+
+            try
+            {
+                await _db.CreateTableAsync<
+                    DatabaseProperties.AdditionalSettings
+                    >();
+            }
+            catch { }
+
+            
         }
 
         public async Task<List<DatabaseProperties.Accounts>> ExecuteAccountAsync(string data)
@@ -110,6 +121,24 @@ namespace LauncherManagement
             }
 
             return new List<DatabaseProperties.Settings>();
+        }
+
+        internal async Task<List<DatabaseProperties.AdditionalSettings>> ExecuteAdditionalSettingsAsync(string data)
+        {
+            try
+            {
+                var results = await _db.QueryAsync<DatabaseProperties.AdditionalSettings>(data);
+
+                await _db.CloseAsync();
+
+                return results;
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.Message);
+            }
+
+            return new List<DatabaseProperties.AdditionalSettings>();
         }
     }
 }

@@ -7,7 +7,7 @@ namespace LauncherManagement
 {
     public class AppHandler
     {
-        public async Task StartGameAsync(string serverPath, string password = "", 
+        public static async Task StartGameAsync(string serverPath, string password = "", 
             string username = "", string charactername = "", bool autoEnterZone = false)
         {
             // Run Async to prevent launcher from locking up when starting game and writing bytes
@@ -83,15 +83,16 @@ namespace LauncherManagement
             });
         }
 
-        public void StartGameConfig(string serverPath)
+        public static void StartGameConfig(string serverPath)
         {
             try
             {
-                var startInfo = new ProcessStartInfo();
-
-                startInfo.UseShellExecute = true;
-                startInfo.WorkingDirectory = serverPath;
-                startInfo.FileName = Path.Join(serverPath, "SWGEmu_Setup.exe");
+                var startInfo = new ProcessStartInfo
+                {
+                    UseShellExecute = true,
+                    WorkingDirectory = serverPath,
+                    FileName = Path.Join(serverPath, "SWGEmu_Setup.exe")
+                };
 
                 Process.Start(startInfo);
             }
