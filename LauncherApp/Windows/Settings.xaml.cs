@@ -65,7 +65,7 @@ namespace LauncherApp
 
         async void SubmitButton_Click(object sender, RoutedEventArgs e)
         {
-            string[] categories = {
+/*            string[] categories = {
                 "ClientGraphics", "ClientGraphics", "ClientGraphics", "SharedUtility", "Direct3d9", "Direct3d9",
                 "ClientAudio", "ClientAudio", "ClientGraphics", "ClientGraphics", "ClientGraphics", 
                 "ClientGraphics", "ClientGraphics", "ClientGraphics", "ClientGraphics", "SharedUtility", "ClientGame",
@@ -125,7 +125,7 @@ namespace LauncherApp
                 gameSettingProperties.Add(gameSettingsProperty);
             }
 
-            SettingsHandler gameSettingsHandler = new SettingsHandler();
+            SettingsHandler gameSettingsHandler = new SettingsHandler();*/
             //await gameSettingsHandler.SaveSettings(gameSettingProperties);
         }
     }

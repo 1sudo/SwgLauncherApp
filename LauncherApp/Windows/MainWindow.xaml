@@ -1002,7 +1002,7 @@
                                                     <TextBlock Style="{DynamicResource h3}">
                                                     Full Scan
                                                     </TextBlock>
-                                                    <Button x:Name="OptionsFullScanButton" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Height="30" VerticalAlignment="Top">Full Scan</Button>
+                                                    <Button x:Name="OptionsFullScanButton" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Height="30" VerticalAlignment="Top" Click="FullScanButton_Click">Full Scan</Button>
                                                 </StackPanel>
                                                 <StackPanel Style="{DynamicResource SettingsColumn}" Margin="4,0,4,0">
                                                     <TextBlock Style="{DynamicResource h3}">
@@ -1032,7 +1032,7 @@
                                                 <TextBlock Style="{DynamicResource h3}">
                                                     Server Selection
                                                 </TextBlock>
-                                                <ComboBox x:Name="OptionsLoginServerBox" SelectedIndex="1" Style="{DynamicResource ComboBoxTransparent}" />
+                                                <ComboBox x:Name="OptionsLoginServerBox" SelectedIndex="1" Style="{DynamicResource ComboBoxTransparent}" SelectionChanged="OptionsLoginServerBox_SelectionChanged" />
                                             </StackPanel>
                                         </UniformGrid>
                                     </StackPanel>
@@ -1221,7 +1221,7 @@
             </Grid>
 
             <!-- Login Window -->
-            <Grid x:Name="LoginGrid" Grid.Column="1" Margin="18,0,0,0" Visibility="Collapsed">
+            <Grid x:Name="LoginGrid" Grid.Column="1" Margin="18,0,0,0" Visibility="Visible">
                 <StackPanel MaxWidth="280" MaxHeight="280">
                     <TextBlock x:Name="AccountLoginText" Foreground="White" FontFamily="Bahnschrift SemiBold" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="20">
                         ACCOUNT LOGIN
@@ -1277,7 +1277,7 @@
             </Grid>
 
             <!-- Create Account -->
-            <Grid x:Name="CreateAccountGrid" Grid.Column="1" Margin="18,0,0,0" Visibility="Visible">
+            <Grid x:Name="CreateAccountGrid" Grid.Column="1" Margin="18,0,0,0" Visibility="Collapsed">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>

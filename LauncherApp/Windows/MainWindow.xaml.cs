@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
@@ -33,34 +34,29 @@ namespace LauncherApp
     public partial class MainWindow : Window
     {
         #region Vars
-        List<Grid> _screens;
-        string _currentFile;
-        double _currentFileStatus;
-        double _totalFileStatus;
-        string _gamePath;
-        string _gamePassword;
-        Dictionary<string, string> _launcherSettings;
-
-        readonly AudioHandler _audioHandler;
-        readonly AppHandler _appHandler;
-        GameLoginResponseProperties _loginProperties = new GameLoginResponseProperties();
-        LauncherConfigHandler _configHandler = new LauncherConfigHandler();
-        AccountsHandler _accountHandler = new AccountsHandler();
-        ActiveServerHandler _activeServerHandler = new ActiveServerHandler();
-        CharacterHandler _characterHandler = new CharacterHandler();
-        SettingsHandler _gameSettingsHandler = new SettingsHandler();
-        CaptchaProperties _captchaProperties = CaptchaController.QuestionAndAnswer();
+        List<Grid>                      _screens;
+        string                          _currentFile;
+        double                          _currentFileStatus;
+        double                          _totalFileStatus;
+        string                          _gamePath;
+        string                          _gamePassword;
+        static bool                     _postLoad = false;
+        Dictionary<string, string>      _launcherSettings;
+        GameLoginResponseProperties     _loginProperties = new();
+        readonly LauncherConfigHandler  _configHandler = new();
+        readonly AccountsHandler        _accountHandler = new();
+        readonly ActiveServerHandler    _activeServerHandler = new();
+        readonly CharacterHandler       _characterHandler = new();
+        readonly SettingsHandler        _gameSettingsHandler = new();
+        readonly AudioHandler           _audioHandler = new();
+        readonly AppHandler             _appHandler = new();
+        readonly FileHandler            _fileHandler = new();
+        readonly CaptchaProperties      _captchaProperties = CaptchaController.QuestionAndAnswer();
         #endregion
 
         #region Constructor
         public MainWindow()
         {
-            AudioHandler audioHandler = new AudioHandler();
-            _audioHandler = audioHandler;
-
-            AppHandler appHandler = new AppHandler();
-            _appHandler = appHandler;
-
             InitializeComponent();
 
             DownloadHandler.OnCurrentFileDownloading += ShowFileBeingDownloaded;
@@ -75,6 +71,7 @@ namespace LauncherApp
         #region WindowManagement
         async void Window_Initialized(object sender, EventArgs e)
         {
+            await _fileHandler.GenerateMissingFiles();
             await ConfigureDatabase();
             await PopulateControls();
 
@@ -120,6 +117,8 @@ namespace LauncherApp
                 {
                     UpdateScreen((int)Screens.GAME_VALIDATION_GRID);
                 }
+
+                _postLoad = true;
             }
         }
 
@@ -148,6 +147,9 @@ namespace LauncherApp
             {
                 OptionsLoginServerBox.Items.Add(type);
             }
+
+            // Subtract 1 since List starts at 0
+            OptionsLoginServerBox.SelectedIndex = ServerSelection.ActiveServer - 1;
         }
 
         void Window_MouseDown(object sender, MouseButtonEventArgs e)
@@ -658,17 +660,46 @@ namespace LauncherApp
         {
             _audioHandler.PlayClickSound();
 
-            ProgressGrid.Visibility = Visibility.Visible;
-            PlayButton.IsEnabled = false;
-            // FullScanButton.IsEnabled = false;
-            SettingsButton.IsEnabled = false;
-
+            ScanDisableButtons();
             await DownloadHandler.CheckFilesAsync(_gamePath, true);
+            ScanEnableButtons();
         }
 
-        void SubmitSettingsButton_Click(object sender, RoutedEventArgs e)
+        void ScanEnableButtons()
         {
+            ProgressGrid.Visibility = Visibility.Collapsed;
+            PlayButton.IsEnabled = true;
+            OptionsRerunSetupButton.IsEnabled = true;
+            OptionsFullScanButton.IsEnabled = true;
+            OptionsInstallDirectoryButton.IsEnabled = true;
+            PlayButton.IsEnabled = true;
+            PlayButton.Content = "Play";
+            CharacterSelectGrid.Visibility = Visibility.Visible;
+            OptionsLoginServerBox.IsEnabled = true;
+        }
 
+        void ScanDisableButtons()
+        {
+            ProgressGrid.Visibility = Visibility.Visible;
+            PlayButton.IsEnabled = false;
+            OptionsRerunSetupButton.IsEnabled = false;
+            OptionsFullScanButton.IsEnabled = false;
+            OptionsInstallDirectoryButton.IsEnabled = false;
+            CharacterSelectGrid.Visibility = Visibility.Collapsed;
+            PlayButton.Content = "Updating";
+            OptionsLoginServerBox.IsEnabled = false;
+        }
+
+        async void SubmitSettingsButton_Click(object sender, RoutedEventArgs e)
+        {
+            List<GameSettingsProperty> properties = await _fileHandler.ParseOptionsCfg();
+
+            foreach (GameSettingsProperty prop in properties)
+            {
+                Trace.WriteLine($"Category: {prop.Category}");
+                Trace.WriteLine($"Key: {prop.Key}");
+                Trace.WriteLine($"Value: {prop.Value}");
+            }
         }
 
         void SubmitDeveloperButton_Click(object sender, RoutedEventArgs e)
@@ -732,13 +763,9 @@ namespace LauncherApp
         #region Validation
         async Task CheckGameFiles()
         {
-            CharacterSelectGrid.Visibility = Visibility.Collapsed;
-            PlayButton.IsEnabled = false;
-            PlayButton.Content = "Updating";
+            ScanDisableButtons();
             await DownloadHandler.CheckFilesAsync(await _gameSettingsHandler.GetGameLocationAsync());
-            PlayButton.IsEnabled = true;
-            PlayButton.Content = "Play";
-            CharacterSelectGrid.Visibility = Visibility.Visible;
+            ScanEnableButtons();
         }
 
         async Task<bool> CheckAutoLoginAsync()
@@ -987,5 +1014,15 @@ namespace LauncherApp
                 ResolutionBox.Items.Add(resolution);
             }
         }
+
+        async void OptionsLoginServerBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_postLoad)
+            {
+                await _activeServerHandler.SetActiveServer(OptionsLoginServerBox.SelectedIndex + 1);
+                LogoutButton_Click(this, new RoutedEventArgs());
+            }
+        }
+
     }
 }

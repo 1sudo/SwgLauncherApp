@@ -15,7 +15,7 @@ namespace LauncherManagement
 
         readonly string     _defaultSecondaryServerType = "test";
         readonly string     _defaultSecondaryApiUrl = "http://tc.darknaught.com:5000";
-        readonly string     _defaultSecondaryManifestFilePath = "manifest/test.json";
+        readonly string     _defaultSecondaryManifestFilePath = "manifest/required.json";
         readonly string     _defaultSecondaryManifestFileUrl = "http://tc.darknaught.com:8787/files/";
         readonly string     _defaultSecondaryBackupManifestFileUrl = "http://localhost:8080/files/";
         readonly string     _defaultSecondarySWGLoginHost = "localhost";
@@ -25,10 +25,30 @@ namespace LauncherManagement
         {
             List<DatabaseProperties.LauncherConfig> config = await ExecuteLauncherConfigAsync
                 (
-                    "SELECT ServerType FROM LauncherConfig;"
+                    "SELECT ServerType " +
+                    "FROM LauncherConfig;"
                 );
 
-            List<string> types = new List<string>();
+            List<string> types = new();
+
+            for (int i = 0; i < config.Count; i++)
+            {
+                types.Add(config[i].ServerType);
+            }
+
+            return types;
+        }
+
+        public async Task<List<string>> GetServerType()
+        {
+            List<DatabaseProperties.LauncherConfig> config = await ExecuteLauncherConfigAsync
+                (
+                    "SELECT ServerType " +
+                    "FROM LauncherConfig " +
+                    $"WHERE Id = {ServerSelection.ActiveServer};"
+                );
+
+            List<string> types = new();
 
             for (int i = 0; i < config.Count; i++)
             {
@@ -63,7 +83,11 @@ namespace LauncherManagement
 
         public async Task InsertDefaultRows()
         {
-            List<DatabaseProperties.LauncherConfig> config = await ExecuteLauncherConfigAsync("SELECT * FROM LauncherConfig;");
+            List<DatabaseProperties.LauncherConfig> config = await ExecuteLauncherConfigAsync
+                (
+                    "SELECT * " +
+                    "FROM LauncherConfig;"
+                );
 
             if (config.Count < 1)
             {
@@ -73,8 +97,10 @@ namespace LauncherManagement
                         "(ServerType, ApiUrl, ManifestFilePath, " +
                         "ManifestFileUrl, BackupManifestFileUrl, SWGLoginHost, SWGLoginPort) " +
                         "VALUES " +
+                        // First Row
                         $"('{_defaultServerType}', '{_defaultApiUrl}', '{_defaultManifestFilePath}', " +
                         $"'{_defaultManifestFileUrl}', '{_defaultBackupManifestFileUrl}', '{_defaultSWGLoginHost}', {_defaultSWGLoginPort}), " +
+                        // Second Row
                         $"('{_defaultSecondaryServerType}', '{_defaultSecondaryApiUrl}', '{_defaultSecondaryManifestFilePath}', " +
                         $"'{_defaultSecondaryManifestFileUrl}', '{_defaultSecondaryBackupManifestFileUrl}', '{_defaultSecondarySWGLoginHost}', {_defaultSecondarySWGLoginPort});"
                     );
