@@ -808,18 +808,117 @@ namespace LauncherApp
 
         async void SubmitSettingsButton_Click(object sender, RoutedEventArgs e)
         {
-            
+            List<GameSettingsProperty> properties = new();
 
-            
+            int fps = 0;
+            int ram = 0;
+            int maxZoom = 0;
 
-
-
-            /* foreach (GameSettingsProperty prop in properties)
+            switch (FpsBox.SelectedIndex)
             {
-                Trace.WriteLine($"Category: {prop.Category}");
-                Trace.WriteLine($"Key: {prop.Key}");
-                Trace.WriteLine($"Value: {prop.Value}");
-            }*/
+                case 3: fps = 30; break;
+                case 2: fps = 60; break;
+                case 1: fps = 144; break;
+                case 0: fps = 240; break;
+            }
+
+            switch (MemoryBox.SelectedIndex)
+            {
+                case 3: ram = 512; break;
+                case 2: ram = 1024; break;
+                case 1: ram = 2048; break;
+                case 0: ram = 4096; break;
+            }
+
+            switch (ZoomBox.SelectedIndex)
+            {
+                case 0: maxZoom = 1; break;
+                case 1: maxZoom = 3; break;
+                case 2: maxZoom = 5; break;
+                case 3: maxZoom = 7; break;
+                case 4: maxZoom = 10; break;
+            }
+
+            await _settingsHandler.SetGameOptions(new DatabaseProperties.Settings
+            {
+                Fps = fps,
+                Ram = ram,
+                MaxZoom = maxZoom
+            });
+
+            string screenWidth = ResolutionBox.SelectedValue.ToString().Split("x")[0];
+            string screenHeight = ResolutionBox.SelectedValue.ToString().Split("x")[1].Split("@")[0];
+            string refreshRate = ResolutionBox.SelectedValue.ToString().Split("@")[1];
+
+            properties.Add(new GameSettingsProperty { Category = "Direct3d9", Key = "fullscreenRefreshRate", Value = $"{refreshRate}" });
+
+            if (ShaderBox.SelectedIndex == 1)
+            {
+                properties.Add(new GameSettingsProperty { Category = "Direct3d9", Key = "maxVertexShaderVersion", Value = "0x0200" });
+                properties.Add(new GameSettingsProperty { Category = "Direct3d9", Key = "maxPixelShaderVersion", Value = "0x0200" });
+            }
+
+            if (ShaderBox.SelectedIndex == 2)
+            {
+                properties.Add(new GameSettingsProperty { Category = "Direct3d9", Key = "maxVertexShaderVersion", Value = "0x0101" });
+                properties.Add(new GameSettingsProperty { Category = "Direct3d9", Key = "maxPixelShaderVersion", Value = "0x0104" });
+            }
+
+            if (ShaderBox.SelectedIndex == 3)
+            {
+                properties.Add(new GameSettingsProperty { Category = "Direct3d9", Key = "maxVertexShaderVersion", Value = "0x0101" });
+                properties.Add(new GameSettingsProperty { Category = "Direct3d9", Key = "maxPixelShaderVersion", Value = "0x0101" });
+            }
+
+            if (ShaderBox.SelectedIndex == 4)
+            {
+                properties.Add(new GameSettingsProperty { Category = "Direct3d9", Key = "maxVertexShaderVersion", Value = "0" });
+                properties.Add(new GameSettingsProperty { Category = "Direct3d9", Key = "maxPixelShaderVersion", Value = "0" });
+            }
+
+            if ((bool)DisableVsyncCheckbox.IsChecked)
+                properties.Add(new GameSettingsProperty { Category = "Direct3d9", Key = "allowTearing", Value = "1" });
+
+            properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "screenWidth", Value = $"{screenWidth}" });
+            properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "screenHeight", Value = $"{screenHeight}" });
+            if ((bool)UseSafeRendererCheckbox.IsChecked)
+                properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "useSafeRenderer", Value = "1" });
+            if ((bool)BorderlessWindowCheckbox.IsChecked)
+                properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "borderlessWindow", Value = "1" });
+            if ((bool)WindowModeCheckbox.IsChecked)
+                properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "windowed", Value = "1" });
+            if ((bool)LowDetailTexturesCheckbox.IsChecked)
+                properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "discardHighestMipMapLevels", Value = "1" });
+            if ((bool)LowDetailNormalsCheckbox.IsChecked)
+                properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "discardHighestNormalMipMapLevels", Value = "1" });
+            if ((bool)DisableBumpMappingCheckbox.IsChecked)
+                properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "disableOptionTag", Value = "DOT3" });
+            if ((bool)DisableMultiPassRenderingCheckbox.IsChecked)
+                properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "disableOptionTag", Value = "HIQL" });
+            if ((bool)DisableHardwareMouseCheckbox.IsChecked)
+                properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "useHardwareMouseCursor", Value = "0" });
+            if ((bool)SkipIntroCheckbox.IsChecked)
+                properties.Add(new GameSettingsProperty { Category = "ClientGame", Key = "skipIntro", Value = "1" });
+            if ((bool)DisableWorldPreloadingCheckbox.IsChecked)
+                properties.Add(new GameSettingsProperty { Category = "ClientGame", Key = "preloadWorldSnapshot", Value = "0" });
+            if ((bool)DisableFastMouseCheckbox.IsChecked)
+                properties.Add(new GameSettingsProperty { Category = "ClientUserInterface", Key = "alwaysSetMouseCursor", Value = "1" });
+            if ((bool)DisableAudioCheckbox.IsChecked)
+                properties.Add(new GameSettingsProperty { Category = "ClientAudio", Key = "disableMiles", Value = "1" });
+            if ((bool)DisableLODManagerCheckbox.IsChecked)
+                properties.Add(new GameSettingsProperty { Category = "ClientSkeletalAnimation", Key = "lodManagerEnable", Value = "0" });
+            if ((bool)DisableTextureBakingCheckbox.IsChecked)
+                properties.Add(new GameSettingsProperty { Category = "ClientTextureRenderer", Key = "disableTextureBaking", Value = "1" });
+            if ((bool)DisableFileCachingCheckbox.IsChecked)
+                properties.Add(new GameSettingsProperty { Category = "SharedUtility", Key = "disableFileCaching", Value = "1" });
+            if ((bool)DisableAsyncLoaderCheckbox.IsChecked)
+                properties.Add(new GameSettingsProperty { Category = "SharedFile", Key = "enableAsynchronousLoader", Value = "0" });
+            if ((bool)LowDetailCharactersCheckbox.IsChecked)
+                properties.Add(new GameSettingsProperty { Category = "ClientSkeletalAnimation", Key = "skipL0", Value = "1" });
+            if ((bool)LowDetailMeshesCheckbox.IsChecked)
+                properties.Add(new GameSettingsProperty { Category = "ClientObject/DetailAppearanceTemplate", Key = "skipL0", Value = "1" });
+
+            await _fileHandler.SaveOptionsCfg(properties);
         }
 
         void SubmitDeveloperButton_Click(object sender, RoutedEventArgs e)

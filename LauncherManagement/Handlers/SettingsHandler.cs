@@ -18,9 +18,9 @@ namespace LauncherManagement
         {
             List<DatabaseProperties.Settings> config = await ExecuteSettingsAsync
                 (
-                    $"SELECT ServerName " +
-                    $"FROM Settings " +
-                    $"where Id = 1;"
+                    "SELECT ServerName " +
+                    "FROM Settings " +
+                    "where Id = 1;"
                 );
 
             return (config.Count > 0) ? config[0].ServerName : "";
@@ -32,7 +32,7 @@ namespace LauncherManagement
                 (
                     "UPDATE Settings SET " +
                     $"GameLocation = '{gamePath}' " +
-                    $"where Id = 1;"
+                    "where Id = 1;"
                 );
         }
 
@@ -40,9 +40,9 @@ namespace LauncherManagement
         {
             List<DatabaseProperties.Settings> config = await ExecuteSettingsAsync
                 (
-                    $"SELECT GameLocation " +
-                    $"FROM Settings " +
-                    $"where Id = 1;"
+                    "SELECT GameLocation " +
+                    "FROM Settings " +
+                    "where Id = 1;"
                 );
 
             return (config.Count > 0) ? config[0].GameLocation : "";
@@ -53,8 +53,8 @@ namespace LauncherManagement
 
             List<DatabaseProperties.Settings> config = await ExecuteSettingsAsync
                 (
-                    $"SELECT * " +
-                    $"FROM Settings;"
+                    "SELECT * " +
+                    "FROM Settings;"
                 );
 
             GameOptionsProperties.Fps = config[0].Fps;
@@ -62,12 +62,21 @@ namespace LauncherManagement
             GameOptionsProperties.MaxZoom = config[0].MaxZoom;
         }
 
+        public async Task SetGameOptions(DatabaseProperties.Settings settings)
+        {
+            await ExecuteSettingsAsync
+                (
+                    "UPDATE Settings SET " +
+                    $"Fps = {settings.Fps}, Ram = {settings.Ram}, MaxZoom = {settings.MaxZoom};"
+                );
+        }
+
         public async Task<Dictionary<string, string>> GetGameOptionsControls()
         {
             List<DatabaseProperties.Settings> config = await ExecuteSettingsAsync
                 (
-                    $"SELECT * " +
-                    $"FROM Settings;"
+                    "SELECT * " +
+                    "FROM Settings;"
                 );
 
             return new Dictionary<string, string>
@@ -88,7 +97,7 @@ namespace LauncherManagement
                 (
                     "SELECT AutoLogin " +
                     "FROM Settings " +
-                    $"where Id = 1;"
+                    "where Id = 1;"
                 );
 
             return config[0].AutoLogin;
@@ -102,7 +111,7 @@ namespace LauncherManagement
                     (
                         "UPDATE Settings " +
                         "SET AutoLogin = 1 " +
-                        $"where Id = 1;"
+                        "where Id = 1;"
                     );
             }
             else
@@ -111,7 +120,7 @@ namespace LauncherManagement
                     (
                         "UPDATE Settings " +
                         "SET AutoLogin = 0 " +
-                        $"where Id = 1;"
+                        "where Id = 1;"
                     );
             }
         }
@@ -122,7 +131,7 @@ namespace LauncherManagement
                 (
                     "UPDATE Settings " +
                     "SET Verified = 1 " +
-                    $"where Id = 1;"
+                    "where Id = 1;"
                 );
         }
 
@@ -132,7 +141,7 @@ namespace LauncherManagement
                 (
                     "SELECT Verified " +
                     "FROM Settings " +
-                    $"where Id = 1;"
+                    "where Id = 1;"
                 );
 
             return config[0].Verified;
