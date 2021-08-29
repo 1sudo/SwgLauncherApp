@@ -7,74 +7,101 @@ namespace LauncherManagement
 {
     public class AppHandler
     {
+        readonly static bool _cuClient = true;
+
         public static async Task StartGameAsync(string serverPath, string password = "", 
             string username = "", string charactername = "", bool autoEnterZone = false)
         {
             // Run Async to prevent launcher from locking up when starting game and writing bytes
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
                 try
                 {
-                    // Read SWGEmu.exe and seek to 0x1153
-                    string exePath = Path.Join(serverPath, "SWGEmu.exe");
-                    FileStream rs = File.OpenRead(exePath);
-                    rs.Seek(0x1153, SeekOrigin.Begin);
+                    LauncherConfigHandler _config = new();
+                    bool configWritten = await _config.WriteLoginConfig(_cuClient);
 
-                    // Convert FPS integer (casted to float) to hex
-                    string hexSelection = BitConverter.ToString(
-                        BitConverter.GetBytes((float)GameOptionsProperties.Fps)).Replace("-", "");
-
-                    // Read the next 3 bytes to ensure we're at the right position and 
-                    // the binary hasn't been altered
-                    if (rs.ReadByte() == 199 && rs.ReadByte() == 69 && rs.ReadByte() == 148)
+                    if (configWritten)
                     {
-                        string hex = "";
-                        
-                        // Get hex of next 4 bytes at 0x1153 (float)
-                        for (int i = 0; i <= 3; i++)
+                        if (!_cuClient)
                         {
-                            byte[] b = { (byte)rs.ReadByte() };
-                            hex += BitConverter.ToString(b).Replace("-", "");
-                        }
+                            // Read SWGEmu.exe and seek to 0x1153
+                            string exePath = Path.Join(serverPath, "SWGEmu.exe");
+                            FileStream rs = File.OpenRead(exePath);
+                            rs.Seek(0x1153, SeekOrigin.Begin);
 
-                        // Close Read to prepare for write
-                        rs.Dispose();
+                            // Convert FPS integer (casted to float) to hex
+                            string hexSelection = BitConverter.ToString(
+                                BitConverter.GetBytes((float)GameOptionsProperties.Fps)).Replace("-", "");
 
-                        // If the selected FPS already matches hex value in the 
-                        // binary, don't write to it again (faster loading)
-                        if (hex != hexSelection)
-                        {
-                            using FileStream ws = File.OpenWrite(exePath);
-                            ws.Seek(0x1156, SeekOrigin.Begin);
-
-                            // Create byte array of FPS value
-                            byte[] bytes = BitConverter.GetBytes((float)GameOptionsProperties.Fps);
-
-                            // Write FPS float at 0x1156
-                            foreach (byte b in bytes)
+                            // Read the next 3 bytes to ensure we're at the right position and 
+                            // the binary hasn't been altered
+                            if (rs.ReadByte() == 199 && rs.ReadByte() == 69 && rs.ReadByte() == 148)
                             {
-                                ws.WriteByte(b);
+                                string hex = "";
+
+                                // Get hex of next 4 bytes at 0x1153 (float)
+                                for (int i = 0; i <= 3; i++)
+                                {
+                                    byte[] b = { (byte)rs.ReadByte() };
+                                    hex += BitConverter.ToString(b).Replace("-", "");
+                                }
+
+                                // Close Read to prepare for write
+                                rs.Dispose();
+
+                                // If the selected FPS already matches hex value in the 
+                                // binary, don't write to it again (faster loading)
+                                if (hex != hexSelection)
+                                {
+                                    using FileStream ws = File.OpenWrite(exePath);
+                                    ws.Seek(0x1156, SeekOrigin.Begin);
+
+                                    // Create byte array of FPS value
+                                    byte[] bytes = BitConverter.GetBytes((float)GameOptionsProperties.Fps);
+
+                                    // Write FPS float at 0x1156
+                                    foreach (byte b in bytes)
+                                    {
+                                        ws.WriteByte(b);
+                                    }
+                                }
                             }
+
+                            var startInfo = new ProcessStartInfo();
+
+                            if (autoEnterZone)
+                            {
+                                startInfo.Arguments = $"-- -s ClientGame loginClientPassword={password} autoConnectToLoginServer=1 loginClientID={username} avatarName={charactername} autoConnectToGameServer=1 -s Station -s SwgClient allowMultipleInstances=true";
+                            }
+                            else
+                            {
+                                startInfo.Arguments = $"-- -s ClientGame loginClientPassword={password} autoConnectToLoginServer=1 loginClientID={username} autoConnectToGameServer=0 -s Station -s SwgClient allowMultipleInstances=true";
+                            }
+
+                            startInfo.EnvironmentVariables["SWGCLIENT_MEMORY_SIZE_MB"] = GameOptionsProperties.Ram.ToString();
+                            startInfo.UseShellExecute = false;
+                            startInfo.WorkingDirectory = serverPath;
+                            startInfo.FileName = Path.Join(serverPath, "SWGEmu.exe");
+
+                            Process.Start(startInfo);
                         }
-                    }
+                        else
+                        {
+                            string exePath = Path.Join(serverPath, "SwgClient_r.exe");
 
-                    var startInfo = new ProcessStartInfo();
+                            var startInfo = new ProcessStartInfo();
+                            startInfo.EnvironmentVariables["SWGCLIENT_MEMORY_SIZE_MB"] = GameOptionsProperties.Ram.ToString();
+                            startInfo.UseShellExecute = false;
+                            startInfo.WorkingDirectory = serverPath;
+                            startInfo.FileName = Path.Join(serverPath, "SwgClient_r.exe");
 
-                    if (autoEnterZone)
-                    {
-                        startInfo.Arguments = $"-- -s ClientGame loginClientPassword={password} autoConnectToLoginServer=1 loginClientID={username} avatarName={charactername} autoConnectToGameServer=1 -s Station -s SwgClient allowMultipleInstances=true";
+                            Process.Start(startInfo);
+                        }
                     }
                     else
                     {
-                        startInfo.Arguments = $"-- -s ClientGame loginClientPassword={password} autoConnectToLoginServer=1 loginClientID={username} autoConnectToGameServer=0 -s Station -s SwgClient allowMultipleInstances=true";
+                        Trace.WriteLine("Error writing to login.cfg!");
                     }
-
-                    startInfo.EnvironmentVariables["SWGCLIENT_MEMORY_SIZE_MB"] = GameOptionsProperties.Ram.ToString();
-                    startInfo.UseShellExecute = false;
-                    startInfo.WorkingDirectory = serverPath;
-                    startInfo.FileName = Path.Join(serverPath, "SWGEmu.exe");
-
-                    Process.Start(startInfo);
                 }
                 catch (Exception e)
                 {
@@ -87,12 +114,20 @@ namespace LauncherManagement
         {
             try
             {
-                var startInfo = new ProcessStartInfo
+                ProcessStartInfo startInfo = new();
+
+                if (!_cuClient)
                 {
-                    UseShellExecute = true,
-                    WorkingDirectory = serverPath,
-                    FileName = Path.Join(serverPath, "SWGEmu_Setup.exe")
-                };
+                    startInfo.UseShellExecute = true;
+                    startInfo.WorkingDirectory = serverPath;
+                    startInfo.FileName = Path.Join(serverPath, "SWGEmu_Setup.exe");
+                }
+                else
+                {
+                    startInfo.UseShellExecute = true;
+                    startInfo.WorkingDirectory = serverPath;
+                    startInfo.FileName = Path.Join(serverPath, "SwgClientSetup_r.exe");
+                }
 
                 Process.Start(startInfo);
             }

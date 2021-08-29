@@ -364,32 +364,32 @@ namespace LauncherApp
         #region SidebarButtons
         void ResourcesButton_Click(object sender, RoutedEventArgs e)
         {
-            _audioHandler.PlayClickSound();
+            // _audioHandler.PlayClickSound();
         }
 
         void MantisButton_Click(object sender, RoutedEventArgs e)
         {
-            _audioHandler.PlayClickSound();
+            // _audioHandler.PlayClickSound();
         }
 
         void SkillplannerButton_Click(object sender, RoutedEventArgs e)
         {
-            _audioHandler.PlayClickSound();
+            // _audioHandler.PlayClickSound();
         }
 
         void VoteButton_Click(object sender, RoutedEventArgs e)
         {
-            _audioHandler.PlayClickSound();
+            // _audioHandler.PlayClickSound();
         }
 
         void DonateButton_Click(object sender, RoutedEventArgs e)
         {
-            _audioHandler.PlayClickSound();
+            // _audioHandler.PlayClickSound();
         }
 
         async void PlayButton_Click(object sender, RoutedEventArgs e)
         {
-            _audioHandler.PlayClickSound();
+            // _audioHandler.PlayClickSound();
             PlayButton.IsEnabled = false;
             // FullScanButton.IsEnabled = false;
             SettingsButton.IsEnabled = false;
@@ -397,13 +397,20 @@ namespace LauncherApp
             // Get values from database and set to static properties
             await _settingsHandler.GetGameOptions();
 
-            var selectedCharacter = CharacterNameComboBox.SelectedValue.ToString();
-
-            if (selectedCharacter != "None")
+            try
             {
-                await AppHandler.StartGameAsync(_gamePath, _gamePassword, _loginProperties.Username, selectedCharacter, true);
+                var selectedCharacter = CharacterNameComboBox.SelectedValue.ToString();
+
+                if (selectedCharacter != "None")
+                {
+                    await AppHandler.StartGameAsync(_gamePath, _gamePassword, _loginProperties.Username, selectedCharacter, true);
+                }
+                else
+                {
+                    await AppHandler.StartGameAsync(_gamePath, _gamePassword, _loginProperties.Username);
+                }
             }
-            else
+            catch
             {
                 await AppHandler.StartGameAsync(_gamePath, _gamePassword, _loginProperties.Username);
             }
@@ -415,7 +422,7 @@ namespace LauncherApp
 
         async void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
-            _audioHandler.PlayClickSound();
+            // _audioHandler.PlayClickSound();
             await _fileHandler.GenerateMissingFiles();
             Dictionary<string, string> settings = await _settingsHandler.GetGameOptionsControls();
 
@@ -529,13 +536,13 @@ namespace LauncherApp
 
         void OptionsButton_Click(object sender, RoutedEventArgs e)
         {
-            _audioHandler.PlayClickSound();
+            // _audioHandler.PlayClickSound();
             UpdateScreen((int)Screens.OPTIONS_MODS_GRID);
         }
 
         void DeveloperButton_Click(object sender, RoutedEventArgs e)
         {
-            _audioHandler.PlayClickSound();
+            // _audioHandler.PlayClickSound();
             UpdateScreen((int)Screens.DEVELOPER_GRID);
         }
         #endregion
@@ -774,7 +781,7 @@ namespace LauncherApp
 
         async void FullScanButton_Click(object sender, RoutedEventArgs e)
         {
-            _audioHandler.PlayClickSound();
+            // _audioHandler.PlayClickSound();
 
             ScanDisableButtons();
             await DownloadHandler.CheckFilesAsync(_gamePath, true);
@@ -936,44 +943,44 @@ namespace LauncherApp
         #region TopBarButtons
         void MinimizeButton_Click(object sender, RoutedEventArgs e)
         {
-            _audioHandler.PlayClickSound();
+            // _audioHandler.PlayClickSound();
             this.WindowState = WindowState.Minimized;
         }
 
         void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            _audioHandler.PlayClickSound();
+            // _audioHandler.PlayClickSound();
             this.Close();
         }
         void PatchNotesButton_Click(object sender, RoutedEventArgs e)
         {
-            _audioHandler.PlayClickSound();
+            // _audioHandler.PlayClickSound();
             UpdateScreen((int)Screens.PRIMARY_GRID);
         }
 
         void WebsiteButton_Click(object sender, RoutedEventArgs e)
         {
-            _audioHandler.PlayClickSound();
+            // _audioHandler.PlayClickSound();
         }
 
         void ForumsButton_Click(object sender, RoutedEventArgs e)
         {
-            _audioHandler.PlayClickSound();
+            // _audioHandler.PlayClickSound();
         }
 
         void WikiButton_Click(object sender, RoutedEventArgs e)
         {
-            _audioHandler.PlayClickSound();
+            // _audioHandler.PlayClickSound();
         }
 
         void FacebookButton_Click(object sender, RoutedEventArgs e)
         {
-            _audioHandler.PlayClickSound();
+            // _audioHandler.PlayClickSound();
         }
 
         void DiscordButton_Click(object sender, RoutedEventArgs e)
         {
-            _audioHandler.PlayClickSound();
+            // _audioHandler.PlayClickSound();
         }
         #endregion
 

@@ -555,16 +555,16 @@
                 </LinearGradientBrush>
             </StackPanel.Background>
             <StackPanel Orientation="Horizontal" FlowDirection="LeftToRight">
-                <Button x:Name="MuteButton" Style="{DynamicResource TitleButton}" Grid.Column="1" MouseEnter="PlayHoverSound">
+                <Button x:Name="MuteButton" Style="{DynamicResource TitleButton}" Grid.Column="1" >
                     <Image Style="{DynamicResource titleButtonImage}" Source="/Images/icons/volume.png" />
                 </Button>
-                <Button x:Name="AboutButton" Style="{DynamicResource TitleButton}" Grid.Column="1" MouseEnter="PlayHoverSound">
+                <Button x:Name="AboutButton" Style="{DynamicResource TitleButton}" Grid.Column="1" >
                     <Image Style="{DynamicResource titleButtonImage}" Source="/Images/icons/info.png" />
                 </Button>
-                <Button x:Name="MinimizeButton" Style="{DynamicResource TitleButton}" Grid.Column="1" MouseEnter="PlayHoverSound" Click="MinimizeButton_Click">
+                <Button x:Name="MinimizeButton" Style="{DynamicResource TitleButton}" Grid.Column="1"  Click="MinimizeButton_Click">
                     <Image Style="{DynamicResource titleButtonImage}" Source="/Images/icons/minimize.png" />
                 </Button>
-                <Button x:Name="CloseButton" Style="{DynamicResource closeBtn}" Grid.Column="2" MouseEnter="PlayHoverSound" Click="CloseButton_Click">
+                <Button x:Name="CloseButton" Style="{DynamicResource closeBtn}" Grid.Column="2"  Click="CloseButton_Click">
                     <Image Style="{DynamicResource titleButtonImage}" Source="/Images/icons/close.png" />
                 </Button>
             </StackPanel>
@@ -624,16 +624,16 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal">
-                    <Button Content="UPDATES" Style="{DynamicResource MainMenuButton}" MouseEnter="PlayHoverSound" Click="PatchNotesButton_Click"></Button>
-                    <Button Content="WEBSITE" Style="{DynamicResource MainMenuButton}" MouseEnter="PlayHoverSound" Click="WebsiteButton_Click"></Button>
-                    <Button Content="FORUMS" Style="{DynamicResource MainMenuButton}" MouseEnter="PlayHoverSound" Click="ForumsButton_Click"></Button>
-                    <Button Content="WIKI" Style="{DynamicResource MainMenuButton}" MouseEnter="PlayHoverSound" Click="WikiButton_Click"></Button>
-                    <Button Style="{DynamicResource MainMenuIconButton}" MouseEnter="PlayHoverSound" Click="FacebookButton_Click">
+                    <Button Content="UPDATES" Style="{DynamicResource MainMenuButton}"  Click="PatchNotesButton_Click"></Button>
+                    <Button Content="WEBSITE" Style="{DynamicResource MainMenuButton}"  Click="WebsiteButton_Click"></Button>
+                    <Button Content="FORUMS" Style="{DynamicResource MainMenuButton}"  Click="ForumsButton_Click"></Button>
+                    <Button Content="WIKI" Style="{DynamicResource MainMenuButton}"  Click="WikiButton_Click"></Button>
+                    <Button Style="{DynamicResource MainMenuIconButton}"  Click="FacebookButton_Click">
                         <Button.Background>
                             <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/facebook.png"/>
                         </Button.Background>
                     </Button>
-                    <Button Style="{DynamicResource MainMenuIconButton}" MouseEnter="PlayHoverSound" Click="DiscordButton_Click">
+                    <Button Style="{DynamicResource MainMenuIconButton}"  Click="DiscordButton_Click">
                         <Button.Background>
                             <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/discord.png"/>
                         </Button.Background>
@@ -654,7 +654,7 @@
                     <TextBlock x:Name="UsernameTextBlock" Style="{DynamicResource h3}" Visibility="Collapsed">
                         USERNAME
                     </TextBlock>
-                    <Button x:Name="LogoutButton" Content="Logout" Style="{DynamicResource MainMenuButton}" MouseEnter="PlayHoverSound" Padding="0,0,0,0" Visibility="Collapsed" HorizontalAlignment="Right" FontFamily="Bahnschrift Light Condensed" Margin="0,0,0,0" HorizontalContentAlignment="Right" FontSize="14" Click="LogoutButton_Click"></Button>
+                    <Button x:Name="LogoutButton" Content="Logout" Style="{DynamicResource MainMenuButton}"  Padding="0,0,0,0" Visibility="Collapsed" HorizontalAlignment="Right" FontFamily="Bahnschrift Light Condensed" Margin="0,0,0,0" HorizontalContentAlignment="Right" FontSize="14" Click="LogoutButton_Click"></Button>
                 </StackPanel>
             </Grid>
         </Border>
@@ -678,42 +678,42 @@
                     </Grid.RowDefinitions>
 
                     <StackPanel Grid.Row="0" HorizontalAlignment="Stretch" Margin="0,0,0,22">
-                        <Button Content="Vote" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="VoteButton_Click">
+                        <Button Content="Vote" Style="{DynamicResource SidebarButton}"  Click="VoteButton_Click">
                             <Button.Background>
                                 <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/vote.png"/>
                             </Button.Background>
                         </Button>
-                        <Button Content="Donate" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="DonateButton_Click">
+                        <Button Content="Donate" Style="{DynamicResource SidebarButton}"  Click="DonateButton_Click">
                             <Button.Background>
                                 <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/paypal.png"/>
                             </Button.Background>
                         </Button>
-                        <Button Content="Resources" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="ResourcesButton_Click">
+                        <Button Content="Resources" Style="{DynamicResource SidebarButton}"  Click="ResourcesButton_Click">
                             <Button.Background>
                                 <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/resources.png"/>
                             </Button.Background>
                         </Button>
-                        <Button Content="Bug Report" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="MantisButton_Click">
+                        <Button Content="Bug Report" Style="{DynamicResource SidebarButton}"  Click="MantisButton_Click">
                             <Button.Background>
                                 <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/bug-report.png"/>
                             </Button.Background>
                         </Button>
-                        <Button Content="Skill Planner" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="SkillplannerButton_Click">
+                        <Button Content="Skill Planner" Style="{DynamicResource SidebarButton}"  Click="SkillplannerButton_Click">
                             <Button.Background>
                                 <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/skill-planner.png"/>
                             </Button.Background>
                         </Button>
-                        <Button x:Name="SettingsButton" Content="Game Settings" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="SettingsButton_Click">
+                        <Button x:Name="SettingsButton" Content="Game Settings" Style="{DynamicResource SidebarButton}"  Click="SettingsButton_Click">
                             <Button.Background>
                                 <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/settings.png"/>
                             </Button.Background>
                         </Button>
-                        <Button x:Name="OptionsButton" Content="Options &amp; Mods" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="OptionsButton_Click">
+                        <Button x:Name="OptionsButton" Content="Options &amp; Mods" Style="{DynamicResource SidebarButton}"  Click="OptionsButton_Click">
                             <Button.Background>
                                 <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/mods.png"/>
                             </Button.Background>
                         </Button>
-                        <Button x:Name="DeveloperButton" Content="Developer" Style="{DynamicResource SidebarButton}" MouseEnter="PlayHoverSound" Click="DeveloperButton_Click">
+                        <Button x:Name="DeveloperButton" Content="Developer" Style="{DynamicResource SidebarButton}"  Click="DeveloperButton_Click">
                             <Button.Background>
                                 <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/developer.png"/>
                             </Button.Background>

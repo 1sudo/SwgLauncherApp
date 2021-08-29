@@ -19,6 +19,9 @@ namespace LauncherManagement
                     "UPDATE ActiveServer " +
                     $"Set Id = {id};"
                 );
+
+            // Update the property with new ID
+            await GetActiveServer();
         }
 
         public async Task InsertDefaultRow()

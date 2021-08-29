@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Security.Cryptography;
@@ -272,6 +273,7 @@ namespace LauncherManagement
             _launcherSettings = await _configHandler.GetLauncherSettings();
 
             _launcherSettings.TryGetValue("ManifestFilePath", out string manifestFilePath);
+            Trace.WriteLine(manifestFilePath);
             var downloadableFiles = await DownloadManifestAsync(manifestFilePath);
 
             List<string> fileList;
@@ -326,6 +328,8 @@ namespace LauncherManagement
                     Uri uri2 = new Uri(backupManifestFileUrl + file);
 
                     client.DownloadProgressChanged += OnDownloadProgressChanged;
+
+                    Debug.WriteLine(backupManifestFileUrl + file);
 
                     try
                     {

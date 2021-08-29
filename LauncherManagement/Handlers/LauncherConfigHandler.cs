@@ -1,24 +1,27 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace LauncherManagement
 {
     public class LauncherConfigHandler : DatabaseHandler
     {
-        readonly string     _defaultServerType = "live";
+        readonly string     _defaultServerType = "CUEmu Test Server";
         readonly string     _defaultApiUrl = "http://tc.darknaught.com:5000";
         readonly string     _defaultManifestFilePath = "manifest/required.json";
         readonly string     _defaultManifestFileUrl = "http://tc.darknaught.com:8787/files/";
-        readonly string     _defaultBackupManifestFileUrl = "http://localhost:8080/files/";
-        readonly string     _defaultSWGLoginHost = "localhost";
+        readonly string     _defaultBackupManifestFileUrl = "http://tc.darknaught.com:8080/files/";
+        readonly string     _defaultSWGLoginHost = "tc.darknaught.com";
         readonly int        _defaultSWGLoginPort = 44453;
 
-        readonly string     _defaultSecondaryServerType = "test";
+        readonly string     _defaultSecondaryServerType = "SWG Legacy Test Server";
         readonly string     _defaultSecondaryApiUrl = "http://tc.darknaught.com:5000";
         readonly string     _defaultSecondaryManifestFilePath = "manifest/required.json";
         readonly string     _defaultSecondaryManifestFileUrl = "http://tc.darknaught.com:8787/files/";
-        readonly string     _defaultSecondaryBackupManifestFileUrl = "http://localhost:8080/files/";
-        readonly string     _defaultSecondarySWGLoginHost = "localhost";
+        readonly string     _defaultSecondaryBackupManifestFileUrl = "http://tc.darknaught.com:8080/files/";
+        readonly string     _defaultSecondarySWGLoginHost = "swglegacy.ddns.net";
         readonly int        _defaultSecondarySWGLoginPort = 44453;
 
         public async Task<List<string>> GetServerTypes()
@@ -105,6 +108,54 @@ namespace LauncherManagement
                         $"'{_defaultSecondaryManifestFileUrl}', '{_defaultSecondaryBackupManifestFileUrl}', '{_defaultSecondarySWGLoginHost}', {_defaultSecondarySWGLoginPort});"
                     );
             }
+        }
+
+        public async Task<bool> WriteLoginConfig(bool cuClient)
+        {
+            SettingsHandler settingsHandler = new();
+            string gameLocation = await settingsHandler.GetGameLocationAsync();
+            Dictionary<string, string> settings = await GetLauncherSettings();
+            Dictionary<string, string> gameSettings = await settingsHandler.GetGameOptionsControls();
+
+            settings.TryGetValue("SWGLoginHost", out string host);
+            settings.TryGetValue("SWGLoginPort", out string port);
+            gameSettings.TryGetValue("MaxZoom", out string maxZoom);
+
+            if (!string.IsNullOrEmpty(gameLocation))
+            {
+                string cfg = (cuClient) ? "login.cfg" : "swgemu_login.cfg";
+                string filePath = Path.Join(gameLocation, cfg);
+
+                if (File.Exists(filePath))
+                {
+                    using FileStream fs = File.OpenWrite(filePath);
+
+                    StringBuilder sb = new();
+
+                    sb.Append("[ClientGame]\n");
+                    sb.Append($"loginServerAddress0={host}\n");
+                    sb.Append($"loginServerPort0={port}\n");
+                    sb.Append($"freeChaseCameraMaximumZoom={maxZoom}");
+
+                    fs.Write(Encoding.ASCII.GetBytes(sb.ToString()));
+                    return true;
+                }
+                else
+                {
+                    try
+                    {
+                        File.Create(filePath);
+                        await WriteLoginConfig(cuClient);
+                    }
+                    catch
+                    {
+                        Trace.WriteLine("Failed to create login cfg!");
+                        return false;
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }

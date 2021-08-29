@@ -14,7 +14,7 @@ namespace LauncherManagement
 
             if (characters.Count > 0)
             {
-                return characters[0].Character;
+                return (string.IsNullOrEmpty(characters[0].Character)) ? "None" : characters[0].Character;
             }
 
             return "None";
