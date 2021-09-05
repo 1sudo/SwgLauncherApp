@@ -34,24 +34,24 @@ namespace LauncherApp
     public partial class MainWindow : Window
     {
         #region Vars
-        List<Grid>                          _screens;
-        string                              _currentFile;
-        double                              _currentFileStatus;
-        double                              _totalFileStatus;
-        string                              _gamePath;
-        string                              _gamePassword;
-        static bool                         _postLoad = false;
-        Dictionary<string, string>          _launcherSettings;
-        GameLoginResponseProperties         _loginProperties = new();
-        readonly LauncherConfigHandler      _configHandler = new();
-        readonly AccountsHandler            _accountHandler = new();
-        readonly ActiveServerHandler        _activeServerHandler = new();
-        readonly CharacterHandler           _characterHandler = new();
-        readonly SettingsHandler            _settingsHandler = new();
-        readonly AdditionalSettingsHandler  _additionalSettingsHandler = new();
-        // readonly AudioHandler               _audioHandler = new();
-        readonly FileHandler                _fileHandler = new();
-        readonly CaptchaProperties          _captchaProperties = CaptchaController.QuestionAndAnswer();
+        List<Grid> _screens;
+        string _currentFile;
+        double _currentFileStatus;
+        double _totalFileStatus;
+        string _gamePath;
+        string _gamePassword;
+        static bool _postLoad = false;
+        Dictionary<string, string> _launcherSettings;
+        GameLoginResponseProperties _loginProperties = new();
+        readonly LauncherConfigHandler _configHandler = new();
+        readonly AccountsHandler _accountHandler = new();
+        readonly ActiveServerHandler _activeServerHandler = new();
+        readonly CharacterHandler _characterHandler = new();
+        readonly SettingsHandler _settingsHandler = new();
+        readonly AdditionalSettingsHandler _additionalSettingsHandler = new();
+        // readonly AudioHandler _audioHandler = new();
+        readonly FileHandler _fileHandler = new();
+        readonly CaptchaProperties _captchaProperties = CaptchaController.QuestionAndAnswer();
         #endregion
 
         #region Constructor
@@ -603,7 +603,7 @@ namespace LauncherApp
 
                     if (isBaseGameValidated)
                     {
-                        DownloadHandler.baseGameLocation = GameValidationTextBox.Text;
+                        DownloadHandler.BaseGameLocation = GameValidationTextBox.Text;
                         await _settingsHandler.SetVerifiedAsync();
                         UpdateScreen((int)Screens.LOGIN_GRID);
                     }
@@ -983,6 +983,7 @@ namespace LauncherApp
         #region Validation
         async Task CheckGameFiles()
         {
+            await AppHandler.GenerateMissingConfigsAsync(await _settingsHandler.GetGameLocationAsync());
             ScanDisableButtons();
             await DownloadHandler.CheckFilesAsync(await _settingsHandler.GetGameLocationAsync());
             ScanEnableButtons();

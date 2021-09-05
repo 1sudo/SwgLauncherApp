@@ -12,23 +12,18 @@ namespace LauncherManagement
 {
     public class DownloadHandler
     {
-        public static Action OnDownloadCompleted;
-        public static Action<string, string, double, double> OnCurrentFileDownloading;
-        public static Action<string, double, double> OnFullScanFileCheck;
-        public static Action<string> OnInstallCheckFailed;
-        public static Action<long, long, int> OnDownloadProgressUpdated;
-        public static Action<string> OnServerError;
-
-        static LauncherConfigHandler _configHandler = new LauncherConfigHandler();
-
-        static Dictionary<string, string> _launcherSettings = new Dictionary<string, string>();
-        static List<string> ClientChecksums = new List<string>
-        {
-            "", "", "", ""
-        };
-
+        static readonly LauncherConfigHandler _configHandler = new();
+        static Dictionary<string, string> _launcherSettings = new();
         static bool _primaryServerOffline = false;
-        public static string baseGameLocation;
+        static readonly List<string> ClientChecksums = new() { "", "", "", "" };
+
+        public static Action OnDownloadCompleted { get; set; }
+        public static Action<string, string, double, double> OnCurrentFileDownloading { get; set; }
+        public static Action<string, double, double> OnFullScanFileCheck { get; set; }
+        public static Action<long, long, int> OnDownloadProgressUpdated { get; set; }
+        public static Action<string> OnServerError { get; set; }
+        public static Action<string> OnInstallCheckFailed { get; set; }
+        public static string BaseGameLocation { get; set; }
 
         internal static async Task<List<DownloadableFile>> DownloadManifestAsync(string manifestFile)
         {
@@ -64,7 +59,7 @@ namespace LauncherManagement
         internal static async Task AttemptCopyFilesFromListAsync(List<string> fileList, string copyLocation)
         {
             double listLength = fileList.Count;
-            List<string> newFileList = new List<string>();
+            List<string> newFileList = new();
 
             double i = 1;
             // Key == name, Value == url
@@ -76,12 +71,12 @@ namespace LauncherManagement
                 // Create directory before writing to file if it doesn't exist
                 new FileInfo(Path.Join(copyLocation, file)).Directory.Create();
 
-                if (copyLocation != baseGameLocation)
+                if (copyLocation != BaseGameLocation)
                 {
                     // If file exists at source installation, copy it
-                    if (File.Exists(Path.Join(baseGameLocation, file)))
+                    if (File.Exists(Path.Join(BaseGameLocation, file)))
                     {
-                        await CopyFileAsync(Path.Join(baseGameLocation, file), Path.Join(copyLocation, file));
+                        await CopyFileAsync(Path.Join(BaseGameLocation, file), Path.Join(copyLocation, file));
                     }
                     // If file doesn't exist in source location, add to new list to be returned
                     else
@@ -96,18 +91,14 @@ namespace LauncherManagement
 
         static async Task CopyFileAsync(string sourcePath, string destinationPath)
         {
-            using (Stream source = File.OpenRead(sourcePath))
-            {
-                using (Stream destination = File.Create(destinationPath))
-                {
-                    await source.CopyToAsync(destination);
-                }
-            }
+            using Stream source = File.OpenRead(sourcePath);
+            using Stream destination = File.Create(destinationPath);
+            await source.CopyToAsync(destination);
         }
 
         internal static List<DownloadableFile> GetFileList(string listData)
         {
-            List<DownloadableFile> fileList = new List<DownloadableFile>();
+            List<DownloadableFile> fileList = new();
 
             // Parses a JSON array and iterates through items in the array
             foreach (var item in JArray.Parse(listData))
@@ -233,7 +224,8 @@ namespace LauncherManagement
                 }
 
                 // Files that are required to exist
-                List<string> filesToCheck = new List<string> {
+                List<string> filesToCheck = new()
+                {
                     "dpvs.dll",
                     "Mss32.dll",
                     "dbghelp.dll"
@@ -297,51 +289,50 @@ namespace LauncherManagement
 
             byte[] data;
 
-            using (var client = new WebClient())
-            {
-                Uri uri;
-                if (_primaryServerOffline)
-                {
-                    _launcherSettings.TryGetValue("BackupManifestFileUrl", out string backupManifestFileUrl);
-                    uri = new Uri(backupManifestFileUrl + file);
-                }
-                else
-                {
-                    _launcherSettings.TryGetValue("ManifestFileUrl", out string manifestFileUrl);
-                    uri = new Uri(manifestFileUrl + file);
-                }
+            using var client = new WebClient();
 
+            Uri uri;
+            if (_primaryServerOffline)
+            {
+                _launcherSettings.TryGetValue("BackupManifestFileUrl", out string backupManifestFileUrl);
+                uri = new Uri(backupManifestFileUrl + file);
+            }
+            else
+            {
+                _launcherSettings.TryGetValue("ManifestFileUrl", out string manifestFileUrl);
+                uri = new Uri(manifestFileUrl + file);
+            }
+
+            client.DownloadProgressChanged += OnDownloadProgressChanged;
+
+            try
+            {
+                data = await client.DownloadDataTaskAsync(uri);
+                return data;
+            }
+            // If the download server is unavailable, try the backup server
+            catch
+            {
+                _primaryServerOffline = true;
+
+                _launcherSettings.TryGetValue("BackupManifestFileUrl", out string backupManifestFileUrl);
+                Uri uri2 = new(backupManifestFileUrl + file);
 
                 client.DownloadProgressChanged += OnDownloadProgressChanged;
 
                 try
                 {
-                    data = await client.DownloadDataTaskAsync(uri);
+                    data = await client.DownloadDataTaskAsync(uri2);
                     return data;
                 }
-                // If the download server is unavailable, try the backup server
-                catch
+                // If the backup server is unavailable, error
+                catch (Exception e)
                 {
-                    _primaryServerOffline = true;
-
-                    _launcherSettings.TryGetValue("BackupManifestFileUrl", out string backupManifestFileUrl);
-                    Uri uri2 = new Uri(backupManifestFileUrl + file);
-
-                    client.DownloadProgressChanged += OnDownloadProgressChanged;
-
-                    try
-                    {
-                        data = await client.DownloadDataTaskAsync(uri2);
-                        return data;
-                    }
-                    // If the backup server is unavailable, error
-                    catch (Exception e)
-                    {
-                        OnServerError?.Invoke(e.ToString());
-                        return new byte[0];
-                    }
+                    OnServerError?.Invoke(e.ToString());
+                    return Array.Empty<byte>();
                 }
             }
+            
         }
 
         static void OnDownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)

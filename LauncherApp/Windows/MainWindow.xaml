@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LauncherApp" xmlns:cefSharp="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
-    x:Class="LauncherApp.MainWindow"
+        x:Class="LauncherApp.MainWindow"
         mc:Ignorable="d"
         Title="MainWindow" Height="610" Width="1130" WindowStyle="None" MouseDown="Window_MouseDown" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Initialized="Window_Initialized" KeyDown="Window_KeyDown">
 
@@ -555,9 +555,6 @@
                 </LinearGradientBrush>
             </StackPanel.Background>
             <StackPanel Orientation="Horizontal" FlowDirection="LeftToRight">
-                <Button x:Name="MuteButton" Style="{DynamicResource TitleButton}" Grid.Column="1" >
-                    <Image Style="{DynamicResource titleButtonImage}" Source="/Images/icons/volume.png" />
-                </Button>
                 <Button x:Name="AboutButton" Style="{DynamicResource TitleButton}" Grid.Column="1" >
                     <Image Style="{DynamicResource titleButtonImage}" Source="/Images/icons/info.png" />
                 </Button>

@@ -7,7 +7,7 @@ namespace LauncherManagement
 {
     public class AppHandler
     {
-        readonly static bool _cuClient = true;
+        static readonly bool _cuClient = true;
 
         public static async Task StartGameAsync(string serverPath, string password = "", 
             string username = "", string charactername = "", bool autoEnterZone = false)
@@ -108,6 +108,25 @@ namespace LauncherManagement
                     Trace.WriteLine(e.Message.ToString());
                 }
             });
+        }
+
+        public static async Task GenerateMissingConfigsAsync(string gameLocation)
+        {
+            string[] configs =
+            {
+                "user.cfg",
+                "launcher.cfg"
+            };
+
+            foreach (string config in configs)
+            {
+                string file = Path.Join(gameLocation, config);
+
+                if (!File.Exists(file))
+                {
+                    await File.WriteAllTextAsync(file, "");
+                }
+            }
         }
 
         public static void StartGameConfig(string serverPath)

@@ -9,21 +9,21 @@ namespace LauncherManagement
 {
     public class LauncherConfigHandler : DatabaseHandler
     {
-        readonly string     _defaultServerType = "CUEmu Test Server";
-        readonly string     _defaultApiUrl = "http://tc.darknaught.com:5000";
-        readonly string     _defaultManifestFilePath = "manifest/required.json";
-        readonly string     _defaultManifestFileUrl = "http://tc.darknaught.com:8787/files/";
-        readonly string     _defaultBackupManifestFileUrl = "http://tc.darknaught.com:8080/files/";
-        readonly string     _defaultSWGLoginHost = "tc.darknaught.com";
-        readonly int        _defaultSWGLoginPort = 44453;
+        readonly string _defaultServerType = "CUEmu Test Server";
+        readonly string _defaultApiUrl = "http://tc.darknaught.com:5000";
+        readonly string _defaultManifestFilePath = "manifest/required.json";
+        readonly string _defaultManifestFileUrl = "http://tc.darknaught.com:8787/files/";
+        readonly string _defaultBackupManifestFileUrl = "http://tc.darknaught.com:8080/files/";
+        readonly string _defaultSWGLoginHost = "tc.darknaught.com";
+        readonly int _defaultSWGLoginPort = 44453;
 
-        readonly string     _defaultSecondaryServerType = "SWG Legacy Test Server";
-        readonly string     _defaultSecondaryApiUrl = "http://tc.darknaught.com:5000";
-        readonly string     _defaultSecondaryManifestFilePath = "manifest/required.json";
-        readonly string     _defaultSecondaryManifestFileUrl = "http://tc.darknaught.com:8787/files/";
-        readonly string     _defaultSecondaryBackupManifestFileUrl = "http://tc.darknaught.com:8080/files/";
-        readonly string     _defaultSecondarySWGLoginHost = "swglegacy.ddns.net";
-        readonly int        _defaultSecondarySWGLoginPort = 44453;
+        readonly string _defaultSecondaryServerType = "SWG Legacy Test Server";
+        readonly string _defaultSecondaryApiUrl = "http://tc.darknaught.com:5000";
+        readonly string _defaultSecondaryManifestFilePath = "manifest/required.json";
+        readonly string _defaultSecondaryManifestFileUrl = "http://tc.darknaught.com:8787/files/";
+        readonly string _defaultSecondaryBackupManifestFileUrl = "http://tc.darknaught.com:8080/files/";
+        readonly string _defaultSecondarySWGLoginHost = "swglegacy.ddns.net";
+        readonly int _defaultSecondarySWGLoginPort = 44453;
 
         public async Task<List<string>> GetServerTypes()
         {

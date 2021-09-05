@@ -6,8 +6,12 @@ namespace LauncherManagement
 {
     public class DisplayResolutions
     {
+#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
         [DllImport("user32.dll")]
+#pragma warning restore CA2101 // Specify marshaling for P/Invoke string arguments
+#pragma warning disable CA1401 // P/Invokes should not be visible
         public static extern bool EnumDisplaySettings(string deviceName, int modeNum, ref DEVMODE devMode);
+#pragma warning restore CA1401 // P/Invokes should not be visible
 
         [StructLayout(LayoutKind.Sequential)]
         public struct DEVMODE
@@ -50,9 +54,9 @@ namespace LauncherManagement
 
         public static List<string> GetResolutions()
         {
-            DEVMODE vDevMode = new DEVMODE();
+            DEVMODE vDevMode = new();
 
-            List<string> resolutions = new List<string>();
+            List<string> resolutions = new();
 
             int lastWidth = 0;
             int lastHeight = 0;
