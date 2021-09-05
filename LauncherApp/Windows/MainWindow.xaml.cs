@@ -49,7 +49,7 @@ namespace LauncherApp
         readonly CharacterHandler           _characterHandler = new();
         readonly SettingsHandler            _settingsHandler = new();
         readonly AdditionalSettingsHandler  _additionalSettingsHandler = new();
-        readonly AudioHandler               _audioHandler = new();
+        // readonly AudioHandler               _audioHandler = new();
         readonly FileHandler                _fileHandler = new();
         readonly CaptchaProperties          _captchaProperties = CaptchaController.QuestionAndAnswer();
         #endregion
@@ -91,6 +91,8 @@ namespace LauncherApp
                 OptionsAndModsGrid,
                 DeveloperGrid
             };
+
+            NotLoggedInDisableControls();
 
             bool isGameConfigValidated = await ValidateGameConfig();
 
@@ -363,32 +365,31 @@ namespace LauncherApp
         #region SidebarButtons
         void ResourcesButton_Click(object sender, RoutedEventArgs e)
         {
-            // _audioHandler.PlayClickSound();
+
         }
 
         void MantisButton_Click(object sender, RoutedEventArgs e)
         {
-            // _audioHandler.PlayClickSound();
+
         }
 
         void SkillplannerButton_Click(object sender, RoutedEventArgs e)
         {
-            // _audioHandler.PlayClickSound();
+
         }
 
         void VoteButton_Click(object sender, RoutedEventArgs e)
         {
-            // _audioHandler.PlayClickSound();
+
         }
 
         void DonateButton_Click(object sender, RoutedEventArgs e)
         {
-            // _audioHandler.PlayClickSound();
+
         }
 
         async void PlayButton_Click(object sender, RoutedEventArgs e)
         {
-            // _audioHandler.PlayClickSound();
             PlayButton.IsEnabled = false;
             // FullScanButton.IsEnabled = false;
             SettingsButton.IsEnabled = false;
@@ -421,7 +422,6 @@ namespace LauncherApp
 
         async void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
-            // _audioHandler.PlayClickSound();
             await _fileHandler.GenerateMissingFiles();
             Dictionary<string, string> settings = await _settingsHandler.GetGameOptionsControls();
 
@@ -535,13 +535,11 @@ namespace LauncherApp
 
         void OptionsButton_Click(object sender, RoutedEventArgs e)
         {
-            // _audioHandler.PlayClickSound();
             UpdateScreen((int)Screens.OPTIONS_MODS_GRID);
         }
 
         void DeveloperButton_Click(object sender, RoutedEventArgs e)
         {
-            // _audioHandler.PlayClickSound();
             UpdateScreen((int)Screens.DEVELOPER_GRID);
         }
         #endregion
@@ -728,6 +726,8 @@ namespace LauncherApp
 
             // Send back to login screen
             UpdateScreen((int)Screens.LOGIN_GRID);
+
+            NotLoggedInDisableControls();
         }
 
         async void CreateAccountButton_Click(object sender, RoutedEventArgs e)
@@ -780,8 +780,6 @@ namespace LauncherApp
 
         async void FullScanButton_Click(object sender, RoutedEventArgs e)
         {
-            // _audioHandler.PlayClickSound();
-
             ScanDisableButtons();
             await DownloadHandler.CheckFilesAsync(_gamePath, true);
             ScanEnableButtons();
@@ -942,44 +940,41 @@ namespace LauncherApp
         #region TopBarButtons
         void MinimizeButton_Click(object sender, RoutedEventArgs e)
         {
-            // _audioHandler.PlayClickSound();
             this.WindowState = WindowState.Minimized;
         }
 
         void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            // _audioHandler.PlayClickSound();
             this.Close();
         }
         void PatchNotesButton_Click(object sender, RoutedEventArgs e)
         {
-            // _audioHandler.PlayClickSound();
-            UpdateScreen((int)Screens.PRIMARY_GRID);
+            UpdateScreen((int)Screens.UPDATES_GRID);
         }
 
         void WebsiteButton_Click(object sender, RoutedEventArgs e)
         {
-            // _audioHandler.PlayClickSound();
+
         }
 
         void ForumsButton_Click(object sender, RoutedEventArgs e)
         {
-            // _audioHandler.PlayClickSound();
+
         }
 
         void WikiButton_Click(object sender, RoutedEventArgs e)
         {
-            // _audioHandler.PlayClickSound();
+
         }
 
         void FacebookButton_Click(object sender, RoutedEventArgs e)
         {
-            // _audioHandler.PlayClickSound();
+
         }
 
         void DiscordButton_Click(object sender, RoutedEventArgs e)
         {
-            // _audioHandler.PlayClickSound();
+
         }
         #endregion
 
@@ -1177,15 +1172,27 @@ namespace LauncherApp
                     username.ToLower()
                 );
 
-            UpdateScreen((int)Screens.PRIMARY_GRID);
+            UpdateScreen((int)Screens.UPDATES_GRID);
 
             await GetCharactersAsync();
+
+            LoggedInEnableControls();
 
             try
             {
                 await CheckGameFiles();
             }
             catch { }
+        }
+
+        void LoggedInEnableControls()
+        {
+            PatchNotesButton.IsEnabled = true;
+        }
+
+        void NotLoggedInDisableControls()
+        {
+            PatchNotesButton.IsEnabled = false;
         }
 
         async Task GetCharactersAsync()
@@ -1214,10 +1221,10 @@ namespace LauncherApp
             }
         }
 
-        void PlayHoverSound(object sender, MouseEventArgs e)
+        /*void PlayHoverSound(object sender, MouseEventArgs e)
         {
             _audioHandler.PlayHoverSound();
-        }
+        }*/
 
         async Task ConfigureDatabase()
         {

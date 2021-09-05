@@ -1,8 +1,9 @@
-﻿using NAudio.Wave;
+﻿// using NAudio.Wave;
 using System.IO;
 
 namespace LauncherManagement
 {
+    /*
     public class AudioHandler
     {
         public WaveOutEvent outputDevice;
@@ -53,4 +54,5 @@ namespace LauncherManagement
             { }
         }
     }
+    */
 }

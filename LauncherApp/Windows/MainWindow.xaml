@@ -3,8 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:LauncherApp"
-        x:Class="LauncherApp.MainWindow"
+        xmlns:local="clr-namespace:LauncherApp" xmlns:cefSharp="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
+    x:Class="LauncherApp.MainWindow"
         mc:Ignorable="d"
         Title="MainWindow" Height="610" Width="1130" WindowStyle="None" MouseDown="Window_MouseDown" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Initialized="Window_Initialized" KeyDown="Window_KeyDown">
 
@@ -624,16 +624,16 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal">
-                    <Button Content="UPDATES" Style="{DynamicResource MainMenuButton}"  Click="PatchNotesButton_Click"></Button>
-                    <Button Content="WEBSITE" Style="{DynamicResource MainMenuButton}"  Click="WebsiteButton_Click"></Button>
-                    <Button Content="FORUMS" Style="{DynamicResource MainMenuButton}"  Click="ForumsButton_Click"></Button>
-                    <Button Content="WIKI" Style="{DynamicResource MainMenuButton}"  Click="WikiButton_Click"></Button>
-                    <Button Style="{DynamicResource MainMenuIconButton}"  Click="FacebookButton_Click">
+                    <Button x:Name="PatchNotesButton" Content="UPDATES" Style="{DynamicResource MainMenuButton}"  Click="PatchNotesButton_Click"></Button>
+                    <Button x:Name="WebsiteButton" Content="WEBSITE" Style="{DynamicResource MainMenuButton}"  Click="WebsiteButton_Click"></Button>
+                    <Button x:Name="ForumsButton" Content="FORUMS" Style="{DynamicResource MainMenuButton}"  Click="ForumsButton_Click"></Button>
+                    <Button x:Name="WikiButton" Content="WIKI" Style="{DynamicResource MainMenuButton}"  Click="WikiButton_Click"></Button>
+                    <Button x:Name="FacebookButton" Style="{DynamicResource MainMenuIconButton}"  Click="FacebookButton_Click">
                         <Button.Background>
                             <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/facebook.png"/>
                         </Button.Background>
                     </Button>
-                    <Button Style="{DynamicResource MainMenuIconButton}"  Click="DiscordButton_Click">
+                    <Button x:Name="DiscordButton" Style="{DynamicResource MainMenuIconButton}"  Click="DiscordButton_Click">
                         <Button.Background>
                             <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/discord.png"/>
                         </Button.Background>
@@ -760,7 +760,7 @@
                 </Grid.Background>
 
                 <Grid x:Name="UpdatesGrid" Margin="18,0,0,0">
-
+                    <cefSharp:ChromiumWebBrowser x:Name="Browser" Address="http://tc.darknaught.com:8787/html/" />
                 </Grid>
 
                 <!-- Settings -->
