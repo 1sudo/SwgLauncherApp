@@ -174,7 +174,6 @@ namespace LauncherApp
             // Generate manifest file
             if (Keyboard.IsKeyDown(Key.LeftCtrl) &&
                 Keyboard.IsKeyDown(Key.LeftShift) &&
-                Keyboard.IsKeyDown(Key.OemTilde) &&
                 Keyboard.IsKeyDown(Key.F12))
             {
                 using var dialog = new System.Windows.Forms.FolderBrowserDialog();

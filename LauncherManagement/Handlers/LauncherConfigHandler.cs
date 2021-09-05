@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -126,7 +127,9 @@ namespace LauncherManagement
                 string cfg = (cuClient) ? "login.cfg" : "swgemu_login.cfg";
                 string filePath = Path.Join(gameLocation, cfg);
 
-                if (File.Exists(filePath))
+                new FileInfo(filePath).Directory.Create();
+
+                try
                 {
                     using FileStream fs = File.OpenWrite(filePath);
 
@@ -140,18 +143,9 @@ namespace LauncherManagement
                     fs.Write(Encoding.ASCII.GetBytes(sb.ToString()));
                     return true;
                 }
-                else
+                catch (Exception e)
                 {
-                    try
-                    {
-                        File.Create(filePath);
-                        await WriteLoginConfig(cuClient);
-                    }
-                    catch
-                    {
-                        Trace.WriteLine("Failed to create login cfg!");
-                        return false;
-                    }
+                    Trace.WriteLine(e.Message);
                 }
             }
 

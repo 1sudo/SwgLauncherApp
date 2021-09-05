@@ -329,8 +329,6 @@ namespace LauncherManagement
 
                     client.DownloadProgressChanged += OnDownloadProgressChanged;
 
-                    Debug.WriteLine(backupManifestFileUrl + file);
-
                     try
                     {
                         data = await client.DownloadDataTaskAsync(uri2);

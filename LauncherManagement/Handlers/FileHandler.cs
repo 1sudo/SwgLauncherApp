@@ -17,6 +17,8 @@ namespace LauncherManagement
 
             string path = Path.Join(await _settings.GetGameLocationAsync(), "options.cfg");
 
+            new FileInfo(path).Directory.Create();
+
             if (!File.Exists(path))
             {
                 string lastCategory = "";
