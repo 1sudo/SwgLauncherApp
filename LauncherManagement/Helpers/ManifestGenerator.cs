@@ -12,24 +12,23 @@ namespace LauncherManagement
         public static async Task GenerateManifestAsync(string generateFromFolder)
         {
             string[] files = Directory.GetFiles(generateFromFolder, "*.*", SearchOption.AllDirectories);
-            List<DownloadableFile> listOfFiles = new List<DownloadableFile>();
+            List<DownloadableFile> listOfFiles = new();
 
             foreach (string file in files)
             {
                 string splitFile = file.Split(generateFromFolder + "\\")[1].Replace("\\", "/");
 
-                DownloadableFile dFile = new DownloadableFile();
+                DownloadableFile dFile = new();
                 dFile.Name = splitFile;
 
                 dFile.Size = new FileInfo(file).Length;
 
-                using (var md5 = MD5.Create())
+                using (MD5 md5 = MD5.Create())
                 {
-                    using (var stream = File.OpenRead(file))
-                    {
-                        dFile.Md5 = await Task.Run(() => BitConverter.ToString(md5.ComputeHash(stream))
-                            .Replace("-", "").ToLowerInvariant());
-                    }
+                    using FileStream stream = File.OpenRead(file);
+                    
+                    dFile.Md5 = await Task.Run(() => BitConverter.ToString(md5.ComputeHash(stream))
+                        .Replace("-", "").ToLowerInvariant());
                 }
 
                 listOfFiles.Add(dFile);

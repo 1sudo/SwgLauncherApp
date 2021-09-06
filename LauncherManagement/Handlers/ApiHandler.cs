@@ -28,18 +28,17 @@ namespace LauncherManagement
 
             try
             {
-                using (var response = await client.SendAsync(request))
-                {
-                    response.EnsureSuccessStatusCode();
-                    var body = await response.Content.ReadAsStringAsync();
+                using HttpResponseMessage response = await client.SendAsync(request);
+                
+                response.EnsureSuccessStatusCode();
+                string body = await response.Content.ReadAsStringAsync();
 
-                    JToken token = JToken.Parse(body);
-                    JObject json = JObject.Parse((string)token);
+                JToken token = JToken.Parse(body);
+                JObject json = JObject.Parse((string)token);
 
-                    GameLoginResponseProperties loginProperties = JsonConvert.DeserializeObject<GameLoginResponseProperties>(json.ToString());
+                GameLoginResponseProperties loginProperties = JsonConvert.DeserializeObject<GameLoginResponseProperties>(json.ToString());
 
-                    return loginProperties;
-                }
+                return loginProperties;
             }
             catch
             {
@@ -54,8 +53,8 @@ namespace LauncherManagement
         public static async Task<GameAccountCreationResponseProperties> AccountCreationAsync(
             string url, GameAccountCreationProperties accountProperties, CaptchaProperties captchaProperties)
         {
-            var client = new HttpClient();
-            var request = new HttpRequestMessage
+            HttpClient client = new();
+            HttpRequestMessage request = new()
             {
                 Method = HttpMethod.Post,
                 RequestUri = new Uri($"{url}/account/create/{accountProperties.Username}"),
@@ -78,18 +77,17 @@ namespace LauncherManagement
 
             try
             {
-                using (var response = await client.SendAsync(request))
-                {
-                    response.EnsureSuccessStatusCode();
-                    var body = await response.Content.ReadAsStringAsync();
+                using HttpResponseMessage response = await client.SendAsync(request);
+                
+                response.EnsureSuccessStatusCode();
+                string body = await response.Content.ReadAsStringAsync();
 
-                    JToken token = JToken.Parse(body);
-                    JObject json = JObject.Parse((string)token);
+                JToken token = JToken.Parse(body);
+                JObject json = JObject.Parse((string)token);
 
-                    GameAccountCreationResponseProperties accountCreationProperties = JsonConvert.DeserializeObject<GameAccountCreationResponseProperties>(json.ToString());
+                GameAccountCreationResponseProperties accountCreationProperties = JsonConvert.DeserializeObject<GameAccountCreationResponseProperties>(json.ToString());
 
-                    return accountCreationProperties;
-                }
+                return accountCreationProperties;
             }
             catch
             {

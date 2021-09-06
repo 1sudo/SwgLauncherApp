@@ -1029,7 +1029,7 @@
                                                 <TextBlock Style="{DynamicResource h3}">
                                                     Server Selection
                                                 </TextBlock>
-                                                <ComboBox x:Name="OptionsLoginServerBox" SelectedIndex="1" Style="{DynamicResource ComboBoxTransparent}" SelectionChanged="OptionsLoginServerBox_SelectionChanged" />
+                                                <ComboBox x:Name="OptionsLoginServerBox" SelectedIndex="1" Style="{DynamicResource ComboBoxTransparent}" />
                                             </StackPanel>
                                         </UniformGrid>
                                     </StackPanel>

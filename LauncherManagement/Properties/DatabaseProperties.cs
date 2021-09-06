@@ -49,6 +49,8 @@ namespace LauncherManagement
             public int Fps { get; set; }
             public int Ram { get; set; }
             public int MaxZoom { get; set; }
+            public int Admin { get; set; }
+            public int DebugExamine { get; set; }
         }
 
         public class AdditionalSettings

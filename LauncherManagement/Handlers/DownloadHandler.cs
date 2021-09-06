@@ -15,7 +15,7 @@ namespace LauncherManagement
         static readonly LauncherConfigHandler _configHandler = new();
         static Dictionary<string, string> _launcherSettings = new();
         static bool _primaryServerOffline = false;
-        static readonly List<string> ClientChecksums = new() { "", "", "", "" };
+        static readonly List<string> ClientChecksums = new() { "582f8324c2b280b6b1de1fd00180729d", "", "", "" };
 
         public static Action OnDownloadCompleted { get; set; }
         public static Action<string, string, double, double> OnCurrentFileDownloading { get; set; }
@@ -27,7 +27,7 @@ namespace LauncherManagement
 
         internal static async Task<List<DownloadableFile>> DownloadManifestAsync(string manifestFile)
         {
-            var contents = await Task.Run(() => DownloadAsync(manifestFile).Result);
+            byte[] contents = await Task.Run(() => DownloadAsync(manifestFile).Result);
 
             return GetFileList(System.Text.Encoding.UTF8.GetString(contents));
         }
@@ -43,7 +43,7 @@ namespace LauncherManagement
                 // Notify UI of filename
                 OnCurrentFileDownloading?.Invoke("download", file, i, listLength);
 
-                var contents = await Task.Run(() => DownloadAsync(file));
+                byte[] contents = await Task.Run(() => DownloadAsync(file));
 
                 // Create directory before writing to file if it doesn't exist
                 new FileInfo(Path.Join(downloadLocation, file)).Directory.Create();
@@ -101,7 +101,7 @@ namespace LauncherManagement
             List<DownloadableFile> fileList = new();
 
             // Parses a JSON array and iterates through items in the array
-            foreach (var item in JArray.Parse(listData))
+            foreach (JToken item in JArray.Parse(listData))
             {
                 // Deserialize the JSON string, add it to a new 'DownloadableFile' object and add it to the file list
                 DownloadableFile downloadableFile = JsonConvert.DeserializeObject<DownloadableFile>(item.ToString());
@@ -114,22 +114,22 @@ namespace LauncherManagement
 
         internal static string GetMd5Checksum(string filePath)
         {
-            using var md5 = MD5.Create();
-            using var stream = File.OpenRead(filePath);
+            using MD5 md5 = MD5.Create();
+            using FileStream stream = File.OpenRead(filePath);
             
             return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLowerInvariant();    
         }
 
         internal static async Task<List<string>> GetBadFilesAsync(string downloadLocation, List<DownloadableFile> fileList, bool isFullScan = false)
         {
-            var newFileList = new List<string>();
+            List<string> newFileList = new();
 
             double listLength = fileList.Count;
 
             double i = 1;
             await Task.Run(() =>
             {
-                foreach (var file in fileList)
+                foreach (DownloadableFile file in fileList)
                 {
                     if (isFullScan)
                     {
@@ -175,25 +175,25 @@ namespace LauncherManagement
 
                                 // Check MD5 sums for game client regardless of full scan or file size check
                                 // This ensures the executable doesn't get re-downloaded when it is patched on the fly (FPS edits, for example)
-                                if (file.Name == "SWGEmu.exe" || file.Name == "SwgClient_r.exe")
+                                if (file.Name is "SWGEmu.exe" or "SwgClient_r.exe")
                                 {
                                     // Calculate MD5 checksum
                                     string result = GetMd5Checksum(Path.Join(downloadLocation, file.Name));
 
-                                    bool fileAdded = false;
+                                    bool fileNeedsAdded = true;
                                     ClientChecksums.ForEach(checksum =>
                                     {
-                                        // Check to see if the file has already been added, prevent it from being downloaded multiple times
-                                        if (!fileAdded)
+                                        // If MD5 checksum doesn't match the manifest, or the hardcoded patched sums, add to list
+                                        if (result != file.Md5 || result != checksum)
                                         {
-                                            // If MD5 checksum doesn't match the manifest, or the hardcoded patched sums, add to list
-                                            if (result != file.Md5 || result != checksum)
-                                            {
-                                                newFileList.Add(file.Name);
-                                                fileAdded = true;
-                                            }
+                                            fileNeedsAdded = false;
                                         }
                                     });
+
+                                    if (fileNeedsAdded)
+                                    {
+                                        newFileList.Add(file.Name);
+                                    }
                                 }
                             }
                             // If file doesn't exist, add to download list
@@ -266,7 +266,7 @@ namespace LauncherManagement
 
             _launcherSettings.TryGetValue("ManifestFilePath", out string manifestFilePath);
             Trace.WriteLine(manifestFilePath);
-            var downloadableFiles = await DownloadManifestAsync(manifestFilePath);
+            List<DownloadableFile> downloadableFiles = await DownloadManifestAsync(manifestFilePath);
 
             List<string> fileList;
             if (isFullScan)
@@ -289,7 +289,9 @@ namespace LauncherManagement
 
             byte[] data;
 
-            using var client = new WebClient();
+            using WebClient client = new();
+
+            Trace.WriteLine(file);
 
             Uri uri;
             if (_primaryServerOffline)

@@ -72,7 +72,6 @@ namespace LauncherApp
         async void Window_Initialized(object sender, EventArgs e)
         {
             await ConfigureDatabase();
-            await PopulateControls();
 
             _launcherSettings = await _configHandler.GetLauncherSettings();
 
@@ -121,9 +120,11 @@ namespace LauncherApp
 
                 _postLoad = true;
             }
+
+            await PopulateControls();
         }
 
-        async Task PopulateControls()
+        async Task PopulateControls(bool skipLoginServersBox = false)
         {
             Dictionary<string, string> config = await _configHandler.GetLauncherSettings();
             config.TryGetValue("ApiUrl", out string apiUrl);
@@ -137,6 +138,16 @@ namespace LauncherApp
             DevManifestFilePath.Text = manifestFilePath;
             DevSWGhostname.Text = swgLoginHost;
             DevSWGport.Text = swgLoginPort;
+            
+            if (await _settingsHandler.GetAdminAsync() == true)
+            {
+                DevAdminCheckbox.IsChecked = true;
+            }
+
+            if (await _settingsHandler.GetDebugExamineAsync() == true)
+            {
+                DevDebugCheckbox.IsChecked = true;
+            }
 
             Dictionary<string, string> settings = await _settingsHandler.GetGameOptionsControls();
 
@@ -144,9 +155,12 @@ namespace LauncherApp
 
             OptionsInstallDirectoryTextbox.Text = gameLocation;
 
-            foreach (string type in await _configHandler.GetServerTypes())
+            if (!skipLoginServersBox)
             {
-                OptionsLoginServerBox.Items.Add(type);
+                foreach (string type in await _configHandler.GetServerTypes())
+                {
+                    OptionsLoginServerBox.Items.Add(type);
+                }
             }
 
             // Subtract 1 since List starts at 0
@@ -925,14 +939,38 @@ namespace LauncherApp
             await _fileHandler.SaveOptionsCfg(properties);
         }
 
-        void SubmitDeveloperButton_Click(object sender, RoutedEventArgs e)
+        async void SubmitDeveloperButton_Click(object sender, RoutedEventArgs e)
         {
-
+            if ((bool)DevAdminCheckbox.IsChecked)
+            {
+                await _settingsHandler.ToggleAdminSettingsAsync("Admin", true);
+            }
+            else
+            {
+                await _settingsHandler.ToggleAdminSettingsAsync("Admin", false);
+            }
+            
+            if ((bool)DevDebugCheckbox.IsChecked)
+            {
+                await _settingsHandler.ToggleAdminSettingsAsync("DebugExamine", true);
+            }
+            else
+            {
+                await _settingsHandler.ToggleAdminSettingsAsync("DebugExamine", false);
+            }
         }
 
-        void SubmitModsButton_Click(object sender, RoutedEventArgs e)
+        async void SubmitModsButton_Click(object sender, RoutedEventArgs e)
         {
-
+            // here
+            if (_postLoad)
+            {
+                if (ServerSelection.ActiveServer != OptionsLoginServerBox.SelectedIndex + 1)
+                {
+                    await _activeServerHandler.SetActiveServer(OptionsLoginServerBox.SelectedIndex + 1);
+                    LogoutButton_Click(this, new RoutedEventArgs());
+                }
+            }
         }
 
         #endregion
@@ -983,7 +1021,7 @@ namespace LauncherApp
         #region Validation
         async Task CheckGameFiles()
         {
-            await AppHandler.GenerateMissingConfigsAsync(await _settingsHandler.GetGameLocationAsync());
+            AppHandler.WriteMissingConfigs(await _settingsHandler.GetGameLocationAsync());
             ScanDisableButtons();
             await DownloadHandler.CheckFilesAsync(await _settingsHandler.GetGameLocationAsync());
             ScanEnableButtons();
@@ -1176,7 +1214,7 @@ namespace LauncherApp
             UpdateScreen((int)Screens.UPDATES_GRID);
 
             await GetCharactersAsync();
-
+            await PopulateControls(true);
             LoggedInEnableControls();
 
             try
@@ -1248,15 +1286,5 @@ namespace LauncherApp
                 ResolutionBox.Items.Add(resolution);
             }
         }
-
-        async void OptionsLoginServerBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (_postLoad)
-            {
-                await _activeServerHandler.SetActiveServer(OptionsLoginServerBox.SelectedIndex + 1);
-                LogoutButton_Click(this, new RoutedEventArgs());
-            }
-        }
-
     }
 }

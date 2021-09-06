@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace LauncherManagement
 {
     public class AppHandler
     {
-        static readonly bool _cuClient = true;
+        static readonly bool _cuClient = false;
 
         public static async Task StartGameAsync(string serverPath, string password = "", 
             string username = "", string charactername = "", bool autoEnterZone = false)
@@ -17,8 +19,8 @@ namespace LauncherManagement
             {
                 try
                 {
-                    LauncherConfigHandler _config = new();
-                    bool configWritten = await _config.WriteLoginConfig(_cuClient);
+                    bool configWritten = await WriteLoginConfigAsync();
+                    await WriteLauncherConfigAsync();
 
                     if (configWritten)
                     {
@@ -89,7 +91,7 @@ namespace LauncherManagement
                         {
                             string exePath = Path.Join(serverPath, "SwgClient_r.exe");
 
-                            var startInfo = new ProcessStartInfo();
+                            ProcessStartInfo startInfo = new();
                             startInfo.EnvironmentVariables["SWGCLIENT_MEMORY_SIZE_MB"] = GameOptionsProperties.Ram.ToString();
                             startInfo.UseShellExecute = false;
                             startInfo.WorkingDirectory = serverPath;
@@ -110,7 +112,7 @@ namespace LauncherManagement
             });
         }
 
-        public static async Task GenerateMissingConfigsAsync(string gameLocation)
+        public static void WriteMissingConfigs(string gameLocation)
         {
             string[] configs =
             {
@@ -120,13 +122,93 @@ namespace LauncherManagement
 
             foreach (string config in configs)
             {
-                string file = Path.Join(gameLocation, config);
-
-                if (!File.Exists(file))
+                string filePath = Path.Join(gameLocation, config);
+                if (!File.Exists(filePath))
                 {
-                    await File.WriteAllTextAsync(file, "");
+                    StreamWriter sw = new(filePath);
+                    sw.Write("");
+                }
+                
+            }
+        }
+
+        public static async Task<bool> WriteConfigAsync(string file, string text)
+        {
+            SettingsHandler _settingsHandler = new();
+            string gameLocation = await _settingsHandler.GetGameLocationAsync();
+
+            if (!string.IsNullOrEmpty(gameLocation))
+            {
+                string cfg = "";
+
+                switch (file)
+                {
+                    case "login": cfg = _cuClient ? "login.cfg" : "swgemu_login.cfg"; break;
+                    case "live": cfg = _cuClient ? "live.cfg" : "swgemu_live.cfg"; break;
+                    case "launcher": cfg = "launcher.cfg"; break;
+                    default:
+                        break;
+                }
+
+                string filePath = Path.Join(gameLocation, cfg);
+
+                new FileInfo(filePath).Directory.Create();
+
+                try
+                {
+                    using StreamWriter sw = new(filePath);
+                    await sw.WriteAsync(text);
+
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    Trace.WriteLine(e.Message);
                 }
             }
+
+            return false;
+        }
+
+        public static async Task WriteLauncherConfigAsync()
+        {
+            SettingsHandler _settingsHandler = new();
+
+            bool admin = await _settingsHandler.GetAdminAsync();
+            bool debugExamine = await _settingsHandler.GetDebugExamineAsync();
+
+            string cfgText = $"[SwgClient]\n" +
+                "\tallowMultipleInstances=true\n\n" +
+                "[ClientGame]\n" +
+                $"\t0fd345d9={admin.ToString().ToLower()}\n\n" +
+                "[ClientUserInterface]\n" +
+                $"\tdebugExamine={debugExamine.ToString().ToLower()}";
+
+            await WriteConfigAsync("launcher", cfgText);
+        }
+
+        public static async Task WriteLiveConfigAsync()
+        {
+
+        }
+
+        public static async Task<bool> WriteLoginConfigAsync()
+        {
+            SettingsHandler settingsHandler = new();
+            LauncherConfigHandler configHandler = new();
+            Dictionary<string, string> gameSettings = await settingsHandler.GetGameOptionsControls();
+            Dictionary<string, string> settings = await configHandler.GetLauncherSettings();
+
+            settings.TryGetValue("SWGLoginHost", out string host);
+            settings.TryGetValue("SWGLoginPort", out string port);
+            gameSettings.TryGetValue("MaxZoom", out string maxZoom);
+
+            string cfgText = $"[ClientGame]\n" +
+                $"loginServerAddress0={host}\n" +
+                $"loginServerPort0={port}\n" +
+                $"freeChaseCameraMaximumZoom={maxZoom}";
+
+            return await WriteConfigAsync("login", cfgText);
         }
 
         public static void StartGameConfig(string serverPath)

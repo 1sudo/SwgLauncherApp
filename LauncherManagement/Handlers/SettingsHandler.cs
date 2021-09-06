@@ -8,11 +8,13 @@ namespace LauncherManagement
     {
         readonly string _defaultGameLocation = "";
         readonly string _defaultServername = "SWGLegacy";
-        readonly int    _defaultAutoLogin = 0;
-        readonly int    _defaultVerified = 0;
-        readonly int    _defaultFps = 60;
-        readonly int    _defaultRam = 2048;
-        readonly int    _defaultMaxZoom = 5;
+        readonly int _defaultAutoLogin = 0;
+        readonly int _defaultVerified = 0;
+        readonly int _defaultFps = 60;
+        readonly int _defaultRam = 2048;
+        readonly int _defaultMaxZoom = 5;
+        readonly int _defaultAdmin = 0;
+        readonly int _defaultDebugExamine = 0;
 
         public async Task<string> GetServerNameAsync()
         {
@@ -105,24 +107,20 @@ namespace LauncherManagement
 
         public async Task ToggleAutoLoginAsync(bool flag)
         {
-            if (flag)
+            int val;
+
+            switch (flag)
             {
-                await ExecuteSettingsAsync
-                    (
-                        "UPDATE Settings " +
-                        "SET AutoLogin = 1 " +
-                        "where Id = 1;"
-                    );
+                case true: val = 1; break;
+                case false: val = 0; break;
             }
-            else
-            {
-                await ExecuteSettingsAsync
-                    (
-                        "UPDATE Settings " +
-                        "SET AutoLogin = 0 " +
-                        "where Id = 1;"
-                    );
-            }
+
+            await ExecuteSettingsAsync
+                (
+                    "UPDATE Settings " +
+                    $"SET AutoLogin = {val} " +
+                    "where Id = 1;"
+                );
         }
 
         public async Task SetVerifiedAsync()
@@ -147,6 +145,48 @@ namespace LauncherManagement
             return config[0].Verified;
         }
 
+        public async Task ToggleAdminSettingsAsync(string type, bool flag)
+        {
+            int val;
+
+            switch (flag)
+            {
+                case true: val = 1; break;
+                case false: val = 0; break;
+            }
+
+            await ExecuteSettingsAsync
+                (
+                    "UPDATE Settings " +
+                    $"SET {type} = {val} " +
+                    "where Id = 1;"
+                );
+        }
+
+        public async Task<bool> GetAdminAsync()
+        {
+            List<DatabaseProperties.Settings> config = await ExecuteSettingsAsync
+                (
+                    "SELECT Admin " +
+                    "FROM Settings " +
+                    "where Id = 1;"
+                );
+
+            return config[0].Admin == 1;
+        }
+
+        public async Task<bool> GetDebugExamineAsync()
+        {
+            List<DatabaseProperties.Settings> config = await ExecuteSettingsAsync
+                (
+                    "SELECT DebugExamine " +
+                    "FROM Settings " +
+                    "where Id = 1;"
+                );
+
+            return config[0].DebugExamine == 1;
+        }
+
         public async Task InsertDefaultRow()
         {
             List<DatabaseProperties.Settings> config = await ExecuteSettingsAsync("SELECT * FROM Settings;");
@@ -156,9 +196,9 @@ namespace LauncherManagement
                 await ExecuteSettingsAsync
                     (
                         "INSERT INTO Settings " +
-                        "(GameLocation, ServerName, AutoLogin, Verified, Fps, Ram, MaxZoom) " +
+                        "(GameLocation, ServerName, AutoLogin, Verified, Fps, Ram, MaxZoom, Admin, DebugExamine) " +
                         "VALUES " +
-                        $"('{_defaultGameLocation}', '{_defaultServername}', {_defaultAutoLogin}, {_defaultVerified}, {_defaultFps}, {_defaultRam}, {_defaultMaxZoom});"
+                        $"('{_defaultGameLocation}', '{_defaultServername}', {_defaultAutoLogin}, {_defaultVerified}, {_defaultFps}, {_defaultRam}, {_defaultMaxZoom}, {_defaultAdmin}, {_defaultDebugExamine});"
                     );
             }
         }

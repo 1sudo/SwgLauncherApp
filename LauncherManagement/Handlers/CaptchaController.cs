@@ -19,7 +19,7 @@ namespace LauncherManagement
 
         internal static int GetRandomNumber(int maxVal)
         {
-            Random rand = new Random();
+            Random rand = new();
 
             return rand.Next(1, maxVal);
         }
