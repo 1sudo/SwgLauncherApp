@@ -235,5 +235,22 @@ namespace LauncherManagement
             catch
             { }
         }
+
+        public static void OpenDefaultBrowser(string url)
+        {
+            Process myProcess = new Process();
+
+            try
+            {
+                // true is the default, but it is important not to set it to false
+                myProcess.StartInfo.UseShellExecute = true;
+                myProcess.StartInfo.FileName = url;
+                myProcess.Start();
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.Message);
+            }
+        }
     }
 }

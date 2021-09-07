@@ -15,6 +15,8 @@ namespace LauncherManagement
         readonly int _defaultMaxZoom = 5;
         readonly int _defaultAdmin = 0;
         readonly int _defaultDebugExamine = 0;
+        readonly int _defaultReshade = 0;
+        readonly int _defaultHDTextures = 0;
 
         public async Task<string> GetServerNameAsync()
         {
@@ -145,7 +147,7 @@ namespace LauncherManagement
             return config[0].Verified;
         }
 
-        public async Task ToggleAdminSettingsAsync(string type, bool flag)
+        public async Task ToggleSettingsAsync(string type, bool flag)
         {
             int val;
 
@@ -187,6 +189,30 @@ namespace LauncherManagement
             return config[0].DebugExamine == 1;
         }
 
+        public async Task<bool> GetReshadeAsync()
+        {
+            List<DatabaseProperties.Settings> config = await ExecuteSettingsAsync
+                (
+                    "SELECT Reshade " +
+                    "FROM Settings " +
+                    "where Id = 1;"
+                );
+
+            return config[0].Reshade == 1;
+        }
+
+        public async Task<bool> GetHDTexturesAsync()
+        {
+            List<DatabaseProperties.Settings> config = await ExecuteSettingsAsync
+                (
+                    "SELECT HDTextures " +
+                    "FROM Settings " +
+                    "where Id = 1;"
+                );
+
+            return config[0].HDTextures == 1;
+        }
+
         public async Task InsertDefaultRow()
         {
             List<DatabaseProperties.Settings> config = await ExecuteSettingsAsync("SELECT * FROM Settings;");
@@ -196,9 +222,9 @@ namespace LauncherManagement
                 await ExecuteSettingsAsync
                     (
                         "INSERT INTO Settings " +
-                        "(GameLocation, ServerName, AutoLogin, Verified, Fps, Ram, MaxZoom, Admin, DebugExamine) " +
+                        "(GameLocation, ServerName, AutoLogin, Verified, Fps, Ram, MaxZoom, Admin, DebugExamine, Reshade, HDTextures) " +
                         "VALUES " +
-                        $"('{_defaultGameLocation}', '{_defaultServername}', {_defaultAutoLogin}, {_defaultVerified}, {_defaultFps}, {_defaultRam}, {_defaultMaxZoom}, {_defaultAdmin}, {_defaultDebugExamine});"
+                        $"('{_defaultGameLocation}', '{_defaultServername}', {_defaultAutoLogin}, {_defaultVerified}, {_defaultFps}, {_defaultRam}, {_defaultMaxZoom}, {_defaultAdmin}, {_defaultDebugExamine}, {_defaultReshade}, {_defaultHDTextures});"
                     );
             }
         }

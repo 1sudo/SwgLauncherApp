@@ -32,7 +32,7 @@ namespace LauncherManagement
             return GetFileList(System.Text.Encoding.UTF8.GetString(contents));
         }
 
-        internal static async Task DownloadFilesFromListAsync(List<string> fileList, string downloadLocation)
+        internal static async Task DownloadFilesFromListAsync(List<string> fileList, string downloadLocation, bool isMod = false)
         {
             double listLength = fileList.Count;
 
@@ -43,7 +43,7 @@ namespace LauncherManagement
                 // Notify UI of filename
                 OnCurrentFileDownloading?.Invoke("download", file, i, listLength);
 
-                byte[] contents = await Task.Run(() => DownloadAsync(file));
+                byte[] contents = await Task.Run(() => DownloadAsync(file, isMod));
 
                 // Create directory before writing to file if it doesn't exist
                 new FileInfo(Path.Join(downloadLocation, file)).Directory.Create();
@@ -260,13 +260,23 @@ namespace LauncherManagement
             return false;
         }
 
-        public static async Task CheckFilesAsync(string downloadLocation, bool isFullScan = false)
+        public static async Task CheckFilesAsync(string downloadLocation, bool isFullScan = false, string modName = "")
         {
             _launcherSettings = await _configHandler.GetLauncherSettings();
-
             _launcherSettings.TryGetValue("ManifestFilePath", out string manifestFilePath);
-            Trace.WriteLine(manifestFilePath);
-            List<DownloadableFile> downloadableFiles = await DownloadManifestAsync(manifestFilePath);
+
+            List<DownloadableFile> downloadableFiles = new();
+
+            if (string.IsNullOrEmpty(modName))
+            {
+                downloadableFiles = await DownloadManifestAsync(manifestFilePath);
+                Trace.WriteLine(manifestFilePath);
+            }
+            else
+            {
+                downloadableFiles = await DownloadManifestAsync(manifestFilePath.Split("/")[0] + $"/{modName}.json");
+                Trace.WriteLine(manifestFilePath.Split("/")[0] + $"/{modName}.json");
+            }
 
             List<string> fileList;
             if (isFullScan)
@@ -280,10 +290,10 @@ namespace LauncherManagement
                 fileList = await Task.Run(() => GetBadFilesAsync(downloadLocation, downloadableFiles));
             }
 
-            await DownloadFilesFromListAsync(fileList, downloadLocation);
+            await DownloadFilesFromListAsync(fileList, downloadLocation, !string.IsNullOrEmpty(modName));
         }
 
-        internal static async Task<byte[]> DownloadAsync(string file)
+        internal static async Task<byte[]> DownloadAsync(string file, bool isMod = false)
         {
             _launcherSettings = await _configHandler.GetLauncherSettings();
 
@@ -291,18 +301,34 @@ namespace LauncherManagement
 
             using WebClient client = new();
 
-            Trace.WriteLine(file);
-
             Uri uri;
             if (_primaryServerOffline)
             {
                 _launcherSettings.TryGetValue("BackupManifestFileUrl", out string backupManifestFileUrl);
-                uri = new Uri(backupManifestFileUrl + file);
+                if (isMod)
+                {
+                    string fileUrl = backupManifestFileUrl + "mods/" + file;
+                    Trace.WriteLine(fileUrl);
+                    uri = new Uri(fileUrl);
+                }
+                else
+                {
+                    uri = new Uri(backupManifestFileUrl + file);
+                }
             }
             else
             {
                 _launcherSettings.TryGetValue("ManifestFileUrl", out string manifestFileUrl);
-                uri = new Uri(manifestFileUrl + file);
+                if (isMod)
+                {
+                    string fileUrl = manifestFileUrl + "mods/" + file;
+                    Trace.WriteLine(fileUrl);
+                    uri = new Uri(fileUrl);
+                }
+                else
+                {
+                    uri = new Uri(manifestFileUrl + file);
+                }
             }
 
             client.DownloadProgressChanged += OnDownloadProgressChanged;

@@ -940,7 +940,7 @@
                 </Grid>
 
                 <!-- Options and Mods -->
-                <Grid x:Name="OptionsAndModsGrid" Visibility="Collapsed" Margin="18,0,0,0">
+                <Grid x:Name="OptionsAndModsGrid" Visibility="Visible" Margin="18,0,0,0">
                     <StackPanel>
                         <Border BorderThickness="0,0,0,1" Margin="0,0,0,10" Padding="0,0,0,2">
                             <Border.BorderBrush>
@@ -954,6 +954,7 @@
                                 Options &amp; Modifications
                                 </TextBlock>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button x:Name="OptionsFullScanButton" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Margin="0,0,12,0" Click="FullScanButton_Click">Full Scan</Button>
                                     <Button x:Name="RevertModsButton" Style="{DynamicResource NavButton}" FontSize="12" Margin="0,0,12,0" Padding="15,5,15,5">Revert</Button>
                                     <Button x:Name="SubmitModsButton" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Click="SubmitModsButton_Click">Save Changes</Button>
                                 </StackPanel>
@@ -991,23 +992,6 @@
                                                     <TextBox x:Name="OptionsInstallDirectoryTextbox" Style="{DynamicResource TextBoxTransparent}" Height="30" Margin="8,0,0,0" IsEnabled="False" VerticalAlignment="Top" />
                                                 </DockPanel>
                                             </StackPanel>
-                                        </UniformGrid>
-
-                                        <UniformGrid Columns="2" Margin="0,0,0,8">
-                                            <UniformGrid Rows="1">
-                                                <StackPanel Style="{DynamicResource SettingsColumn}" Margin="0,0,4,0">
-                                                    <TextBlock Style="{DynamicResource h3}">
-                                                    Full Scan
-                                                    </TextBlock>
-                                                    <Button x:Name="OptionsFullScanButton" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Height="30" VerticalAlignment="Top" Click="FullScanButton_Click">Full Scan</Button>
-                                                </StackPanel>
-                                                <StackPanel Style="{DynamicResource SettingsColumn}" Margin="4,0,4,0">
-                                                    <TextBlock Style="{DynamicResource h3}">
-                                                    Game Setup
-                                                    </TextBlock>
-                                                    <Button x:Name="OptionsRerunSetupButton" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Height="30" VerticalAlignment="Top">Run Setup</Button>
-                                                </StackPanel>
-                                            </UniformGrid>
                                         </UniformGrid>
                                     </StackPanel>
 

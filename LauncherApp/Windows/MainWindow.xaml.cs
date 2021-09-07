@@ -139,14 +139,24 @@ namespace LauncherApp
             DevSWGhostname.Text = swgLoginHost;
             DevSWGport.Text = swgLoginPort;
             
-            if (await _settingsHandler.GetAdminAsync() == true)
+            if (await _settingsHandler.GetAdminAsync())
             {
                 DevAdminCheckbox.IsChecked = true;
             }
 
-            if (await _settingsHandler.GetDebugExamineAsync() == true)
+            if (await _settingsHandler.GetDebugExamineAsync())
             {
                 DevDebugCheckbox.IsChecked = true;
+            }
+
+            if (await _settingsHandler.GetReshadeAsync())
+            {
+                ModsReshadeCheckbox.IsChecked = true;
+            }
+
+            if (await _settingsHandler.GetHDTexturesAsync())
+            {
+                ModsHdTextureCheckbox.IsChecked = true;
             }
 
             Dictionary<string, string> settings = await _settingsHandler.GetGameOptionsControls();
@@ -379,27 +389,28 @@ namespace LauncherApp
         #region SidebarButtons
         void ResourcesButton_Click(object sender, RoutedEventArgs e)
         {
-
+            AppHandler.OpenDefaultBrowser("http://galaxyharvester.net/ghHome.py");
         }
 
         void MantisButton_Click(object sender, RoutedEventArgs e)
         {
-
+            AppHandler.OpenDefaultBrowser("http://mantis.swglegacy.com");
         }
 
         void SkillplannerButton_Click(object sender, RoutedEventArgs e)
         {
-
+            UpdateScreen((int)Screens.UPDATES_GRID);
+            Browser.LoadUrlAsync("https://swgsremu.com/skillplanner/#/");
         }
 
         void VoteButton_Click(object sender, RoutedEventArgs e)
         {
-
+            AppHandler.OpenDefaultBrowser("https://topg.org/swg-private-servers/");
         }
 
         void DonateButton_Click(object sender, RoutedEventArgs e)
         {
-
+            AppHandler.OpenDefaultBrowser("http://donate.swglegacy.com");
         }
 
         async void PlayButton_Click(object sender, RoutedEventArgs e)
@@ -803,7 +814,6 @@ namespace LauncherApp
         {
             ProgressGrid.Visibility = Visibility.Collapsed;
             PlayButton.IsEnabled = true;
-            OptionsRerunSetupButton.IsEnabled = true;
             OptionsFullScanButton.IsEnabled = true;
             OptionsInstallDirectoryButton.IsEnabled = true;
             PlayButton.IsEnabled = true;
@@ -816,7 +826,6 @@ namespace LauncherApp
         {
             ProgressGrid.Visibility = Visibility.Visible;
             PlayButton.IsEnabled = false;
-            OptionsRerunSetupButton.IsEnabled = false;
             OptionsFullScanButton.IsEnabled = false;
             OptionsInstallDirectoryButton.IsEnabled = false;
             CharacterSelectGrid.Visibility = Visibility.Collapsed;
@@ -943,28 +952,58 @@ namespace LauncherApp
         {
             if ((bool)DevAdminCheckbox.IsChecked)
             {
-                await _settingsHandler.ToggleAdminSettingsAsync("Admin", true);
+                await _settingsHandler.ToggleSettingsAsync("Admin", true);
             }
             else
             {
-                await _settingsHandler.ToggleAdminSettingsAsync("Admin", false);
+                await _settingsHandler.ToggleSettingsAsync("Admin", false);
             }
             
             if ((bool)DevDebugCheckbox.IsChecked)
             {
-                await _settingsHandler.ToggleAdminSettingsAsync("DebugExamine", true);
+                await _settingsHandler.ToggleSettingsAsync("DebugExamine", true);
             }
             else
             {
-                await _settingsHandler.ToggleAdminSettingsAsync("DebugExamine", false);
+                await _settingsHandler.ToggleSettingsAsync("DebugExamine", false);
             }
         }
 
         async void SubmitModsButton_Click(object sender, RoutedEventArgs e)
         {
-            // here
             if (_postLoad)
             {
+                if ((bool)ModsReshadeCheckbox.IsChecked || (bool)ModsHdTextureCheckbox.IsChecked)
+                {
+                    CharacterSelectGrid.Visibility = Visibility.Collapsed;
+
+                    if ((bool)ModsReshadeCheckbox.IsChecked)
+                    {
+                        await DownloadHandler.CheckFilesAsync(await _settingsHandler.GetGameLocationAsync(), false, "reshade");
+                        await _settingsHandler.ToggleSettingsAsync("Reshade", true);
+                    }
+                    
+                    if ((bool)ModsHdTextureCheckbox.IsChecked)
+                    {
+                        await DownloadHandler.CheckFilesAsync(await _settingsHandler.GetGameLocationAsync(), false, "hdtextures");
+                        await _settingsHandler.ToggleSettingsAsync("HDTextures", true);
+                    }
+                    
+                    CharacterSelectGrid.Visibility = Visibility.Visible;
+                }
+
+                if (!(bool)ModsReshadeCheckbox.IsChecked)
+                {
+                    await _settingsHandler.ToggleSettingsAsync("Reshade", false);
+                    // await DownloadHandler.RemoveMod();
+                }
+
+                if (!(bool)ModsHdTextureCheckbox.IsChecked)
+                {
+                    await _settingsHandler.ToggleSettingsAsync("HDTextures", false);
+                    // await DownloadHandler.DisableTreMod();
+                }
+
                 if (ServerSelection.ActiveServer != OptionsLoginServerBox.SelectedIndex + 1)
                 {
                     await _activeServerHandler.SetActiveServer(OptionsLoginServerBox.SelectedIndex + 1);
@@ -988,31 +1027,32 @@ namespace LauncherApp
         void PatchNotesButton_Click(object sender, RoutedEventArgs e)
         {
             UpdateScreen((int)Screens.UPDATES_GRID);
+            Browser.LoadUrlAsync("http://tc.darknaught.com:8787/html/");
         }
 
         void WebsiteButton_Click(object sender, RoutedEventArgs e)
         {
-
+            AppHandler.OpenDefaultBrowser("https://swglegacy.com");
         }
 
         void ForumsButton_Click(object sender, RoutedEventArgs e)
         {
-
+            AppHandler.OpenDefaultBrowser("https://forums.swglegacy.com");
         }
 
         void WikiButton_Click(object sender, RoutedEventArgs e)
         {
-
+            AppHandler.OpenDefaultBrowser("https://wiki.swglegacy.com");
         }
 
         void FacebookButton_Click(object sender, RoutedEventArgs e)
         {
-
+            AppHandler.OpenDefaultBrowser("https://facebook.com/swglegacy");
         }
 
         void DiscordButton_Click(object sender, RoutedEventArgs e)
         {
-
+            AppHandler.OpenDefaultBrowser("https://discord.gg/#");
         }
         #endregion
 

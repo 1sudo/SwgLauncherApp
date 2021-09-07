@@ -12,5 +12,7 @@
         public static int MaxZoom { get; set; }
         public static int Admin { get; set; }
         public static int DebugExamine { get; set; }
+        public static int Reshade { get; set; }
+        public static int HDTextures { get; set; }
     }
 }

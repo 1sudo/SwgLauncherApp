@@ -51,6 +51,8 @@ namespace LauncherManagement
             public int MaxZoom { get; set; }
             public int Admin { get; set; }
             public int DebugExamine { get; set; }
+            public int Reshade { get; set; }
+            public int HDTextures { get; set; }
         }
 
         public class AdditionalSettings
