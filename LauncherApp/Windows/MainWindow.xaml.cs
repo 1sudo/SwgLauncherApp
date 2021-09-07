@@ -40,6 +40,8 @@ namespace LauncherApp
         double _totalFileStatus;
         string _gamePath;
         string _gamePassword;
+        string _currentAddress;
+        string _updatesAddress = "http://tc.darknaught.com:8787/html/";
         static bool _postLoad = false;
         Dictionary<string, string> _launcherSettings;
         GameLoginResponseProperties _loginProperties = new();
@@ -72,6 +74,8 @@ namespace LauncherApp
         async void Window_Initialized(object sender, EventArgs e)
         {
             await ConfigureDatabase();
+
+            _currentAddress = _updatesAddress;
 
             _launcherSettings = await _configHandler.GetLauncherSettings();
 
@@ -400,7 +404,9 @@ namespace LauncherApp
         void SkillplannerButton_Click(object sender, RoutedEventArgs e)
         {
             UpdateScreen((int)Screens.UPDATES_GRID);
-            Browser.LoadUrlAsync("https://swgsremu.com/skillplanner/#/");
+            string address = "https://swgsremu.com/skillplanner/#/";
+            if (_currentAddress != address) Browser.LoadUrlAsync(address);
+            _currentAddress = address;
         }
 
         void VoteButton_Click(object sender, RoutedEventArgs e)
@@ -1027,7 +1033,8 @@ namespace LauncherApp
         void PatchNotesButton_Click(object sender, RoutedEventArgs e)
         {
             UpdateScreen((int)Screens.UPDATES_GRID);
-            Browser.LoadUrlAsync("http://tc.darknaught.com:8787/html/");
+            if (_currentAddress != _updatesAddress) Browser.LoadUrlAsync(_updatesAddress);
+            _currentAddress = _updatesAddress;
         }
 
         void WebsiteButton_Click(object sender, RoutedEventArgs e)
