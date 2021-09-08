@@ -817,11 +817,14 @@ namespace LauncherApp
             ProgressGrid.Visibility = Visibility.Collapsed;
             PlayButton.IsEnabled = true;
             OptionsFullScanButton.IsEnabled = true;
-            OptionsInstallDirectoryButton.IsEnabled = true;
-            PlayButton.IsEnabled = true;
             PlayButton.Content = "Play";
             CharacterSelectGrid.Visibility = Visibility.Visible;
-            OptionsLoginServerBox.IsEnabled = true;
+            RevertDeveloperButton.IsEnabled = true;
+            RevertModsButton.IsEnabled = true;
+            RevertSettingsButton.IsEnabled = true;
+            SubmitDeveloperButton.IsEnabled = true;
+            SubmitModsButton.IsEnabled = true;
+            SubmitSettingsButton.IsEnabled = true;
         }
 
         void ScanDisableButtons()
@@ -829,14 +832,45 @@ namespace LauncherApp
             ProgressGrid.Visibility = Visibility.Visible;
             PlayButton.IsEnabled = false;
             OptionsFullScanButton.IsEnabled = false;
-            OptionsInstallDirectoryButton.IsEnabled = false;
             CharacterSelectGrid.Visibility = Visibility.Collapsed;
             PlayButton.Content = "Updating";
-            OptionsLoginServerBox.IsEnabled = false;
+            RevertDeveloperButton.IsEnabled = false;
+            RevertModsButton.IsEnabled = false;
+            RevertSettingsButton.IsEnabled = false;
+            SubmitDeveloperButton.IsEnabled = false;
+            SubmitModsButton.IsEnabled = false;
+            SubmitSettingsButton.IsEnabled = false;
+        }
+
+        void SettingsDisableButtons()
+        {
+            PlayButton.IsEnabled = false;
+            OptionsFullScanButton.IsEnabled = false;
+            PlayButton.Content = "Updating";
+            RevertDeveloperButton.IsEnabled = false;
+            RevertModsButton.IsEnabled = false;
+            RevertSettingsButton.IsEnabled = false;
+            SubmitDeveloperButton.IsEnabled = false;
+            SubmitModsButton.IsEnabled = false;
+            SubmitSettingsButton.IsEnabled = false;
+        }
+
+        void SettingsEnableButtons()
+        {
+            OptionsFullScanButton.IsEnabled = true;
+            PlayButton.IsEnabled = true;
+            PlayButton.Content = "Play";
+            RevertDeveloperButton.IsEnabled = true;
+            RevertModsButton.IsEnabled = true;
+            RevertSettingsButton.IsEnabled = true;
+            SubmitDeveloperButton.IsEnabled = true;
+            SubmitModsButton.IsEnabled = true;
+            SubmitSettingsButton.IsEnabled = true;
         }
 
         async void SubmitSettingsButton_Click(object sender, RoutedEventArgs e)
         {
+            SettingsDisableButtons();
             List<GameSettingsProperty> properties = new();
 
             int fps = 0;
@@ -948,10 +982,14 @@ namespace LauncherApp
                 properties.Add(new GameSettingsProperty { Category = "ClientObject/DetailAppearanceTemplate", Key = "skipL0", Value = "1" });
 
             await _fileHandler.SaveOptionsCfg(properties);
+
+            SettingsEnableButtons();
         }
 
         async void SubmitDeveloperButton_Click(object sender, RoutedEventArgs e)
         {
+            SettingsDisableButtons();
+
             if ((bool)DevAdminCheckbox.IsChecked)
             {
                 await _settingsHandler.ToggleSettingsAsync("Admin", true);
@@ -969,12 +1007,16 @@ namespace LauncherApp
             {
                 await _settingsHandler.ToggleSettingsAsync("DebugExamine", false);
             }
+
+            SettingsEnableButtons();
         }
 
         async void SubmitModsButton_Click(object sender, RoutedEventArgs e)
         {
             if (_postLoad)
             {
+                SettingsDisableButtons();
+
                 if ((bool)ModsReshadeCheckbox.IsChecked || (bool)ModsHdTextureCheckbox.IsChecked)
                 {
                     CharacterSelectGrid.Visibility = Visibility.Collapsed;
@@ -1014,6 +1056,8 @@ namespace LauncherApp
                     await _activeServerHandler.SetActiveServer(OptionsLoginServerBox.SelectedIndex + 1);
                     LogoutButton_Click(this, new RoutedEventArgs());
                 }
+
+                SettingsEnableButtons();
             }
         }
 
