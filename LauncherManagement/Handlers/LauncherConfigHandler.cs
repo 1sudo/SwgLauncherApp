@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace LauncherManagement
 {
     public class LauncherConfigHandler : DatabaseHandler
     {
-        readonly string _defaultServerType = "CUEmu Test Server";
+        readonly string _defaultServerType = "SWG Legacy Test Server (Sudo)";
         readonly string _defaultApiUrl = "http://tc.darknaught.com:5000";
         readonly string _defaultManifestFilePath = "manifest/required.json";
         readonly string _defaultManifestFileUrl = "http://tc.darknaught.com:8787/files/";
@@ -13,7 +14,7 @@ namespace LauncherManagement
         readonly string _defaultSWGLoginHost = "tc.darknaught.com";
         readonly int _defaultSWGLoginPort = 44453;
 
-        readonly string _defaultSecondaryServerType = "SWG Legacy Test Server";
+        readonly string _defaultSecondaryServerType = "SWG Legacy Test Server (Lasko)";
         readonly string _defaultSecondaryApiUrl = "http://tc.darknaught.com:5000";
         readonly string _defaultSecondaryManifestFilePath = "manifest/required.json";
         readonly string _defaultSecondaryManifestFileUrl = "http://tc.darknaught.com:8787/files/";

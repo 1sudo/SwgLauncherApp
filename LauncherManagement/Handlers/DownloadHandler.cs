@@ -32,6 +32,25 @@ namespace LauncherManagement
             return GetFileList(System.Text.Encoding.UTF8.GetString(contents));
         }
 
+        internal static async Task<List<string>> DownloadTreList()
+        {
+            Dictionary<string, string> launcherSettings = await _configHandler.GetLauncherSettings();
+
+            launcherSettings.TryGetValue("ManifestFileUrl", out string primaryUrl);
+            launcherSettings.TryGetValue("BackupManifestFileUrl", out string backupUrl);
+            launcherSettings.TryGetValue("ManifestFilePath", out string manifestFilePath);
+
+            string address = _primaryServerOffline ? backupUrl : primaryUrl;
+
+            string liveCfgAddress = address + manifestFilePath.Split("/")[0] + $"/livecfg.json";
+
+            using WebClient client = new();
+
+            string contents = client.DownloadString(new Uri(liveCfgAddress));
+
+            return JsonConvert.DeserializeObject<List<string>>(contents);
+        }
+
         internal static async Task DownloadFilesFromListAsync(List<string> fileList, string downloadLocation, bool isMod = false)
         {
             double listLength = fileList.Count;
@@ -260,7 +279,7 @@ namespace LauncherManagement
             return false;
         }
 
-        public static async Task CheckFilesAsync(string downloadLocation, bool isFullScan = false, string modName = "")
+        public static async Task CheckFilesAsync(string downloadLocation, bool isFullScan = false, string modName = "", bool isTreMod = false)
         {
             _launcherSettings = await _configHandler.GetLauncherSettings();
             _launcherSettings.TryGetValue("ManifestFilePath", out string manifestFilePath);
@@ -270,12 +289,16 @@ namespace LauncherManagement
             if (string.IsNullOrEmpty(modName))
             {
                 downloadableFiles = await DownloadManifestAsync(manifestFilePath);
-                Trace.WriteLine(manifestFilePath);
             }
             else
             {
                 downloadableFiles = await DownloadManifestAsync(manifestFilePath.Split("/")[0] + $"/{modName}.json");
-                Trace.WriteLine(manifestFilePath.Split("/")[0] + $"/{modName}.json");
+
+                if (isTreMod)
+                {
+                    TreModHandler treModHandler = new();
+                    await treModHandler.EnableMod(modName, downloadableFiles);
+                }
             }
 
             List<string> fileList;
@@ -308,7 +331,6 @@ namespace LauncherManagement
                 if (isMod)
                 {
                     string fileUrl = backupManifestFileUrl + "mods/" + file;
-                    Trace.WriteLine(fileUrl);
                     uri = new Uri(fileUrl);
                 }
                 else
@@ -322,7 +344,6 @@ namespace LauncherManagement
                 if (isMod)
                 {
                     string fileUrl = manifestFileUrl + "mods/" + file;
-                    Trace.WriteLine(fileUrl);
                     uri = new Uri(fileUrl);
                 }
                 else
@@ -361,6 +382,63 @@ namespace LauncherManagement
                 }
             }
             
+        }
+
+        static void CheckSpecialCircumstances(string modName, string gamePath)
+        {
+            try
+            {
+                if (modName == "reshade")
+                {
+                    Directory.Delete(Path.Join(gamePath, "reshade-shaders"), true);
+                    File.Delete(Path.Join(gamePath, "d3d9.log"));
+                }
+            }
+            catch { }
+        }
+
+        public async static Task DeleteNonTreMod(string modName)
+        {
+            Dictionary<string, string> launcherSettings = await _configHandler.GetLauncherSettings();
+
+            launcherSettings.TryGetValue("ManifestFilePath", out string manifestFilePath);
+
+            List<DownloadableFile> downloadableFiles = downloadableFiles = await DownloadManifestAsync(manifestFilePath.Split("/")[0] + $"/{modName}.json");
+
+            SettingsHandler settingsHandler = new();
+
+            string gamePath = await settingsHandler.GetGameLocationAsync();
+
+            try
+            {
+                foreach (DownloadableFile file in downloadableFiles)
+                {
+                    string filePath = Path.Join(gamePath, file.Name).Replace("\\", "/");
+
+                    if (File.Exists(filePath))
+                    {
+                        File.Delete(filePath);
+                    }
+                }
+            
+                foreach (DownloadableFile file in downloadableFiles)
+                {
+                    string filePath = Path.Join(gamePath, file.Name).Replace("\\", "/");
+
+                    string dir = Path.GetDirectoryName(filePath);
+
+                    if (Directory.Exists(dir))
+                    {
+                        if (Directory.GetFiles(dir).Length == 0 && Directory.GetDirectories(dir).Length == 0)
+                        {
+                            Directory.Delete(dir);
+                        }
+                    }
+                }
+            }
+            catch { }
+
+            CheckSpecialCircumstances(modName, gamePath);
         }
 
         static void OnDownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)

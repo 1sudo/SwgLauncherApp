@@ -36,8 +36,9 @@ namespace LauncherManagement
 
             try
             {
-                await _db.CreateTableAsync<
-                    DatabaseProperties.AdditionalSettings
+                await _db.CreateTablesAsync<
+                    DatabaseProperties.AdditionalSettings,
+                    DatabaseProperties.TreMods
                     >();
             }
             catch { }
@@ -139,6 +140,24 @@ namespace LauncherManagement
             }
 
             return new List<DatabaseProperties.AdditionalSettings>();
+        }
+
+        internal async Task<List<DatabaseProperties.TreMods>> ExecuteTreModsAsync(string data)
+        {
+            try
+            {
+                var results = await _db.QueryAsync<DatabaseProperties.TreMods>(data);
+
+                await _db.CloseAsync();
+
+                return results;
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.Message);
+            }
+
+            return new List<DatabaseProperties.TreMods>();
         }
     }
 }

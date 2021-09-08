@@ -21,6 +21,7 @@ namespace LauncherManagement
                 {
                     bool configWritten = await WriteLoginConfigAsync();
                     await WriteLauncherConfigAsync();
+                    await WriteLiveConfigAsync();
 
                     if (configWritten)
                     {
@@ -128,7 +129,6 @@ namespace LauncherManagement
                     StreamWriter sw = new(filePath);
                     sw.Write("");
                 }
-                
             }
         }
 
@@ -170,7 +170,7 @@ namespace LauncherManagement
             return false;
         }
 
-        public static async Task WriteLauncherConfigAsync()
+        static async Task WriteLauncherConfigAsync()
         {
             SettingsHandler _settingsHandler = new();
 
@@ -187,12 +187,63 @@ namespace LauncherManagement
             await WriteConfigAsync("launcher", cfgText);
         }
 
-        public static async Task WriteLiveConfigAsync()
+        static async Task WriteLiveConfigAsync()
         {
+            List<string> treList = await DownloadHandler.DownloadTreList();
 
+            StringBuilder sb = new();
+
+            string header = "[SharedFile]\n" +
+                "\tmaxSearchPriority=99\n";
+
+            sb.Append(header);
+
+            TreModHandler treModHandler = new();
+            Dictionary<string, List<string>> modList = await treModHandler.GetMods();
+
+            int count = treList.Count;
+            int modFileCount = 0;
+
+            foreach (KeyValuePair<string, List<string>> mod in modList)
+            {
+                modFileCount += mod.Value.Count;
+            }
+
+            modFileCount += count;
+
+            foreach (KeyValuePair<string, List<string>> mod in modList)
+            {
+                mod.Value.Reverse();
+
+                foreach (string treFile in mod.Value)
+                {
+                    sb.Append($"\tsearchTree_00_{modFileCount}={treFile}\n");
+                    modFileCount -= 1;
+                }
+            }
+
+            foreach (string treFile in treList)
+            {
+                sb.Append($"\tsearchTree_00_{count}={treFile}\n");
+                count -= 1;
+            }
+
+            string footer = "\n[SharedNetwork]\n" +
+                "\tnetworkHandlerDispatchThrottle=true\n\n" +
+                "[ClientUserInterface]\n" +
+                "\tmessageOfTheDayTable=live_motd\n\n" +
+                "[SwgClientUserInterface/SwgCuiService]\n" +
+                "\tknownIssuesArticle=10424\n\n" +
+                "[Station]\n" +
+                "\tsubscriptionFeatures=1\n" +
+                "\tgameFeatures=65535\n";
+
+            sb.Append(footer);
+
+            await WriteConfigAsync("live", sb.ToString());
         }
 
-        public static async Task<bool> WriteLoginConfigAsync()
+        static async Task<bool> WriteLoginConfigAsync()
         {
             SettingsHandler settingsHandler = new();
             LauncherConfigHandler configHandler = new();
@@ -238,11 +289,10 @@ namespace LauncherManagement
 
         public static void OpenDefaultBrowser(string url)
         {
-            Process myProcess = new Process();
+            Process myProcess = new();
 
             try
             {
-                // true is the default, but it is important not to set it to false
                 myProcess.StartInfo.UseShellExecute = true;
                 myProcess.StartInfo.FileName = url;
                 myProcess.Start();

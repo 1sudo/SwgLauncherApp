@@ -41,7 +41,7 @@ namespace LauncherApp
         string _gamePath;
         string _gamePassword;
         string _currentAddress;
-        string _updatesAddress = "http://tc.darknaught.com:8787/html/";
+        readonly string _updatesAddress = "http://tc.darknaught.com:8787/html/";
         static bool _postLoad = false;
         Dictionary<string, string> _launcherSettings;
         GameLoginResponseProperties _loginProperties = new();
@@ -51,7 +51,6 @@ namespace LauncherApp
         readonly CharacterHandler _characterHandler = new();
         readonly SettingsHandler _settingsHandler = new();
         readonly AdditionalSettingsHandler _additionalSettingsHandler = new();
-        // readonly AudioHandler _audioHandler = new();
         readonly FileHandler _fileHandler = new();
         readonly CaptchaProperties _captchaProperties = CaptchaController.QuestionAndAnswer();
         #endregion
@@ -77,8 +76,6 @@ namespace LauncherApp
 
             _currentAddress = _updatesAddress;
 
-            _launcherSettings = await _configHandler.GetLauncherSettings();
-
             _screens = new List<Grid>()
             {
                 SetupGrid,
@@ -96,6 +93,8 @@ namespace LauncherApp
             };
 
             NotLoggedInDisableControls();
+
+            _launcherSettings = await _configHandler.GetLauncherSettings();
 
             bool isGameConfigValidated = await ValidateGameConfig();
 
@@ -398,15 +397,12 @@ namespace LauncherApp
 
         void MantisButton_Click(object sender, RoutedEventArgs e)
         {
-            AppHandler.OpenDefaultBrowser("http://mantis.swglegacy.com");
+            AppHandler.OpenDefaultBrowser("https://mantis.swgsremu.com/login_page.php");
         }
 
         void SkillplannerButton_Click(object sender, RoutedEventArgs e)
         {
-            UpdateScreen((int)Screens.UPDATES_GRID);
-            string address = "https://swgsremu.com/skillplanner/#/";
-            if (_currentAddress != address) Browser.LoadUrlAsync(address);
-            _currentAddress = address;
+            OpenCefBrowser("https://swgsremu.com/skillplanner/#/");
         }
 
         void VoteButton_Click(object sender, RoutedEventArgs e)
@@ -991,7 +987,7 @@ namespace LauncherApp
                     
                     if ((bool)ModsHdTextureCheckbox.IsChecked)
                     {
-                        await DownloadHandler.CheckFilesAsync(await _settingsHandler.GetGameLocationAsync(), false, "hdtextures");
+                        await DownloadHandler.CheckFilesAsync(await _settingsHandler.GetGameLocationAsync(), false, "hdtextures", true);
                         await _settingsHandler.ToggleSettingsAsync("HDTextures", true);
                     }
                     
@@ -1001,14 +997,17 @@ namespace LauncherApp
                 if (!(bool)ModsReshadeCheckbox.IsChecked)
                 {
                     await _settingsHandler.ToggleSettingsAsync("Reshade", false);
-                    // await DownloadHandler.RemoveMod();
+                    await DownloadHandler.DeleteNonTreMod("reshade");
                 }
 
                 if (!(bool)ModsHdTextureCheckbox.IsChecked)
                 {
                     await _settingsHandler.ToggleSettingsAsync("HDTextures", false);
-                    // await DownloadHandler.DisableTreMod();
+                    TreModHandler treModHandler = new();
+                    await treModHandler.DisableMod("hdtextures");
                 }
+
+                ProgressGrid.Visibility = Visibility.Collapsed;
 
                 if (ServerSelection.ActiveServer != OptionsLoginServerBox.SelectedIndex + 1)
                 {
@@ -1032,9 +1031,7 @@ namespace LauncherApp
         }
         void PatchNotesButton_Click(object sender, RoutedEventArgs e)
         {
-            UpdateScreen((int)Screens.UPDATES_GRID);
-            if (_currentAddress != _updatesAddress) Browser.LoadUrlAsync(_updatesAddress);
-            _currentAddress = _updatesAddress;
+            OpenCefBrowser(_updatesAddress);
         }
 
         void WebsiteButton_Click(object sender, RoutedEventArgs e)
@@ -1307,11 +1304,6 @@ namespace LauncherApp
             }
         }
 
-        /*void PlayHoverSound(object sender, MouseEventArgs e)
-        {
-            _audioHandler.PlayHoverSound();
-        }*/
-
         async Task ConfigureDatabase()
         {
             DatabaseHandler db = new();
@@ -1326,12 +1318,19 @@ namespace LauncherApp
 
         #endregion
 
-        private void ResolutionBox_Initialized(object sender, EventArgs e)
+        void ResolutionBox_Initialized(object sender, EventArgs e)
         {
             foreach (string resolution in DisplayResolutions.GetResolutions())
             {
                 ResolutionBox.Items.Add(resolution);
             }
+        }
+
+        void OpenCefBrowser(string url)
+        {
+            UpdateScreen((int)Screens.UPDATES_GRID);
+            if (_currentAddress != url) Browser.LoadUrlAsync(url);
+            _currentAddress = url;
         }
     }
 }

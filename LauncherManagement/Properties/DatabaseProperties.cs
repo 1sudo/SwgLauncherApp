@@ -63,5 +63,13 @@ namespace LauncherManagement
             public string Key { get; set; }
             public string Value { get; set; }
         }
+
+        public class TreMods
+        {
+            [PrimaryKey, AutoIncrement]
+            public int Id { get; set; }
+            public string ModName { get; set; }
+            public string FileList { get; set; }
+        }
     }
 }
