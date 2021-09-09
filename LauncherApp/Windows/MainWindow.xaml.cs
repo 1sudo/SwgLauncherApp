@@ -39,7 +39,6 @@ namespace LauncherApp
         string _currentFile;
         double _currentFileStatus;
         double _totalFileStatus;
-        string _gamePath;
         string _gamePassword;
         string _currentAddress;
         readonly string _updatesAddress = "http://tc.darknaught.com:8787/html/";
@@ -434,16 +433,16 @@ namespace LauncherApp
 
                 if (selectedCharacter != "None")
                 {
-                    await AppHandler.StartGameAsync(_gamePath, _gamePassword, _loginProperties.Username, selectedCharacter, true);
+                    await AppHandler.StartGameAsync(await _settingsHandler.GetGameLocationAsync(), _gamePassword, _loginProperties.Username, selectedCharacter, true);
                 }
                 else
                 {
-                    await AppHandler.StartGameAsync(_gamePath, _gamePassword, _loginProperties.Username);
+                    await AppHandler.StartGameAsync(await _settingsHandler.GetGameLocationAsync(), _gamePassword, _loginProperties.Username);
                 }
             }
             catch
             {
-                await AppHandler.StartGameAsync(_gamePath, _gamePassword, _loginProperties.Username);
+                await AppHandler.StartGameAsync(await _settingsHandler.GetGameLocationAsync(), _gamePassword, _loginProperties.Username);
             }
 
             PlayButton.IsEnabled = true;
@@ -812,7 +811,7 @@ namespace LauncherApp
         async void FullScanButton_Click(object sender, RoutedEventArgs e)
         {
             ScanDisableButtons();
-            await DownloadHandler.CheckFilesAsync(_gamePath, true);
+            await DownloadHandler.CheckFilesAsync(await _settingsHandler.GetGameLocationAsync(), true);
             ScanEnableButtons();
         }
 
@@ -1205,7 +1204,6 @@ namespace LauncherApp
 
             if (!string.IsNullOrEmpty(path) && Directory.Exists(path))
             {
-                _gamePath = path;
                 return true;
             }   
 
