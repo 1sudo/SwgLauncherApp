@@ -15,102 +15,56 @@ namespace LauncherManagement
             string[] files = Directory.GetFiles(generateFromFolder, "*.*", SearchOption.AllDirectories);
             List<DownloadableFile> listOfFiles = new();
 
-            try
+            foreach (string file in files)
             {
-                foreach (string file in files)
+                string splitFile = file.Split(generateFromFolder + "\\")[1].Replace("\\", "/");
+
+                DownloadableFile dFile = new();
+                dFile.Name = splitFile;
+
+                dFile.Size = new FileInfo(file).Length;
+
+                using (MD5 md5 = MD5.Create())
                 {
-                    string splitFile = file.Split(generateFromFolder + "\\")[1].Replace("\\", "/");
+                    using FileStream stream = File.OpenRead(file);
 
-                    DownloadableFile dFile = new();
-                    dFile.Name = splitFile;
+                    dFile.Md5 = await Task.Run(() => BitConverter.ToString(md5.ComputeHash(stream))
+                        .Replace("-", "").ToLowerInvariant());
+                }
 
-                    dFile.Size = new FileInfo(file).Length;
-
-                    using (MD5 md5 = MD5.Create())
-                    {
-                        using FileStream stream = File.OpenRead(file);
-
-                        dFile.Md5 = await Task.Run(() => BitConverter.ToString(md5.ComputeHash(stream))
-                            .Replace("-", "").ToLowerInvariant());
-                    }
-
-                    if (file.Contains("swgemu_live.cfg"))
-                    {
-                        await ParseLiveCfg(file);
-                    }
-                    else
-                    {
-                        listOfFiles.Add(dFile);
-                    }
+                if (file.Contains("swgemu_live.cfg"))
+                {
+                    await ParseLiveCfg(file);
+                }
+                else
+                {
+                    listOfFiles.Add(dFile);
                 }
             }
-            catch (Exception e)
-            {
-                await LogHandler.Log(LogType.ERROR, "| GenerateManifestAsync |" + e.Message);
-            }
 
-            string output = "";
+            string output  = JsonConvert.SerializeObject(listOfFiles, Formatting.Indented);
 
-            try
-            {
-                output = JsonConvert.SerializeObject(listOfFiles, Formatting.Indented);
-            }
-            catch (Exception e)
-            {
-                await LogHandler.Log(LogType.ERROR, "| GenerateManifestAsync |" + e.Message);
-            }
-
-            try
-            {
-                await File.WriteAllTextAsync(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "required.json"), output);
-            }
-            catch (Exception e)
-            {
-                await LogHandler.Log(LogType.ERROR, "| GenerateManifestAsync |" + e.Message);
-            }
+            await File.WriteAllTextAsync(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "required.json"), output);
         }
 
         static async Task ParseLiveCfg(string file)
         {
             List<string> treFiles = new();
 
-            try
-            {
-                string[] lines = await File.ReadAllLinesAsync(file);
+            string[] lines = await File.ReadAllLinesAsync(file);
 
-                foreach (string line in lines)
+            foreach (string line in lines)
+            {
+                if (line.Contains("searchTree"))
                 {
-                    if (line.Contains("searchTree"))
-                    {
-                        string treFile = line.Split("=")[1];
-                        treFiles.Add(treFile);
-                    }
+                    string treFile = line.Split("=")[1];
+                    treFiles.Add(treFile);
                 }
             }
-            catch (Exception e)
-            {
-                await LogHandler.Log(LogType.ERROR, "| ParseLiveCfg |" + e.Message);
-            }
 
-            string json = "";
+            string json = JsonConvert.SerializeObject(treFiles, Formatting.Indented);
 
-            try
-            {
-                json = JsonConvert.SerializeObject(treFiles, Formatting.Indented);
-            }
-            catch (Exception e)
-            {
-                await LogHandler.Log(LogType.ERROR, "| ParseLiveCfg |" + e.Message);
-            }
-
-            try
-            {
-                await File.WriteAllTextAsync(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "livecfg.json"), json);
-            }
-            catch (Exception e)
-            {
-                await LogHandler.Log(LogType.ERROR, "| ParseLiveCfg |" + e.Message);
-            }
+            await File.WriteAllTextAsync(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "livecfg.json"), json);
         }
     }
 }

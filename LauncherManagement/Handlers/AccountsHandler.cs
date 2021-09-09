@@ -9,11 +9,15 @@ namespace LauncherManagement
     {
         public async Task SaveCredentialsAsync(string username, string password)
         {
+            CipherHandler cipher = new();
+            string user = cipher.Encode(await cipher.Transform(username.ToLower()));
+            string pass = cipher.Encode(await cipher.Transform(password));
+
             List<DatabaseProperties.Accounts> searchedAccount = await ExecuteAccountAsync
                 (
                     "SELECT Username " +
                     "FROM Accounts " +
-                    $"where Username = '{username.ToLower()}';"
+                    $"where Username = '{user.ToLower()}';"
                 );
 
             List<DatabaseProperties.Accounts> totalAccounts = await ExecuteAccountAsync
@@ -21,7 +25,6 @@ namespace LauncherManagement
                     "SELECT * " +
                     "FROM Accounts;"
                 );
-
 
             if (searchedAccount.Count > 0)
             {
@@ -32,7 +35,7 @@ namespace LauncherManagement
                 await ExecuteAccountAsync
                     (
                         "UPDATE Accounts " +
-                        $"SET Username = '{username.ToLower()}', Password = '{password}' " +
+                        $"SET Username = '{user}', Password = '{pass}' " +
                         "WHERE Id = 1;"
                     );
             }
@@ -43,13 +46,13 @@ namespace LauncherManagement
                         "INSERT into Accounts " +
                         "(Username, Password) " +
                         "VALUES " +
-                        $"('{username.ToLower()}', '{password}');"
+                        $"('{user}', '{pass}');"
                     );
             }
         }
 
         public async Task<Dictionary<string, string>> GetAccountCredentialsAsync()
-        {    
+        {
             List<DatabaseProperties.Accounts> accounts = await ExecuteAccountAsync
                 (
                     "SELECT Username, Password " +
@@ -57,12 +60,14 @@ namespace LauncherManagement
                     "where Id = 1;"
                 );
 
+            CipherHandler cipher = new();
+
             if (accounts.Count > 0)
             {
                 return new Dictionary<string, string>
                 {
-                    { "Username", accounts[0].Username },
-                    { "Password", accounts[0].Password }
+                    { "Username", await cipher.Transform(cipher.Decode(accounts[0].Username)) },
+                    { "Password", await cipher.Transform(cipher.Decode(accounts[0].Password)) }
                 };
             }
             else

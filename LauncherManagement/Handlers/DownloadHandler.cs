@@ -2,7 +2,6 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Security.Cryptography;
@@ -15,7 +14,13 @@ namespace LauncherManagement
         static readonly LauncherConfigHandler _configHandler = new();
         static Dictionary<string, string> _launcherSettings = new();
         static bool _primaryServerOffline = false;
-        static readonly List<string> ClientChecksums = new() { "a487bcf7abe27ba9c02e3121ba44367e", "50692684e090b200ea28681e7ae7da5b", "2a55323f8774c43231331cb00014a011", "38feda8e17042a5bc9edf7d9959bdbfe" };
+
+        static readonly List<string> ClientChecksums = new() { 
+            "a487bcf7abe27ba9c02e3121ba44367e", // 30 FPS
+            "50692684e090b200ea28681e7ae7da5b", // 60 FPS
+            "2a55323f8774c43231331cb00014a011", // 144 FPS
+            "38feda8e17042a5bc9edf7d9959bdbfe"  // 240 FPS
+        };
 
         public static Action OnDownloadCompleted { get; set; }
         public static Action<string, string, double, double> OnCurrentFileDownloading { get; set; }

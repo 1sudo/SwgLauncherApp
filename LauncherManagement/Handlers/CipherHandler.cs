@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace LauncherManagement
 {
     public class CipherHandler
     {
-        readonly char[] _shift = new char[char.MaxValue];
+        public char[] _shift = new char[char.MaxValue];
 
         public CipherHandler()
         {
@@ -44,6 +45,7 @@ namespace LauncherManagement
 
         public async Task<string> Transform(string value)
         {
+            Trace.WriteLine("Are we being executed?");
             try
             {
                 char[] a = value.ToCharArray();
@@ -64,13 +66,13 @@ namespace LauncherManagement
             }
         }
 
-        public static string Encode(string plainText)
+        public string Encode(string plainText)
         {
             byte[] plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
             return Convert.ToBase64String(plainTextBytes);
         }
 
-        public static string Decode(string base64EncodedData)
+        public string Decode(string base64EncodedData)
         {
             var base64EncodedBytes = Convert.FromBase64String(base64EncodedData);
             return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
