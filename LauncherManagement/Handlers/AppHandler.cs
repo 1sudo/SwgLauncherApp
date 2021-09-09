@@ -52,6 +52,9 @@ namespace LauncherManagement
                                 // Close Read to prepare for write
                                 rs.Dispose();
 
+                                Trace.WriteLine(hex);
+                                Trace.WriteLine(hexSelection);
+
                                 // If the selected FPS already matches hex value in the 
                                 // binary, don't write to it again (faster loading)
                                 if (hex != hexSelection)
@@ -103,17 +106,17 @@ namespace LauncherManagement
                     }
                     else
                     {
-                        Trace.WriteLine("Error writing to login.cfg!");
+                        await LogHandler.Log(LogType.ERROR, "Error writing to login.cfg!");
                     }
                 }
                 catch (Exception e)
                 {
-                    Trace.WriteLine(e.Message.ToString());
+                    await LogHandler.Log(LogType.ERROR, "| StartGameAsync | " + e.Message.ToString());
                 }
             });
         }
 
-        public static void WriteMissingConfigs(string gameLocation)
+        public static async void WriteMissingConfigs(string gameLocation)
         {
             string[] configs =
             {
@@ -126,8 +129,15 @@ namespace LauncherManagement
                 string filePath = Path.Join(gameLocation, config);
                 if (!File.Exists(filePath))
                 {
-                    StreamWriter sw = new(filePath);
-                    sw.Write("");
+                    try
+                    {
+                        StreamWriter sw = new(filePath);
+                        sw.Write("");
+                    }
+                    catch (Exception e)
+                    {
+                        await LogHandler.Log(LogType.ERROR, "| WriteMissingConfigs | " + e.Message.ToString());
+                    }
                 }
             }
         }
@@ -152,7 +162,14 @@ namespace LauncherManagement
 
                 string filePath = Path.Join(gameLocation, cfg);
 
-                new FileInfo(filePath).Directory.Create();
+                try
+                {
+                    new FileInfo(filePath).Directory.Create();
+                }
+                catch (Exception e)
+                {
+                    await LogHandler.Log(LogType.ERROR, "| WriteConfigAsync | " + e.Message.ToString());
+                }
 
                 try
                 {
@@ -163,7 +180,7 @@ namespace LauncherManagement
                 }
                 catch (Exception e)
                 {
-                    Trace.WriteLine(e.Message);
+                    await LogHandler.Log(LogType.ERROR, "| WriteConfigAsync | " + e.Message.ToString());
                 }
             }
 
@@ -262,7 +279,7 @@ namespace LauncherManagement
             return await WriteConfigAsync("login", cfgText);
         }
 
-        public static void StartGameConfig(string serverPath)
+        public async static void StartGameConfig(string serverPath)
         {
             try
             {
@@ -283,11 +300,13 @@ namespace LauncherManagement
 
                 Process.Start(startInfo);
             }
-            catch
-            { }
+            catch (Exception e)
+            {
+                await LogHandler.Log(LogType.ERROR, "| StartGameConfig | " + e.Message.ToString());
+            }
         }
 
-        public static void OpenDefaultBrowser(string url)
+        public static async void OpenDefaultBrowser(string url)
         {
             Process myProcess = new();
 
@@ -299,7 +318,7 @@ namespace LauncherManagement
             }
             catch (Exception e)
             {
-                Trace.WriteLine(e.Message);
+                await LogHandler.Log(LogType.ERROR, "| OpenDefaultBrowser | " + e.Message.ToString());
             }
         }
     }

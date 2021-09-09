@@ -1,4 +1,7 @@
-﻿namespace LauncherManagement
+﻿using System;
+using System.Threading.Tasks;
+
+namespace LauncherManagement
 {
     public class CipherHandler
     {
@@ -39,7 +42,7 @@
             }
         }
 
-        public string Transform(string value)
+        public async Task<string> Transform(string value)
         {
             try
             {
@@ -53,8 +56,10 @@
 
                 return new string(a);
             }
-            catch
+            catch (Exception e)
             {
+                await LogHandler.Log(LogType.ERROR, "| (CipherHandler)Transform | " + e.Message.ToString());
+
                 return value;
             }
         }
@@ -62,12 +67,12 @@
         public static string Encode(string plainText)
         {
             byte[] plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
-            return System.Convert.ToBase64String(plainTextBytes);
+            return Convert.ToBase64String(plainTextBytes);
         }
 
         public static string Decode(string base64EncodedData)
         {
-            var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
+            var base64EncodedBytes = Convert.FromBase64String(base64EncodedData);
             return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
         }
     }

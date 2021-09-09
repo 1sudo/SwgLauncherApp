@@ -15,7 +15,7 @@ namespace LauncherManagement
         static readonly LauncherConfigHandler _configHandler = new();
         static Dictionary<string, string> _launcherSettings = new();
         static bool _primaryServerOffline = false;
-        static readonly List<string> ClientChecksums = new() { "582f8324c2b280b6b1de1fd00180729d", "", "", "" };
+        static readonly List<string> ClientChecksums = new() { "a487bcf7abe27ba9c02e3121ba44367e", "50692684e090b200ea28681e7ae7da5b", "2a55323f8774c43231331cb00014a011", "38feda8e17042a5bc9edf7d9959bdbfe" };
 
         public static Action OnDownloadCompleted { get; set; }
         public static Action<string, string, double, double> OnCurrentFileDownloading { get; set; }
@@ -46,9 +46,28 @@ namespace LauncherManagement
 
             using WebClient client = new();
 
-            string contents = client.DownloadString(new Uri(liveCfgAddress));
+            string contents = "";
+            List<string> treList = new();
 
-            return JsonConvert.DeserializeObject<List<string>>(contents);
+            try
+            {
+                contents = client.DownloadString(new Uri(liveCfgAddress));
+
+                treList = JsonConvert.DeserializeObject<List<string>>(contents);
+            }
+            catch (Exception e)
+            {
+                await LogHandler.Log(LogType.ERROR, "| DownloadTreList | " + e.Message.ToString());
+            }
+
+            if (treList is not null)
+            {
+                return treList;
+            }
+            else
+            {
+                return new List<string>();
+            }
         }
 
         internal static async Task DownloadFilesFromListAsync(List<string> fileList, string downloadLocation, bool isMod = false)
@@ -203,7 +222,7 @@ namespace LauncherManagement
                                     ClientChecksums.ForEach(checksum =>
                                     {
                                         // If MD5 checksum doesn't match the manifest, or the hardcoded patched sums, add to list
-                                        if (result != file.Md5 || result != checksum)
+                                        if (result == file.Md5 || result == checksum)
                                         {
                                             fileNeedsAdded = false;
                                         }
@@ -233,7 +252,7 @@ namespace LauncherManagement
             return newFileList;
         }
 
-        public static bool CheckBaseInstallation(string location)
+        public async static Task<bool> CheckBaseInstallation(string location)
         {
             try
             {
@@ -271,9 +290,10 @@ namespace LauncherManagement
                     return true;
                 }
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                OnInstallCheckFailed?.Invoke(ex.Message.ToString());
+                await LogHandler.Log(LogType.ERROR, "| CheckBaseInstallation | " + e.Message.ToString());
+                OnInstallCheckFailed?.Invoke(e.Message.ToString());
             }
 
             return false;
@@ -362,6 +382,8 @@ namespace LauncherManagement
             // If the download server is unavailable, try the backup server
             catch
             {
+                await LogHandler.Log(LogType.INFO, "| DownloadAsync | Primary download server unavailable. Downloading from backup server.");
+
                 _primaryServerOffline = true;
 
                 _launcherSettings.TryGetValue("BackupManifestFileUrl", out string backupManifestFileUrl);
@@ -377,14 +399,14 @@ namespace LauncherManagement
                 // If the backup server is unavailable, error
                 catch (Exception e)
                 {
+                    await LogHandler.Log(LogType.CRITICAL, "| DownloadAsync | All download servers unavailable!");
                     OnServerError?.Invoke(e.ToString());
                     return Array.Empty<byte>();
                 }
             }
-            
         }
 
-        static void CheckSpecialCircumstances(string modName, string gamePath)
+        static async Task CheckSpecialCircumstances(string modName, string gamePath)
         {
             try
             {
@@ -394,7 +416,10 @@ namespace LauncherManagement
                     File.Delete(Path.Join(gamePath, "d3d9.log"));
                 }
             }
-            catch { }
+            catch (Exception e)
+            {
+                await LogHandler.Log(LogType.ERROR, "| CheckSpecialCircumstances |" + e.Message);
+            }
         }
 
         public async static Task DeleteNonTreMod(string modName)
@@ -403,7 +428,7 @@ namespace LauncherManagement
 
             launcherSettings.TryGetValue("ManifestFilePath", out string manifestFilePath);
 
-            List<DownloadableFile> downloadableFiles = downloadableFiles = await DownloadManifestAsync(manifestFilePath.Split("/")[0] + $"/{modName}.json");
+            List<DownloadableFile> downloadableFiles = await DownloadManifestAsync(manifestFilePath.Split("/")[0] + $"/{modName}.json");
 
             SettingsHandler settingsHandler = new();
 
@@ -438,7 +463,7 @@ namespace LauncherManagement
             }
             catch { }
 
-            CheckSpecialCircumstances(modName, gamePath);
+            await CheckSpecialCircumstances(modName, gamePath);
         }
 
         static void OnDownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)

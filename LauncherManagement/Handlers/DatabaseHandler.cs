@@ -56,7 +56,10 @@ namespace LauncherManagement
 
                 return results;
             }
-            catch { }
+            catch (Exception e)
+            {
+                await LogHandler.Log(LogType.ERROR, "| ExecuteAccountAsync | " + e.Message.ToString());
+            }
 
             return new List<DatabaseProperties.Accounts>();
         }
@@ -71,7 +74,10 @@ namespace LauncherManagement
 
                 return results;
             }
-            catch { }
+            catch (Exception e)
+            {
+                await LogHandler.Log(LogType.ERROR, "| ExecuteActiveServerAsync | " + e.Message.ToString());
+            }
 
             return new List<DatabaseProperties.ActiveServer>();
         }
@@ -86,7 +92,10 @@ namespace LauncherManagement
 
                 return results;
             }
-            catch { }
+            catch (Exception e)
+            {
+                await LogHandler.Log(LogType.ERROR, "| ExecuteLauncherConfigAsync | " + e.Message.ToString());
+            }
 
             return new List<DatabaseProperties.LauncherConfig>();
         }
@@ -101,7 +110,10 @@ namespace LauncherManagement
 
                 return results;
             }
-            catch { }
+            catch (Exception e)
+            {
+                await LogHandler.Log(LogType.ERROR, "| ExecuteCharacterAsync | " + e.Message.ToString());
+            }
 
             return new List<DatabaseProperties.Characters>();
         }
@@ -118,7 +130,7 @@ namespace LauncherManagement
             }
             catch (Exception e)
             {
-                Trace.WriteLine(e.Message);
+                await LogHandler.Log(LogType.ERROR, "| ExecuteSettingsAsync | " + e.Message.ToString());
             }
 
             return new List<DatabaseProperties.Settings>();
@@ -136,7 +148,7 @@ namespace LauncherManagement
             }
             catch (Exception e)
             {
-                Trace.WriteLine(e.Message);
+                await LogHandler.Log(LogType.ERROR, "| ExecuteAdditionalSettingsAsync | " + e.Message.ToString());
             }
 
             return new List<DatabaseProperties.AdditionalSettings>();
@@ -154,7 +166,7 @@ namespace LauncherManagement
             }
             catch (Exception e)
             {
-                Trace.WriteLine(e.Message);
+                await LogHandler.Log(LogType.ERROR, "| ExecuteTreModsAsync | " + e.Message.ToString());
             }
 
             return new List<DatabaseProperties.TreMods>();

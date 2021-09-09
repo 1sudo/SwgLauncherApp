@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -37,7 +38,14 @@ namespace LauncherManagement
                     }
                 }
 
-                await File.WriteAllTextAsync(path, sb.ToString());
+                try
+                {
+                    await File.WriteAllTextAsync(path, sb.ToString());
+                }
+                catch (Exception e)
+                {
+                    await LogHandler.Log(LogType.ERROR, "| GenerateMissingFiles |" + e.Message);
+                }
             }
         }
 
@@ -151,13 +159,13 @@ namespace LauncherManagement
                     sb.AppendLine("\n[SharedUtility]");
                     sb.AppendLine("\tcache = \"misc/cache_large.iff\"");
                 }
+
+                await File.WriteAllTextAsync(path, sb.ToString());
             }
-            catch
+            catch (Exception e)
             {
-
+                await LogHandler.Log(LogType.ERROR, "| SaveOptionsCfg |" + e.Message);
             }
-
-            await File.WriteAllTextAsync(path, sb.ToString());
         }
     }
 }

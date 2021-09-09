@@ -40,8 +40,10 @@ namespace LauncherManagement
 
                 return loginProperties;
             }
-            catch
+            catch (Exception e)
             {
+                await LogHandler.Log(LogType.ERROR, "| AccountLoginAsync | " + e.Message.ToString());
+
                 return new GameLoginResponseProperties
                 {
                     Result = "ServerDown",
@@ -89,8 +91,10 @@ namespace LauncherManagement
 
                 return accountCreationProperties;
             }
-            catch
+            catch (Exception e)
             {
+                await LogHandler.Log(LogType.ERROR, "| AccountCreationAsync | " + e.Message.ToString());
+
                 return new GameAccountCreationResponseProperties
                 {
                     Result = "ServerDown",

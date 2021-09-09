@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -580,7 +581,7 @@ namespace LauncherApp
             }
             else
             {
-                MessageBox.Show("Please accept the rules and regulations before proceeding.");
+                // MessageBox.Show("Please accept the rules and regulations before proceeding.");
             }
         }
 
@@ -621,12 +622,12 @@ namespace LauncherApp
             {
                 if (string.IsNullOrEmpty(GameValidationTextBox.Text))
                 {
-                    MessageBox.Show("Please, first select your base SWG installation location!",
-                        "Original Game Files Location Error!", MessageBoxButton.OK, MessageBoxImage.Asterisk);
+                    // MessageBox.Show("Please, first select your base SWG installation location!",
+                        //"Original Game Files Location Error!", MessageBoxButton.OK, MessageBoxImage.Asterisk);
                 }
                 else
                 {
-                    bool isBaseGameValidated = DownloadHandler.CheckBaseInstallation(GameValidationTextBox.Text);
+                    bool isBaseGameValidated = await DownloadHandler.CheckBaseInstallation(GameValidationTextBox.Text);
 
                     if (isBaseGameValidated)
                     {
@@ -636,15 +637,15 @@ namespace LauncherApp
                     }
                     else
                     {
-                        MessageBox.Show("The path you have chosen does not contain a valid copy of Star Wars Galaxies!" +
-                            "Please select a valid path and try again.", "Invalid Base Game Path!", MessageBoxButton.OK, MessageBoxImage.Asterisk);
+                        // MessageBox.Show("The path you have chosen does not contain a valid copy of Star Wars Galaxies!" +
+                            //"Please select a valid path and try again.", "Invalid Base Game Path!", MessageBoxButton.OK, MessageBoxImage.Asterisk);
                     }
                 }
             }
             else
             {
-                MessageBox.Show("You must first verify that you own a legitimate copy of Star Wars Galaxies!",
-                    "Did you forget to check the box? Please verify and try again.", MessageBoxButton.OK, MessageBoxImage.Asterisk);
+                // MessageBox.Show("You must first verify that you own a legitimate copy of Star Wars Galaxies!",
+                    //"Did you forget to check the box? Please verify and try again.", MessageBoxButton.OK, MessageBoxImage.Asterisk);
             }
         }
 
@@ -680,8 +681,8 @@ namespace LauncherApp
             {
                 if (string.IsNullOrEmpty(AdvancedSetupTextbox.Text))
                 {
-                    MessageBox.Show("Please, first select a location for SWG Legacy to be installed!",
-                        "SWG Legacy File Location Error!", MessageBoxButton.OK, MessageBoxImage.Asterisk);
+                    //MessageBox.Show("Please, first select a location for SWG Legacy to be installed!",
+                        //"SWG Legacy File Location Error!", MessageBoxButton.OK, MessageBoxImage.Asterisk);
                 }
                 else
                 {
@@ -779,21 +780,21 @@ namespace LauncherApp
                             SubscribeToNewsletter = (bool)NewsletterCheckbox.IsChecked
                         }, _captchaProperties);
 
-                        MessageBox.Show(creation.Result);
+                        //MessageBox.Show(creation.Result);
                     }
                     else
                     {
-                        MessageBox.Show("Captcha is incorrect!");
+                        //MessageBox.Show("Captcha is incorrect!");
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Error parsing captcha answer! Report this to staff!");
+                    //MessageBox.Show("Error parsing captcha answer! Report this to staff!");
                 }
             }
             else
             {
-                MessageBox.Show("Passwords do not match!");
+                //MessageBox.Show("Passwords do not match!");
             }
         }
 
@@ -1273,14 +1274,14 @@ namespace LauncherApp
 
         void CaughtServerError(string error)
         {
-            MessageBox.Show(error, "Cannot Connect To Server!", MessageBoxButton.OK, MessageBoxImage.Error);
+            //MessageBox.Show(error, "Cannot Connect To Server!", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         void BaseGameVerificationFailed(string message)
         {
-            MessageBox.Show("An error occurred accessing the folder you have specified! " +
-                "Please check the permissions of the folder and try again.", "Base Game Check Failed!",
-                MessageBoxButton.OK, MessageBoxImage.Error);
+            //MessageBox.Show("An error occurred accessing the folder you have specified! " +
+                //"Please check the permissions of the folder and try again.", "Base Game Check Failed!",
+                //MessageBoxButton.OK, MessageBoxImage.Error);
         }
         #endregion
 
