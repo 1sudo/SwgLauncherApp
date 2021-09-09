@@ -10,8 +10,8 @@ namespace LauncherManagement
         public async Task SaveCredentialsAsync(string username, string password)
         {
             CipherHandler cipher = new();
-            string user = cipher.Encode(await cipher.Transform(username.ToLower()));
-            string pass = cipher.Encode(await cipher.Transform(password));
+            string user = CipherHandler.Encode(await cipher.Transform(username.ToLower()));
+            string pass = CipherHandler.Encode(await cipher.Transform(password));
 
             List<DatabaseProperties.Accounts> searchedAccount = await ExecuteAccountAsync
                 (
@@ -66,8 +66,8 @@ namespace LauncherManagement
             {
                 return new Dictionary<string, string>
                 {
-                    { "Username", await cipher.Transform(cipher.Decode(accounts[0].Username)) },
-                    { "Password", await cipher.Transform(cipher.Decode(accounts[0].Password)) }
+                    { "Username", await cipher.Transform(CipherHandler.Decode(accounts[0].Username)) },
+                    { "Password", await cipher.Transform(CipherHandler.Decode(accounts[0].Password)) }
                 };
             }
             else

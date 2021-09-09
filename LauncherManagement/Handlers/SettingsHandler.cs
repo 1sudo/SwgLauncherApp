@@ -30,7 +30,7 @@ namespace LauncherManagement
             return (config.Count > 0) ? config[0].ServerName : "";
         }
 
-        public async Task ConfigureLocationsAsync(string gamePath)
+        public async Task SetGameLocationAsync(string gamePath)
         {
             await ExecuteSettingsAsync
                 (

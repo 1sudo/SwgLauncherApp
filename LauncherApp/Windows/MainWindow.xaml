@@ -988,7 +988,7 @@
                                                 Installation Directory
                                                 </TextBlock>
                                                 <DockPanel FlowDirection="RightToLeft">
-                                                    <Button x:Name="OptionsInstallDirectoryButton" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Height="30" VerticalAlignment="Top">Change</Button>
+                                                    <Button x:Name="OptionsInstallDirectoryButton" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Height="30" VerticalAlignment="Top" Click="OptionsInstallDirectoryButton_Click">Change</Button>
                                                     <TextBox x:Name="OptionsInstallDirectoryTextbox" Style="{DynamicResource TextBoxTransparent}" Height="30" Margin="8,0,0,0" IsEnabled="False" VerticalAlignment="Top" />
                                                 </DockPanel>
                                             </StackPanel>

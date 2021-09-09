@@ -44,6 +44,7 @@ namespace LauncherApp
         string _currentAddress;
         readonly string _updatesAddress = "http://tc.darknaught.com:8787/html/";
         static bool _postLoad = false;
+        string _previousInstallationDirectory;
         Dictionary<string, string> _launcherSettings;
         GameLoginResponseProperties _loginProperties = new();
         readonly LauncherConfigHandler _configHandler = new();
@@ -67,6 +68,8 @@ namespace LauncherApp
             DownloadHandler.OnServerError += CaughtServerError;
             DownloadHandler.OnFullScanFileCheck += OnFullScanFileCheck;
             DownloadHandler.OnInstallCheckFailed += BaseGameVerificationFailed;
+
+            _previousInstallationDirectory = OptionsInstallDirectoryTextbox.Text;
         }
         #endregion
 
@@ -673,7 +676,7 @@ namespace LauncherApp
         {
             if (EasySetupEllipse.IsVisible)
             {
-                await _settingsHandler.ConfigureLocationsAsync($"C:/{await _settingsHandler.GetServerNameAsync()}");
+                await _settingsHandler.SetGameLocationAsync($"C:/{await _settingsHandler.GetServerNameAsync()}");
                 await _fileHandler.GenerateMissingFiles();
                 UpdateScreen((int)Screens.GAME_VALIDATION_GRID);
             }
@@ -687,7 +690,7 @@ namespace LauncherApp
                 else
                 {
                     string location = AdvancedSetupTextbox.Text.Replace("\\", "/");
-                    await _settingsHandler.ConfigureLocationsAsync(location);
+                    await _settingsHandler.SetGameLocationAsync(location);
                     await _fileHandler.GenerateMissingFiles();
                     UpdateScreen((int)Screens.GAME_VALIDATION_GRID);
                 }
@@ -811,6 +814,25 @@ namespace LauncherApp
             ScanDisableButtons();
             await DownloadHandler.CheckFilesAsync(_gamePath, true);
             ScanEnableButtons();
+        }
+
+        private void OptionsInstallDirectoryButton_Click(object sender, RoutedEventArgs e)
+        {
+            _previousInstallationDirectory = OptionsInstallDirectoryTextbox.Text;
+
+            Trace.WriteLine(_previousInstallationDirectory);
+
+            using var dialog = new System.Windows.Forms.FolderBrowserDialog();
+            System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+
+            if (result.ToString().Trim() == "Cancel")
+            {
+                return;
+            }
+            else if (result.ToString().Trim() == "OK")
+            {
+                OptionsInstallDirectoryTextbox.Text = dialog.SelectedPath.Replace("\\", "/");
+            }
         }
 
         void ScanEnableButtons()
@@ -1018,6 +1040,14 @@ namespace LauncherApp
             {
                 SettingsDisableButtons();
 
+                string gameLocation = await _settingsHandler.GetGameLocationAsync();
+
+                if (OptionsInstallDirectoryTextbox.Text.Trim() != gameLocation.Trim())
+                {
+                    await _settingsHandler.SetGameLocationAsync(OptionsInstallDirectoryTextbox.Text.Trim());
+                    await CheckGameFiles(true, _previousInstallationDirectory);
+                }
+
                 if ((bool)ModsReshadeCheckbox.IsChecked || (bool)ModsHdTextureCheckbox.IsChecked)
                 {
                     CharacterSelectGrid.Visibility = Visibility.Collapsed;
@@ -1027,7 +1057,9 @@ namespace LauncherApp
                         await DownloadHandler.CheckFilesAsync(await _settingsHandler.GetGameLocationAsync(), false, "reshade");
                         await _settingsHandler.ToggleSettingsAsync("Reshade", true);
                     }
-                    
+
+                    CharacterSelectGrid.Visibility = Visibility.Collapsed;
+
                     if ((bool)ModsHdTextureCheckbox.IsChecked)
                     {
                         await DownloadHandler.CheckFilesAsync(await _settingsHandler.GetGameLocationAsync(), false, "hdtextures", true);
@@ -1108,11 +1140,20 @@ namespace LauncherApp
         #endregion
 
         #region Validation
-        async Task CheckGameFiles()
+        async Task CheckGameFiles(bool isDirChange = false, string previousDir = "")
         {
             AppHandler.WriteMissingConfigs(await _settingsHandler.GetGameLocationAsync());
             ScanDisableButtons();
-            await DownloadHandler.CheckFilesAsync(await _settingsHandler.GetGameLocationAsync());
+
+            if (isDirChange)
+            {
+                await DownloadHandler.CheckFilesAsync(await _settingsHandler.GetGameLocationAsync(), false, "", false, true, previousDir);
+            }
+            else
+            {
+                await DownloadHandler.CheckFilesAsync(await _settingsHandler.GetGameLocationAsync());
+            }
+
             ScanEnableButtons();
         }
 

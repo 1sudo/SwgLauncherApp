@@ -45,34 +45,24 @@ namespace LauncherManagement
 
         public async Task<string> Transform(string value)
         {
-            Trace.WriteLine("Are we being executed?");
-            try
+            char[] a = value.ToCharArray();
+
+            for (int i = 0; i < a.Length; i++)
             {
-                char[] a = value.ToCharArray();
-
-                for (int i = 0; i < a.Length; i++)
-                {
-                    int t = (int)a[i];
-                    a[i] = _shift[t];
-                }
-
-                return new string(a);
+                int t = (int)a[i];
+                a[i] = _shift[t];
             }
-            catch (Exception e)
-            {
-                await LogHandler.Log(LogType.ERROR, "| (CipherHandler)Transform | " + e.Message.ToString());
 
-                return value;
-            }
+            return new string(a);
         }
 
-        public string Encode(string plainText)
+        public static string Encode(string plainText)
         {
             byte[] plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
             return Convert.ToBase64String(plainTextBytes);
         }
 
-        public string Decode(string base64EncodedData)
+        public static string Decode(string base64EncodedData)
         {
             var base64EncodedBytes = Convert.FromBase64String(base64EncodedData);
             return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);

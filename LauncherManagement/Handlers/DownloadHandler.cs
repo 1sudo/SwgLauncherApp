@@ -99,7 +99,7 @@ namespace LauncherManagement
             OnDownloadCompleted?.Invoke();
         }
 
-        internal static async Task AttemptCopyFilesFromListAsync(List<string> fileList, string copyLocation)
+        public static async Task AttemptCopyFilesFromListAsync(List<string> fileList, string copyLocation, bool isDirChange = false, string previousDir = "")
         {
             double listLength = fileList.Count;
             List<string> newFileList = new();
@@ -113,6 +113,11 @@ namespace LauncherManagement
 
                 // Create directory before writing to file if it doesn't exist
                 new FileInfo(Path.Join(copyLocation, file)).Directory.Create();
+
+                if (isDirChange)
+                {
+                    BaseGameLocation = previousDir;
+                }
 
                 if (copyLocation != BaseGameLocation)
                 {
@@ -304,7 +309,7 @@ namespace LauncherManagement
             return false;
         }
 
-        public static async Task CheckFilesAsync(string downloadLocation, bool isFullScan = false, string modName = "", bool isTreMod = false)
+        public static async Task CheckFilesAsync(string downloadLocation, bool isFullScan = false, string modName = "", bool isTreMod = false, bool isDirChange = false, string previousDir = "")
         {
             _launcherSettings = await _configHandler.GetLauncherSettings();
             _launcherSettings.TryGetValue("ManifestFilePath", out string manifestFilePath);
@@ -334,7 +339,16 @@ namespace LauncherManagement
             else
             {
                 fileList = await Task.Run(() => GetBadFilesAsync(downloadLocation, downloadableFiles));
-                await Task.Run(() => AttemptCopyFilesFromListAsync(fileList, downloadLocation));
+
+                if (isDirChange)
+                {
+                    await Task.Run(() => AttemptCopyFilesFromListAsync(fileList, downloadLocation, true, previousDir));
+                }
+                else
+                {
+                    await Task.Run(() => AttemptCopyFilesFromListAsync(fileList, downloadLocation));
+                }
+                
                 fileList = await Task.Run(() => GetBadFilesAsync(downloadLocation, downloadableFiles));
             }
 
