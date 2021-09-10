@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace LauncherManagement
@@ -80,6 +81,33 @@ namespace LauncherManagement
                 { "SWGLoginHost",           config[0].SWGLoginHost },
                 { "SWGLoginPort",           config[0].SWGLoginPort.ToString() }
             };
+        }
+
+        public async Task SetLauncherSettings(Dictionary<string, string> settings)
+        {
+            StringBuilder updateString = new();
+
+            int i = 0;
+            foreach (KeyValuePair<string, string> setting in settings)
+            {
+                settings.TryGetValue(setting.Key, out string output);
+
+                if (i < settings.Count - 1)
+                {
+                    updateString.Append(setting.Key + " = '" + output + "', ");
+                }
+                else
+                {
+                    updateString.Append(setting.Key + " = '" + output + "'");
+                }
+
+                i += 1;
+            }
+
+            await ExecuteLauncherConfigAsync
+                (
+                    $"UPDATE LauncherConfig SET {updateString} WHERE Id = {ServerSelection.ActiveServer};"
+                );
         }
 
         public async Task InsertDefaultRows()

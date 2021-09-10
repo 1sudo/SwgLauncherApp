@@ -136,11 +136,13 @@ namespace LauncherApp
             config.TryGetValue("ApiUrl", out string apiUrl);
             config.TryGetValue("ManifestFilePath", out string manifestFilePath);
             config.TryGetValue("ManifestFileUrl", out string manifestFileUrl);
+            config.TryGetValue("BackupManifestFileUrl", out string backupManifestFileUrl);
             config.TryGetValue("SWGLoginHost", out string swgLoginHost);
             config.TryGetValue("SWGLoginPort", out string swgLoginPort);
 
             DevAPIurl.Text = apiUrl;
             DevManifestURL.Text = manifestFileUrl;
+            DevBackupManifestURL.Text = backupManifestFileUrl;
             DevManifestFilePath.Text = manifestFilePath;
             DevSWGhostname.Text = swgLoginHost;
             DevSWGport.Text = swgLoginPort;
@@ -1029,6 +1031,16 @@ namespace LauncherApp
             {
                 await _settingsHandler.ToggleSettingsAsync("DebugExamine", false);
             }
+
+            await _configHandler.SetLauncherSettings(new Dictionary<string, string>()
+            {
+                { "ApiUrl", DevAPIurl.Text },
+                { "ManifestFileUrl", DevManifestURL.Text },
+                { "BackupManifestFileUrl", DevBackupManifestURL.Text },
+                { "ManifestFilePath", DevManifestFilePath.Text },
+                { "SWGLoginHost", DevSWGhostname.Text },
+                { "SWGLoginPort", DevSWGport.Text }
+            });
 
             SettingsEnableButtons();
         }

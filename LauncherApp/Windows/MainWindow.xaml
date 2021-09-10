@@ -1133,6 +1133,12 @@
                                     </StackPanel>
                                     <StackPanel Style="{DynamicResource SettingsColumn}" Margin="4,0,0,0">
                                         <TextBlock Style="{DynamicResource h3}">
+                                        Backup Manifest URL
+                                        </TextBlock>
+                                        <TextBox x:Name="DevBackupManifestURL" Style="{DynamicResource TextBoxTransparent}" Height="30" />
+                                    </StackPanel>
+                                    <StackPanel Style="{DynamicResource SettingsColumn}" Margin="4,0,0,0">
+                                        <TextBlock Style="{DynamicResource h3}">
                                         Manifest File Path
                                         </TextBlock>
                                         <TextBox x:Name="DevManifestFilePath" Style="{DynamicResource TextBoxTransparent}" Height="30" />
