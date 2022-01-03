@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading.Tasks;
-
-namespace LauncherManagement
+﻿namespace LauncherManagement
 {
     public class SettingsHandler : DatabaseHandler
     {
@@ -20,14 +16,14 @@ namespace LauncherManagement
 
         public async Task<string> GetServerNameAsync()
         {
-            List<DatabaseProperties.Settings> config = await ExecuteSettingsAsync
+            List<DatabaseProperties.Settings>? config = await ExecuteSettingsAsync
                 (
                     "SELECT ServerName " +
                     "FROM Settings " +
                     "where Id = 1;"
                 );
 
-            return (config.Count > 0) ? config[0].ServerName : "";
+            return (config is not null && config.Count > 0) ? config[0].ServerName ?? "" : "";
         }
 
         public async Task SetGameLocationAsync(string gamePath)
@@ -42,26 +38,26 @@ namespace LauncherManagement
 
         public async Task<string> GetGameLocationAsync()
         {
-            List<DatabaseProperties.Settings> config = await ExecuteSettingsAsync
+            List<DatabaseProperties.Settings>? config = await ExecuteSettingsAsync
                 (
                     "SELECT GameLocation " +
                     "FROM Settings " +
                     "where Id = 1;"
                 );
 
-            return (config.Count > 0) ? config[0].GameLocation : "";
+            return (config is not null && config.Count > 0) ? config[0].GameLocation ?? "" : "";
         }
 
         public async Task GetGameOptions()
         {
 
-            List<DatabaseProperties.Settings> config = await ExecuteSettingsAsync
+            List<DatabaseProperties.Settings>? config = await ExecuteSettingsAsync
                 (
                     "SELECT * " +
                     "FROM Settings;"
                 );
 
-            GameOptionsProperties.Fps = config[0].Fps;
+            GameOptionsProperties.Fps = config![0].Fps;
             GameOptionsProperties.Ram = config[0].Ram;
             GameOptionsProperties.MaxZoom = config[0].MaxZoom;
         }
@@ -77,7 +73,7 @@ namespace LauncherManagement
 
         public async Task<Dictionary<string, string>> GetGameOptionsControls()
         {
-            List<DatabaseProperties.Settings> config = await ExecuteSettingsAsync
+            List<DatabaseProperties.Settings>? config = await ExecuteSettingsAsync
                 (
                     "SELECT * " +
                     "FROM Settings;"
@@ -85,8 +81,8 @@ namespace LauncherManagement
 
             return new Dictionary<string, string>
             {
-                { "GameLocation", config[0].GameLocation },
-                { "ServerName", config[0].ServerName },
+                { "GameLocation", config![0].GameLocation ?? "" },
+                { "ServerName", config[0].ServerName ?? "" },
                 { "AutoLogin", config[0].AutoLogin.ToString() },
                 { "Verified", config[0].Verified.ToString() },
                 { "Fps", config[0].Fps.ToString() },
@@ -97,14 +93,14 @@ namespace LauncherManagement
 
         public async Task<bool> CheckAutoLoginEnabledAsync()
         {
-            List<DatabaseProperties.Settings> config = await ExecuteSettingsAsync
+            List<DatabaseProperties.Settings>? config = await ExecuteSettingsAsync
                 (
                     "SELECT AutoLogin " +
                     "FROM Settings " +
                     "where Id = 1;"
                 );
 
-            return config[0].AutoLogin;
+            return config![0].AutoLogin;
         }
 
         public async Task ToggleAutoLoginAsync(bool flag)
@@ -137,14 +133,14 @@ namespace LauncherManagement
 
         public async Task<bool> GetVerifiedAsync()
         {
-            List<DatabaseProperties.Settings> config = await ExecuteSettingsAsync
+            List<DatabaseProperties.Settings>? config = await ExecuteSettingsAsync
                 (
                     "SELECT Verified " +
                     "FROM Settings " +
                     "where Id = 1;"
                 );
 
-            return config[0].Verified;
+            return config![0].Verified;
         }
 
         public async Task ToggleSettingsAsync(string type, bool flag)
@@ -167,57 +163,57 @@ namespace LauncherManagement
 
         public async Task<bool> GetAdminAsync()
         {
-            List<DatabaseProperties.Settings> config = await ExecuteSettingsAsync
+            List<DatabaseProperties.Settings>? config = await ExecuteSettingsAsync
                 (
                     "SELECT Admin " +
                     "FROM Settings " +
                     "where Id = 1;"
                 );
 
-            return config[0].Admin == 1;
+            return config![0].Admin == 1;
         }
 
         public async Task<bool> GetDebugExamineAsync()
         {
-            List<DatabaseProperties.Settings> config = await ExecuteSettingsAsync
+            List<DatabaseProperties.Settings>? config = await ExecuteSettingsAsync
                 (
                     "SELECT DebugExamine " +
                     "FROM Settings " +
                     "where Id = 1;"
                 );
 
-            return config[0].DebugExamine == 1;
+            return config![0].DebugExamine == 1;
         }
 
         public async Task<bool> GetReshadeAsync()
         {
-            List<DatabaseProperties.Settings> config = await ExecuteSettingsAsync
+            List<DatabaseProperties.Settings>? config = await ExecuteSettingsAsync
                 (
                     "SELECT Reshade " +
                     "FROM Settings " +
                     "where Id = 1;"
                 );
 
-            return config[0].Reshade == 1;
+            return config![0].Reshade == 1;
         }
 
         public async Task<bool> GetHDTexturesAsync()
         {
-            List<DatabaseProperties.Settings> config = await ExecuteSettingsAsync
+            List<DatabaseProperties.Settings>? config = await ExecuteSettingsAsync
                 (
                     "SELECT HDTextures " +
                     "FROM Settings " +
                     "where Id = 1;"
                 );
 
-            return config[0].HDTextures == 1;
+            return config![0].HDTextures == 1;
         }
 
         public async Task InsertDefaultRow()
         {
-            List<DatabaseProperties.Settings> config = await ExecuteSettingsAsync("SELECT * FROM Settings;");
+            List<DatabaseProperties.Settings>? config = await ExecuteSettingsAsync("SELECT * FROM Settings;");
 
-            if (config.Count < 1)
+            if (config is not null && config.Count < 1)
             {
                 await ExecuteSettingsAsync
                     (

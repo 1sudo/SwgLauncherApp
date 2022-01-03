@@ -9,14 +9,14 @@ namespace LauncherManagement
     {
         internal async Task EnableMod(string modName, List<DownloadableFile> files)
         {
-            List<DatabaseProperties.TreMods> fileList = await ExecuteTreModsAsync
+            List<DatabaseProperties.TreMods>? fileList = await ExecuteTreModsAsync
                 (
                     "SELECT FileList " +
                     "FROM TreMods " +
                     $"where ModName = '{modName}';"
                 );
 
-            if (fileList.Count > 0)
+            if (fileList is not null && fileList.Count > 0)
             {
                 return;
             }
@@ -57,19 +57,19 @@ namespace LauncherManagement
 
         internal async Task<List<string>> GetModFileList(string modName)
         {
-            List<DatabaseProperties.TreMods> fileList = await ExecuteTreModsAsync
+            List<DatabaseProperties.TreMods>? fileList = await ExecuteTreModsAsync
                 (
                     "SELECT FileList " +
                     "FROM TreMods " +
                     $"where ModName = '{modName}';"
                 );
 
-            return fileList[0].FileList.Split(",").ToList();
+            return fileList![0].FileList!.Split(",").ToList();
         }
 
         internal async Task<Dictionary<string, List<string>>> GetMods()
         {
-            List<DatabaseProperties.TreMods> modList = await ExecuteTreModsAsync
+            List<DatabaseProperties.TreMods>? modList = await ExecuteTreModsAsync
                 (
                     "SELECT ModName " +
                     "FROM TreMods;"
@@ -77,9 +77,15 @@ namespace LauncherManagement
 
             Dictionary<string, List<string>> mods = new();
 
-            foreach (var mod in modList)
+            if (modList is not null)
             {
-                mods.Add(mod.ModName, await GetModFileList(mod.ModName));
+                foreach (var mod in modList)
+                {
+                    if (mod.ModName is not null)
+                    {
+                        mods.Add(mod.ModName, await GetModFileList(mod.ModName));
+                    }
+                }
             }
 
             return mods;

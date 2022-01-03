@@ -7,14 +7,14 @@ namespace LauncherManagement
     {
         public async Task<string> GetLastSavedCharacterAsync()
         {
-            List<DatabaseProperties.Characters> characters = await ExecuteCharacterAsync
+            List<DatabaseProperties.Characters>? characters = await ExecuteCharacterAsync
                 (
                     $"SELECT * FROM Characters;'"
                 );
 
-            if (characters.Count > 0)
+            if (characters is not null && characters.Count > 0)
             {
-                return (string.IsNullOrEmpty(characters[0].Character)) ? "None" : characters[0].Character;
+                return (string.IsNullOrEmpty(characters[0].Character)) ? "None" : characters[0].Character ?? "None";
             }
 
             return "None";
@@ -22,12 +22,12 @@ namespace LauncherManagement
 
         public async Task SaveCharacterAsync(string character)
         {
-            List<DatabaseProperties.Characters> characters = await ExecuteCharacterAsync
+            List<DatabaseProperties.Characters>? characters = await ExecuteCharacterAsync
                 (
                     $"SELECT * FROM Characters;'"
                 );
 
-            if (characters.Count > 0)
+            if (characters is not null && characters.Count > 0)
             {
                 await ExecuteCharacterAsync($"UPDATE Characters SET Character = '{character}' where Id = 1;");
             }

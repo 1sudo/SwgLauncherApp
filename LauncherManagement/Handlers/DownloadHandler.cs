@@ -1,11 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
 
 namespace LauncherManagement
 {
@@ -22,13 +18,13 @@ namespace LauncherManagement
             "38feda8e17042a5bc9edf7d9959bdbfe"  // 240 FPS
         };
 
-        public static Action OnDownloadCompleted { get; set; }
-        public static Action<string, string, double, double> OnCurrentFileDownloading { get; set; }
-        public static Action<string, double, double> OnFullScanFileCheck { get; set; }
-        public static Action<long, long, int> OnDownloadProgressUpdated { get; set; }
-        public static Action<string> OnServerError { get; set; }
-        public static Action<string> OnInstallCheckFailed { get; set; }
-        public static string BaseGameLocation { get; set; }
+        public static Action? OnDownloadCompleted { get; set; }
+        public static Action<string, string, double, double>? OnCurrentFileDownloading { get; set; }
+        public static Action<string, double, double>? OnFullScanFileCheck { get; set; }
+        public static Action<long, long, int>? OnDownloadProgressUpdated { get; set; }
+        public static Action<string>? OnServerError { get; set; }
+        public static Action<string>? OnInstallCheckFailed { get; set; }
+        public static string? BaseGameLocation { get; set; }
 
         internal static async Task<List<DownloadableFile>> DownloadManifestAsync(string manifestFile)
         {
@@ -41,13 +37,24 @@ namespace LauncherManagement
         {
             Dictionary<string, string> launcherSettings = await _configHandler.GetLauncherSettings();
 
-            launcherSettings.TryGetValue("ManifestFileUrl", out string primaryUrl);
-            launcherSettings.TryGetValue("BackupManifestFileUrl", out string backupUrl);
-            launcherSettings.TryGetValue("ManifestFilePath", out string manifestFilePath);
+            launcherSettings.TryGetValue("ManifestFileUrl", out string? primaryUrl);
+            launcherSettings.TryGetValue("BackupManifestFileUrl", out string? backupUrl);
+            launcherSettings.TryGetValue("ManifestFilePath", out string? manifestFilePath);
 
-            string address = _primaryServerOffline ? backupUrl : primaryUrl;
+            string address = "";
 
-            string liveCfgAddress = address + manifestFilePath.Split("/")[0] + $"/livecfg.json";
+            if (backupUrl is not null && primaryUrl is not null)
+            {
+                 address = _primaryServerOffline ? backupUrl : primaryUrl;
+            }
+
+            string liveCfgAddress = "";
+
+            if (manifestFilePath is not null)
+            {
+                liveCfgAddress = address + manifestFilePath.Split("/")[0] + $"/livecfg.json";
+            }
+            
 
             using WebClient client = new();
 
@@ -58,7 +65,12 @@ namespace LauncherManagement
             {
                 contents = client.DownloadString(new Uri(liveCfgAddress));
 
-                treList = JsonConvert.DeserializeObject<List<string>>(contents);
+                if (contents is not null)
+                {
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+                    treList = JsonConvert.DeserializeObject<List<string>>(contents);
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+                }
             }
             catch (Exception e)
             {
@@ -89,7 +101,10 @@ namespace LauncherManagement
                 byte[] contents = await Task.Run(() => DownloadAsync(file, isMod));
 
                 // Create directory before writing to file if it doesn't exist
-                new FileInfo(Path.Join(downloadLocation, file)).Directory.Create();
+                if (downloadLocation is not null && file is not null)
+                {
+                    new FileInfo(Path.Join(downloadLocation, file)).Directory!.Create();
+                }
 
                 await File.WriteAllBytesAsync(Path.Join(downloadLocation, file), contents);
 
@@ -112,7 +127,10 @@ namespace LauncherManagement
                 OnCurrentFileDownloading?.Invoke("copy", file, i, listLength);
 
                 // Create directory before writing to file if it doesn't exist
-                new FileInfo(Path.Join(copyLocation, file)).Directory.Create();
+                if (copyLocation is not null && file is not null)
+                {
+                    new FileInfo(Path.Join(copyLocation, file)).Directory!.Create();
+                }
 
                 if (isDirChange)
                 {
@@ -129,7 +147,10 @@ namespace LauncherManagement
                     // If file doesn't exist in source location, add to new list to be returned
                     else
                     {
-                        newFileList.Add(file);
+                        if (file is not null)
+                        {
+                            newFileList.Add(file);
+                        }
                     }
                 }
 
@@ -312,17 +333,20 @@ namespace LauncherManagement
         public static async Task CheckFilesAsync(string downloadLocation, bool isFullScan = false, string modName = "", bool isTreMod = false, bool isDirChange = false, string previousDir = "")
         {
             _launcherSettings = await _configHandler.GetLauncherSettings();
-            _launcherSettings.TryGetValue("ManifestFilePath", out string manifestFilePath);
+            _launcherSettings.TryGetValue("ManifestFilePath", out string? manifestFilePath);
 
             List<DownloadableFile> downloadableFiles = new();
 
-            if (string.IsNullOrEmpty(modName))
+            if (string.IsNullOrEmpty(modName) && manifestFilePath is not null)
             {
                 downloadableFiles = await DownloadManifestAsync(manifestFilePath);
             }
             else
             {
-                downloadableFiles = await DownloadManifestAsync(manifestFilePath.Split("/")[0] + $"/{modName}.json");
+                if (manifestFilePath is not null)
+                {
+                    downloadableFiles = await DownloadManifestAsync(manifestFilePath.Split("/")[0] + $"/{modName}.json");
+                }
 
                 if (isTreMod)
                 {
@@ -366,7 +390,7 @@ namespace LauncherManagement
             Uri uri;
             if (_primaryServerOffline)
             {
-                _launcherSettings.TryGetValue("BackupManifestFileUrl", out string backupManifestFileUrl);
+                _launcherSettings.TryGetValue("BackupManifestFileUrl", out string? backupManifestFileUrl);
                 if (isMod)
                 {
                     string fileUrl = backupManifestFileUrl + "mods/" + file;
@@ -379,7 +403,7 @@ namespace LauncherManagement
             }
             else
             {
-                _launcherSettings.TryGetValue("ManifestFileUrl", out string manifestFileUrl);
+                _launcherSettings.TryGetValue("ManifestFileUrl", out string? manifestFileUrl);
                 if (isMod)
                 {
                     string fileUrl = manifestFileUrl + "mods/" + file;
@@ -405,7 +429,7 @@ namespace LauncherManagement
 
                 _primaryServerOffline = true;
 
-                _launcherSettings.TryGetValue("BackupManifestFileUrl", out string backupManifestFileUrl);
+                _launcherSettings.TryGetValue("BackupManifestFileUrl", out string? backupManifestFileUrl);
                 Uri uri2 = new(backupManifestFileUrl + file);
 
                 client.DownloadProgressChanged += OnDownloadProgressChanged;
@@ -445,9 +469,14 @@ namespace LauncherManagement
         {
             Dictionary<string, string> launcherSettings = await _configHandler.GetLauncherSettings();
 
-            launcherSettings.TryGetValue("ManifestFilePath", out string manifestFilePath);
+            launcherSettings.TryGetValue("ManifestFilePath", out string? manifestFilePath);
 
-            List<DownloadableFile> downloadableFiles = await DownloadManifestAsync(manifestFilePath.Split("/")[0] + $"/{modName}.json");
+            List<DownloadableFile> downloadableFiles = new();
+
+            if (manifestFilePath is not null)
+            {
+                downloadableFiles = await DownloadManifestAsync(manifestFilePath.Split("/")[0] + $"/{modName}.json");
+            }
 
             SettingsHandler settingsHandler = new();
 
@@ -468,8 +497,9 @@ namespace LauncherManagement
                 foreach (DownloadableFile file in downloadableFiles)
                 {
                     string filePath = Path.Join(gamePath, file.Name).Replace("\\", "/");
+                    string? dir = "";
 
-                    string dir = Path.GetDirectoryName(filePath);
+                    dir = Path.GetDirectoryName(filePath);
 
                     if (Directory.Exists(dir))
                     {

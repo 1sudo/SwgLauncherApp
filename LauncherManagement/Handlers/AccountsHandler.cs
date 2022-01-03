@@ -10,27 +10,27 @@ namespace LauncherManagement
         public async Task SaveCredentialsAsync(string username, string password)
         {
             CipherHandler cipher = new();
-            string user = CipherHandler.Encode(await cipher.Transform(username.ToLower()));
-            string pass = CipherHandler.Encode(await cipher.Transform(password));
+            string user = CipherHandler.Encode(cipher.Transform(username.ToLower()));
+            string pass = CipherHandler.Encode(cipher.Transform(password));
 
-            List<DatabaseProperties.Accounts> searchedAccount = await ExecuteAccountAsync
+            List<DatabaseProperties.Accounts>? searchedAccount = await ExecuteAccountAsync
                 (
                     "SELECT Username " +
                     "FROM Accounts " +
                     $"where Username = '{user.ToLower()}';"
                 );
 
-            List<DatabaseProperties.Accounts> totalAccounts = await ExecuteAccountAsync
+            List<DatabaseProperties.Accounts>? totalAccounts = await ExecuteAccountAsync
                 (
                     "SELECT * " +
                     "FROM Accounts;"
                 );
 
-            if (searchedAccount.Count > 0)
+            if (searchedAccount is not null && searchedAccount.Count > 0)
             {
                 return;
             }
-            else if (totalAccounts.Count > 0)
+            else if (totalAccounts is not null && totalAccounts.Count > 0)
             {
                 await ExecuteAccountAsync
                     (
@@ -53,7 +53,7 @@ namespace LauncherManagement
 
         public async Task<Dictionary<string, string>> GetAccountCredentialsAsync()
         {
-            List<DatabaseProperties.Accounts> accounts = await ExecuteAccountAsync
+            List<DatabaseProperties.Accounts>? accounts = await ExecuteAccountAsync
                 (
                     "SELECT Username, Password " +
                     "FROM Accounts " +
@@ -62,12 +62,12 @@ namespace LauncherManagement
 
             CipherHandler cipher = new();
 
-            if (accounts.Count > 0)
+            if (accounts is not null && accounts.Count > 0)
             {
                 return new Dictionary<string, string>
                 {
-                    { "Username", await cipher.Transform(CipherHandler.Decode(accounts[0].Username)) },
-                    { "Password", await cipher.Transform(CipherHandler.Decode(accounts[0].Password)) }
+                    { "Username", cipher.Transform(CipherHandler.Decode(accounts[0].Username ?? "")) },
+                    { "Password", cipher.Transform(CipherHandler.Decode(accounts[0].Password ?? "")) }
                 };
             }
             else

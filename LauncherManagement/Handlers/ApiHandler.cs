@@ -1,15 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace LauncherManagement
 {
     public static class ApiHandler
     {
-        public static async Task<GameLoginResponseProperties> AccountLoginAsync(string url, string username, string password)
+        public static async Task<GameLoginResponseProperties?> AccountLoginAsync(string url, string username, string password)
         {
             var client = new HttpClient();
             var request = new HttpRequestMessage
@@ -31,12 +27,16 @@ namespace LauncherManagement
                 using HttpResponseMessage response = await client.SendAsync(request);
                 
                 response.EnsureSuccessStatusCode();
-                string body = await response.Content.ReadAsStringAsync();
 
-                JToken token = JToken.Parse(body);
-                JObject json = JObject.Parse((string)token);
+                var body = await response.Content.ReadAsStringAsync();
 
-                GameLoginResponseProperties loginProperties = JsonConvert.DeserializeObject<GameLoginResponseProperties>(json.ToString());
+                JObject? json = null;
+
+#pragma warning disable CS8604 // Possible null reference argument.
+                json = JObject.Parse((string?)JToken.Parse(body ?? ""));
+#pragma warning restore CS8604 // Possible null reference argument.
+
+                GameLoginResponseProperties? loginProperties = JsonConvert.DeserializeObject<GameLoginResponseProperties>(json!.ToString());
 
                 return loginProperties;
             }
@@ -52,7 +52,7 @@ namespace LauncherManagement
             }
         }
 
-        public static async Task<GameAccountCreationResponseProperties> AccountCreationAsync(
+        public static async Task<GameAccountCreationResponseProperties?> AccountCreationAsync(
             string url, GameAccountCreationProperties accountProperties, CaptchaProperties captchaProperties)
         {
             HttpClient client = new();
@@ -66,10 +66,10 @@ namespace LauncherManagement
                 },
                 Content = new FormUrlEncodedContent(new Dictionary<string, string>
                 {
-                    { "Password", accountProperties.Password },
-                    { "PasswordConfirmation", accountProperties.PasswordConfirmation },
-                    { "Email", accountProperties.Email },
-                    { "Discord", accountProperties.Discord },
+                    { "Password", accountProperties.Password ?? "" },
+                    { "PasswordConfirmation", accountProperties.PasswordConfirmation ?? "" },
+                    { "Email", accountProperties.Email ?? "" },
+                    { "Discord", accountProperties.Discord ?? "" },
                     { "SubscribeToNewsletter", accountProperties.SubscribeToNewsletter.ToString() },
                     { "CaptchaValue1", captchaProperties.Value1.ToString() },
                     { "CaptchaValue2", captchaProperties.Value2.ToString() },
@@ -84,10 +84,11 @@ namespace LauncherManagement
                 response.EnsureSuccessStatusCode();
                 string body = await response.Content.ReadAsStringAsync();
 
-                JToken token = JToken.Parse(body);
-                JObject json = JObject.Parse((string)token);
+                JToken? token = JToken.Parse(body);
 
-                GameAccountCreationResponseProperties accountCreationProperties = JsonConvert.DeserializeObject<GameAccountCreationResponseProperties>(json.ToString());
+                JObject json = JObject.Parse((string?)token ?? "");
+
+                GameAccountCreationResponseProperties? accountCreationProperties = JsonConvert.DeserializeObject<GameAccountCreationResponseProperties>(json.ToString());
 
                 return accountCreationProperties;
             }

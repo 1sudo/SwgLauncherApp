@@ -10,7 +10,7 @@ namespace LauncherManagement
         [DllImport("user32.dll")]
 #pragma warning restore CA2101 // Specify marshaling for P/Invoke string arguments
 #pragma warning disable CA1401 // P/Invokes should not be visible
-        public static extern bool EnumDisplaySettings(string deviceName, int modeNum, ref DEVMODE devMode);
+        public static extern bool EnumDisplaySettings(string? deviceName, int modeNum, ref DEVMODE devMode);
 #pragma warning restore CA1401 // P/Invokes should not be visible
 
         [StructLayout(LayoutKind.Sequential)]

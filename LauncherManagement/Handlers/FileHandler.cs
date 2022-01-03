@@ -14,27 +14,30 @@ namespace LauncherManagement
 
         public async Task GenerateMissingFiles()
         {
-            List<DatabaseProperties.AdditionalSettings> properties = await _additionalSettings.GetSettings();
+            List<DatabaseProperties.AdditionalSettings>? properties = await _additionalSettings.GetSettings();
 
             string path = Path.Join(await _settings.GetGameLocationAsync(), "options.cfg");
 
-            new FileInfo(path).Directory.Create();
+            new FileInfo(path).Directory!.Create();
 
             if (!File.Exists(path))
             {
                 string lastCategory = "";
                 StringBuilder sb = new();
-                foreach (DatabaseProperties.AdditionalSettings property in properties)
+                if (properties is not null)
                 {
-                    if (property.Category != lastCategory)
+                    foreach (DatabaseProperties.AdditionalSettings property in properties)
                     {
-                        lastCategory = property.Category;
-                        sb.AppendLine($"\n[{property.Category}]");
-                        sb.AppendLine($"\t{property.Key}={property.Value}");
-                    }
-                    else
-                    {
-                        sb.AppendLine($"\t{property.Key}={property.Value}");
+                        if (property.Category is not null && property.Category != lastCategory)
+                        {
+                            lastCategory = property.Category;
+                            sb.AppendLine($"\n[{property.Category}]");
+                            sb.AppendLine($"\t{property.Key}={property.Value}");
+                        }
+                        else
+                        {
+                            sb.AppendLine($"\t{property.Key}={property.Value}");
+                        }
                     }
                 }
 
@@ -63,15 +66,15 @@ namespace LauncherManagement
                 string key = "";
                 string value = "";
 
-                if (line.Contains("["))
+                if (line.Contains('['))
                 {
-                    currentCategory = line.Split("[")[1].Split("]")[0];
+                    currentCategory = line.Split('[')[1].Split(']')[0];
                 }
 
-                if (line.Contains("="))
+                if (line.Contains('='))
                 {
-                    key = line.Split("=")[0];
-                    value = line.Split("=")[1];
+                    key = line.Split('=')[0];
+                    value = line.Split('=')[1];
 
                     GameSettingsProperty property = new()
                     {
@@ -102,7 +105,7 @@ namespace LauncherManagement
 
                 foreach (GameSettingsProperty property in properties)
                 {
-                    if (property.Category != lastCategory)
+                    if (property.Category is not null && property.Category != lastCategory)
                     {
                         lastCategory = property.Category;
                         lines.Add($"\n[{property.Category}]");

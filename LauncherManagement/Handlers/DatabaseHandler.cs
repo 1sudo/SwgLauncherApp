@@ -1,15 +1,10 @@
 ﻿using SQLite;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace LauncherManagement
 {
     public class DatabaseHandler
     {
-        readonly SQLiteAsyncConnection _db;
+        readonly SQLiteAsyncConnection? _db;
 
         public DatabaseHandler()
         {
@@ -24,6 +19,11 @@ namespace LauncherManagement
         {
             try
             {
+                if (_db is null)
+                {
+                    return;
+                }
+
                 await _db.CreateTablesAsync<
                     DatabaseProperties.Accounts,
                     DatabaseProperties.ActiveServer,
@@ -36,6 +36,11 @@ namespace LauncherManagement
 
             try
             {
+                if (_db is null)
+                {
+                    return;
+                }
+
                 await _db.CreateTablesAsync<
                     DatabaseProperties.AdditionalSettings,
                     DatabaseProperties.TreMods
@@ -46,10 +51,15 @@ namespace LauncherManagement
             
         }
 
-        public async Task<List<DatabaseProperties.Accounts>> ExecuteAccountAsync(string data)
+        public async Task<List<DatabaseProperties.Accounts>?> ExecuteAccountAsync(string data)
         {
             try
             {
+                if (_db is null)
+                {
+                    return null;
+                }
+
                 var results = await _db.QueryAsync<DatabaseProperties.Accounts>(data);
 
                 await _db.CloseAsync();
@@ -64,10 +74,15 @@ namespace LauncherManagement
             return new List<DatabaseProperties.Accounts>();
         }
 
-        public async Task<List<DatabaseProperties.ActiveServer>> ExecuteActiveServerAsync(string data)
+        public async Task<List<DatabaseProperties.ActiveServer>?> ExecuteActiveServerAsync(string data)
         {
             try
             {
+                if (_db is null)
+                {
+                    return null;
+                }
+
                 var results = await _db.QueryAsync<DatabaseProperties.ActiveServer>(data);
 
                 await _db.CloseAsync();
@@ -82,10 +97,15 @@ namespace LauncherManagement
             return new List<DatabaseProperties.ActiveServer>();
         }
 
-        internal async Task<List<DatabaseProperties.LauncherConfig>> ExecuteLauncherConfigAsync(string data)
+        internal async Task<List<DatabaseProperties.LauncherConfig>?> ExecuteLauncherConfigAsync(string data)
         {
             try
             {
+                if (_db is null)
+                {
+                    return null;
+                }
+
                 var results = await _db.QueryAsync<DatabaseProperties.LauncherConfig>(data);
 
                 await _db.CloseAsync();
@@ -100,10 +120,15 @@ namespace LauncherManagement
             return new List<DatabaseProperties.LauncherConfig>();
         }
 
-        internal async Task<List<DatabaseProperties.Characters>> ExecuteCharacterAsync(string data)
+        internal async Task<List<DatabaseProperties.Characters>?> ExecuteCharacterAsync(string data)
         {
             try
             {
+                if (_db is null)
+                {
+                    return null;
+                }
+
                 var results = await _db.QueryAsync<DatabaseProperties.Characters>(data);
 
                 await _db.CloseAsync();
@@ -118,10 +143,15 @@ namespace LauncherManagement
             return new List<DatabaseProperties.Characters>();
         }
 
-        internal async Task<List<DatabaseProperties.Settings>> ExecuteSettingsAsync(string data)
+        internal async Task<List<DatabaseProperties.Settings>?> ExecuteSettingsAsync(string data)
         {
             try
             {
+                if (_db is null)
+                {
+                    return null;
+                }
+
                 var results = await _db.QueryAsync<DatabaseProperties.Settings>(data);
 
                 await _db.CloseAsync();
@@ -136,10 +166,15 @@ namespace LauncherManagement
             return new List<DatabaseProperties.Settings>();
         }
 
-        internal async Task<List<DatabaseProperties.AdditionalSettings>> ExecuteAdditionalSettingsAsync(string data)
+        internal async Task<List<DatabaseProperties.AdditionalSettings>?> ExecuteAdditionalSettingsAsync(string data)
         {
             try
             {
+                if (_db is null)
+                {
+                    return null;
+                }
+
                 var results = await _db.QueryAsync<DatabaseProperties.AdditionalSettings>(data);
 
                 await _db.CloseAsync();
@@ -154,10 +189,15 @@ namespace LauncherManagement
             return new List<DatabaseProperties.AdditionalSettings>();
         }
 
-        internal async Task<List<DatabaseProperties.TreMods>> ExecuteTreModsAsync(string data)
+        internal async Task<List<DatabaseProperties.TreMods>?> ExecuteTreModsAsync(string data)
         {
             try
             {
+                if (_db is null)
+                {
+                    return null;
+                }
+
                 var results = await _db.QueryAsync<DatabaseProperties.TreMods>(data);
 
                 await _db.CloseAsync();

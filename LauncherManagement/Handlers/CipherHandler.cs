@@ -43,7 +43,7 @@ namespace LauncherManagement
             }
         }
 
-        public async Task<string> Transform(string value)
+        public string Transform(string value)
         {
             char[] a = value.ToCharArray();
 

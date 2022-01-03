@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -35,16 +31,16 @@ namespace LauncherApp
     public partial class MainWindow : Window
     {
         #region Vars
-        List<Grid> _screens;
-        string _currentFile;
+        List<Grid>? _screens;
+        string? _currentFile;
         double _currentFileStatus;
         double _totalFileStatus;
-        string _gamePassword;
-        string _currentAddress;
+        string? _gamePassword;
+        string? _currentAddress;
         readonly string _updatesAddress = "http://tc.darknaught.com:8787/html/";
         static bool _postLoad = false;
-        string _previousInstallationDirectory;
-        Dictionary<string, string> _launcherSettings;
+        string? _previousInstallationDirectory;
+        Dictionary<string, string>? _launcherSettings;
         GameLoginResponseProperties _loginProperties = new();
         readonly LauncherConfigHandler _configHandler = new();
         readonly AccountsHandler _accountHandler = new();
@@ -75,6 +71,7 @@ namespace LauncherApp
         #region WindowManagement
         async void Window_Initialized(object sender, EventArgs e)
         {
+            // start here
             await ConfigureDatabase();
 
             _currentAddress = _updatesAddress;
@@ -108,9 +105,9 @@ namespace LauncherApp
                 if (isVerified)
                 {
                     UpdateScreen((int)Screens.LOGIN_GRID);
-                    bool isLoggedIn = await CheckAutoLoginAsync();
+                    bool? isLoggedIn = await CheckAutoLoginAsync();
 
-                    if (isLoggedIn)
+                    if ((bool)isLoggedIn)
                     {
                         await HandleLogin();
                     }
@@ -133,12 +130,12 @@ namespace LauncherApp
         async Task PopulateControls(bool skipLoginServersBox = false)
         {
             Dictionary<string, string> config = await _configHandler.GetLauncherSettings();
-            config.TryGetValue("ApiUrl", out string apiUrl);
-            config.TryGetValue("ManifestFilePath", out string manifestFilePath);
-            config.TryGetValue("ManifestFileUrl", out string manifestFileUrl);
-            config.TryGetValue("BackupManifestFileUrl", out string backupManifestFileUrl);
-            config.TryGetValue("SWGLoginHost", out string swgLoginHost);
-            config.TryGetValue("SWGLoginPort", out string swgLoginPort);
+            config.TryGetValue("ApiUrl", out string? apiUrl);
+            config.TryGetValue("ManifestFilePath", out string? manifestFilePath);
+            config.TryGetValue("ManifestFileUrl", out string? manifestFileUrl);
+            config.TryGetValue("BackupManifestFileUrl", out string? backupManifestFileUrl);
+            config.TryGetValue("SWGLoginHost", out string? swgLoginHost);
+            config.TryGetValue("SWGLoginPort", out string? swgLoginPort);
 
             DevAPIurl.Text = apiUrl;
             DevManifestURL.Text = manifestFileUrl;
@@ -169,7 +166,7 @@ namespace LauncherApp
 
             Dictionary<string, string> settings = await _settingsHandler.GetGameOptionsControls();
 
-            settings.TryGetValue("GameLocation", out string gameLocation);
+            settings.TryGetValue("GameLocation", out string? gameLocation);
 
             OptionsInstallDirectoryTextbox.Text = gameLocation;
 
@@ -193,7 +190,7 @@ namespace LauncherApp
             }
         }
 
-        async void Window_KeyDown(object sender, KeyEventArgs e)
+        async void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             // Dev - Skip verification
             if (Keyboard.IsKeyDown(Key.LeftCtrl) &&
@@ -231,7 +228,7 @@ namespace LauncherApp
             }
         }
 
-        private void UsernameTextbox_KeyDown(object sender, KeyEventArgs e)
+        private void UsernameTextbox_KeyDown(object sender, RoutedEventArgs e)
         {
             if (Keyboard.IsKeyDown(Key.Enter))
             {
@@ -239,7 +236,7 @@ namespace LauncherApp
             }
         }
 
-        private void PasswordTextbox_KeyDown(object sender, KeyEventArgs e)
+        private void PasswordTextbox_KeyDown(object sender, RoutedEventArgs e)
         {
             if (Keyboard.IsKeyDown(Key.Enter))
             {
@@ -256,7 +253,10 @@ namespace LauncherApp
                 selectedCharacter = CharacterNameComboBox.SelectedValue.ToString();
             }
 
-            await _characterHandler.SaveCharacterAsync(selectedCharacter);
+            if (selectedCharacter is not null)
+            {
+                await _characterHandler.SaveCharacterAsync(selectedCharacter);
+            }
         }
 
         void CreateSecurityQuestionTextblock_Initialized(object sender, EventArgs e)
@@ -377,17 +377,23 @@ namespace LauncherApp
 
         void CollapseAllScreens()
         {
-            foreach (Grid screen in _screens)
+            if (_screens is not null)
             {
-                screen.Visibility = Visibility.Collapsed;
+                foreach (Grid screen in _screens)
+                {
+                    screen.Visibility = Visibility.Collapsed;
+                }
             }
         }
 
         void EnableScreens(int[] screens)
         {
-            foreach (int i in screens)
+            if (_screens is not null)
             {
-                _screens[i].Visibility = Visibility.Visible;
+                foreach (int i in screens)
+                {
+                    _screens[i].Visibility = Visibility.Visible;
+                }
             }
         }
         #endregion
@@ -433,18 +439,24 @@ namespace LauncherApp
             {
                 var selectedCharacter = CharacterNameComboBox.SelectedValue.ToString();
 
-                if (selectedCharacter != "None")
+                if (selectedCharacter != "None" && selectedCharacter is not null && _gamePassword is not null)
                 {
-                    await AppHandler.StartGameAsync(await _settingsHandler.GetGameLocationAsync(), _gamePassword, _loginProperties.Username, selectedCharacter, true);
+                    await AppHandler.StartGameAsync(await _settingsHandler.GetGameLocationAsync(), _gamePassword, _loginProperties.Username ?? "", selectedCharacter, true);
                 }
                 else
                 {
-                    await AppHandler.StartGameAsync(await _settingsHandler.GetGameLocationAsync(), _gamePassword, _loginProperties.Username);
+                    if (_gamePassword is not null)
+                    {
+                        await AppHandler.StartGameAsync(await _settingsHandler.GetGameLocationAsync(), _gamePassword, _loginProperties.Username ?? "");
+                    }
                 }
             }
             catch
             {
-                await AppHandler.StartGameAsync(await _settingsHandler.GetGameLocationAsync(), _gamePassword, _loginProperties.Username);
+                if (_gamePassword is not null)
+                {
+                    await AppHandler.StartGameAsync(await _settingsHandler.GetGameLocationAsync(), _gamePassword, _loginProperties.Username ?? "");
+                }
             }
 
             PlayButton.IsEnabled = true;
@@ -457,9 +469,9 @@ namespace LauncherApp
             await _fileHandler.GenerateMissingFiles();
             Dictionary<string, string> settings = await _settingsHandler.GetGameOptionsControls();
 
-            settings.TryGetValue("Fps", out string fps);
-            settings.TryGetValue("Ram", out string ram);
-            settings.TryGetValue("MaxZoom", out string maxZoom);
+            settings.TryGetValue("Fps", out string? fps);
+            settings.TryGetValue("Ram", out string? ram);
+            settings.TryGetValue("MaxZoom", out string? maxZoom);
 
             string screenHeight = "";
             string screenWidth = "";
@@ -473,9 +485,9 @@ namespace LauncherApp
             {
                 switch (property.Key)
                 {
-                    case "\tscreenWidth":                       screenWidth                                 = property.Value; break;
-                    case "\tscreenHeight":                      screenHeight                                = property.Value; break;
-                    case "\tfullscreenRefreshRate":             refreshRate                                 = property.Value; break;
+                    case "\tscreenWidth":                       screenWidth                                 = property.Value ?? ""; break;
+                    case "\tscreenHeight":                      screenHeight                                = property.Value ?? ""; break;
+                    case "\tfullscreenRefreshRate":             refreshRate                                 = property.Value ?? ""; break;
                     case "\tuseSafeRenderer":                   UseSafeRendererCheckbox.IsChecked           = true; break;
                     case "\tborderlessWindow":                  BorderlessWindowCheckbox.IsChecked          = true; break;
                     case "\twindowed":                          WindowModeCheckbox.IsChecked                = true; break;
@@ -519,10 +531,10 @@ namespace LauncherApp
                     }
 
                     if (property.Key == "\tmaxVertexShaderVersion")
-                        vertexShaderVersion = property.Value;
+                        vertexShaderVersion = property.Value ?? "";
 
                     if (property.Key == "\tmaxPixelShaderVersion")
-                        pixelShaderVersion = property.Value;
+                        pixelShaderVersion = property.Value ?? "";
                 }
             }
 
@@ -579,7 +591,7 @@ namespace LauncherApp
         #region SetupButtons
         void RulesAndRegulationsNextButton_Click(object sender, RoutedEventArgs e)
         {
-            if ((bool)RulesAndRegulationsCheckbox.IsChecked)
+            if (RulesAndRegulationsCheckbox.IsChecked is not null && (bool)RulesAndRegulationsCheckbox.IsChecked)
             {
                 UpdateScreen((int)Screens.INSTALL_DIR_GRID);
             }
@@ -622,7 +634,7 @@ namespace LauncherApp
 
         async void GameValidationNextButton_Click(object sender, RoutedEventArgs e)
         {
-            if ((bool)GameValidationCheckbox.IsChecked)
+            if (GameValidationCheckbox.IsChecked is not null && (bool)GameValidationCheckbox.IsChecked)
             {
                 if (string.IsNullOrEmpty(GameValidationTextBox.Text))
                 {
@@ -707,13 +719,28 @@ namespace LauncherApp
         #region LoginButtons
         async void LoginButton_Click(object sender, RoutedEventArgs e)
         {
-            _launcherSettings.TryGetValue("ApiUrl", out string apiUrl);
-            GameLoginResponseProperties loginProperties = await ApiHandler.AccountLoginAsync(apiUrl, UsernameTextbox.Text.ToLower(), PasswordTextbox.Password.ToString());
+            string? apiUrl = "";
 
-            _loginProperties = loginProperties;
+            if (_launcherSettings is not null)
+            {
+                _launcherSettings.TryGetValue("ApiUrl", out apiUrl);
+            }
+
+            GameLoginResponseProperties? loginProperties = new();
+
+            if (apiUrl is not null)
+            {
+                loginProperties = await ApiHandler.AccountLoginAsync(apiUrl, UsernameTextbox.Text.ToLower(), PasswordTextbox.Password.ToString());
+            }
+
+            if (loginProperties is not null)
+            {
+                _loginProperties = loginProperties;
+            }
+            
             _gamePassword = PasswordTextbox.Password.ToString();
 
-            if ((bool)AutoLoginCheckbox.IsChecked && loginProperties.Result == "Success")
+            if (AutoLoginCheckbox.IsChecked is not null && (bool)AutoLoginCheckbox.IsChecked && loginProperties!.Result == "Success")
             {
                 await _settingsHandler.ToggleAutoLoginAsync(true);
                 await _accountHandler.SaveCredentialsAsync(UsernameTextbox.Text.ToLower(), PasswordTextbox.Password.ToString());
@@ -722,6 +749,9 @@ namespace LauncherApp
             {
                 await _settingsHandler.ToggleAutoLoginAsync(false);
             }
+
+            if (loginProperties is null)
+                return;
 
             switch (loginProperties.Result)
             {
@@ -764,7 +794,11 @@ namespace LauncherApp
 
         async void CreateAccountButton_Click(object sender, RoutedEventArgs e)
         {
-            _launcherSettings.TryGetValue("ApiUrl", out string apiUrl);
+            string? apiUrl = "";
+            if (_launcherSettings is not null)
+            {
+                _launcherSettings.TryGetValue("ApiUrl", out apiUrl);
+            }
 
             if (CreatePasswordTextbox.Password == CreateConfirmPasswordTextbox.Password)
             {
@@ -774,15 +808,23 @@ namespace LauncherApp
                 {
                     if (result == _captchaProperties.Answer)
                     {
-                        GameAccountCreationResponseProperties creation = await ApiHandler.AccountCreationAsync(apiUrl, new GameAccountCreationProperties()
+                        if (apiUrl is not null)
                         {
-                            Username = CreateUsernameTextbox.Text,
-                            Email = CreateEmailTextbox.Text,
-                            Password = CreatePasswordTextbox.Password,
-                            PasswordConfirmation = CreateConfirmPasswordTextbox.Password,
-                            Discord = CreateDiscordTextbox.Text,
-                            SubscribeToNewsletter = (bool)NewsletterCheckbox.IsChecked
-                        }, _captchaProperties);
+                            if (NewsletterCheckbox.IsChecked is null)
+                            {
+                                NewsletterCheckbox.IsChecked = false;
+                            }
+
+                            await ApiHandler.AccountCreationAsync(apiUrl, new GameAccountCreationProperties()
+                            {
+                                Username = CreateUsernameTextbox.Text,
+                                Email = CreateEmailTextbox.Text,
+                                Password = CreatePasswordTextbox.Password,
+                                PasswordConfirmation = CreateConfirmPasswordTextbox.Password,
+                                Discord = CreateDiscordTextbox.Text,
+                                SubscribeToNewsletter = (bool)NewsletterCheckbox.IsChecked
+                            }, _captchaProperties);
+                        }
 
                         //MessageBox.Show(creation.Result);
                     }
@@ -933,9 +975,9 @@ namespace LauncherApp
                 MaxZoom = maxZoom
             });
 
-            string screenWidth = ResolutionBox.SelectedValue.ToString().Split("x")[0];
-            string screenHeight = ResolutionBox.SelectedValue.ToString().Split("x")[1].Split("@")[0];
-            string refreshRate = ResolutionBox.SelectedValue.ToString().Split("@")[1];
+            string screenWidth = ResolutionBox.SelectedValue.ToString()!.Split("x")[0];
+            string screenHeight = ResolutionBox.SelectedValue.ToString()!.Split("x")[1].Split("@")[0];
+            string refreshRate = ResolutionBox.SelectedValue.ToString()!.Split("@")[1];
 
             properties.Add(new GameSettingsProperty { Category = "Direct3d9", Key = "fullscreenRefreshRate", Value = $"{refreshRate}" });
 
@@ -963,46 +1005,46 @@ namespace LauncherApp
                 properties.Add(new GameSettingsProperty { Category = "Direct3d9", Key = "maxPixelShaderVersion", Value = "0" });
             }
 
-            if ((bool)DisableVsyncCheckbox.IsChecked)
+            if (DisableVsyncCheckbox.IsChecked is not null && (bool)DisableVsyncCheckbox.IsChecked)
                 properties.Add(new GameSettingsProperty { Category = "Direct3d9", Key = "allowTearing", Value = "1" });
 
             properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "screenWidth", Value = $"{screenWidth}" });
             properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "screenHeight", Value = $"{screenHeight}" });
-            if ((bool)UseSafeRendererCheckbox.IsChecked)
+            if (UseSafeRendererCheckbox.IsChecked is not null && (bool)UseSafeRendererCheckbox.IsChecked)
                 properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "useSafeRenderer", Value = "1" });
-            if ((bool)BorderlessWindowCheckbox.IsChecked)
+            if (BorderlessWindowCheckbox.IsChecked is not null && (bool)BorderlessWindowCheckbox.IsChecked)
                 properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "borderlessWindow", Value = "1" });
-            if ((bool)WindowModeCheckbox.IsChecked)
+            if (WindowModeCheckbox.IsChecked is not null && (bool)WindowModeCheckbox.IsChecked)
                 properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "windowed", Value = "1" });
-            if ((bool)LowDetailTexturesCheckbox.IsChecked)
+            if (LowDetailTexturesCheckbox.IsChecked is not null && (bool)LowDetailTexturesCheckbox.IsChecked)
                 properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "discardHighestMipMapLevels", Value = "1" });
-            if ((bool)LowDetailNormalsCheckbox.IsChecked)
+            if (LowDetailNormalsCheckbox.IsChecked is not null && (bool)LowDetailNormalsCheckbox.IsChecked)
                 properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "discardHighestNormalMipMapLevels", Value = "1" });
-            if ((bool)DisableBumpMappingCheckbox.IsChecked)
+            if (DisableBumpMappingCheckbox.IsChecked is not null && (bool)DisableBumpMappingCheckbox.IsChecked)
                 properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "disableOptionTag", Value = "DOT3" });
-            if ((bool)DisableMultiPassRenderingCheckbox.IsChecked)
+            if (DisableMultiPassRenderingCheckbox.IsChecked is not null && (bool)DisableMultiPassRenderingCheckbox.IsChecked)
                 properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "disableOptionTag", Value = "HIQL" });
-            if ((bool)DisableHardwareMouseCheckbox.IsChecked)
+            if (DisableHardwareMouseCheckbox.IsChecked is not null && (bool)DisableHardwareMouseCheckbox.IsChecked)
                 properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "useHardwareMouseCursor", Value = "0" });
-            if ((bool)SkipIntroCheckbox.IsChecked)
+            if (SkipIntroCheckbox.IsChecked is not null && (bool)SkipIntroCheckbox.IsChecked)
                 properties.Add(new GameSettingsProperty { Category = "ClientGame", Key = "skipIntro", Value = "1" });
-            if ((bool)DisableWorldPreloadingCheckbox.IsChecked)
+            if (DisableWorldPreloadingCheckbox.IsChecked is not null && (bool)DisableWorldPreloadingCheckbox.IsChecked)
                 properties.Add(new GameSettingsProperty { Category = "ClientGame", Key = "preloadWorldSnapshot", Value = "0" });
-            if ((bool)DisableFastMouseCheckbox.IsChecked)
+            if (DisableFastMouseCheckbox.IsChecked is not null && (bool)DisableFastMouseCheckbox.IsChecked)
                 properties.Add(new GameSettingsProperty { Category = "ClientUserInterface", Key = "alwaysSetMouseCursor", Value = "1" });
-            if ((bool)DisableAudioCheckbox.IsChecked)
+            if (DisableAudioCheckbox.IsChecked is not null && (bool)DisableAudioCheckbox.IsChecked)
                 properties.Add(new GameSettingsProperty { Category = "ClientAudio", Key = "disableMiles", Value = "1" });
-            if ((bool)DisableLODManagerCheckbox.IsChecked)
+            if (DisableLODManagerCheckbox.IsChecked is not null && (bool)DisableLODManagerCheckbox.IsChecked)
                 properties.Add(new GameSettingsProperty { Category = "ClientSkeletalAnimation", Key = "lodManagerEnable", Value = "0" });
-            if ((bool)DisableTextureBakingCheckbox.IsChecked)
+            if (DisableTextureBakingCheckbox.IsChecked is not null && (bool)DisableTextureBakingCheckbox.IsChecked)
                 properties.Add(new GameSettingsProperty { Category = "ClientTextureRenderer", Key = "disableTextureBaking", Value = "1" });
-            if ((bool)DisableFileCachingCheckbox.IsChecked)
+            if (DisableFileCachingCheckbox.IsChecked is not null && (bool)DisableFileCachingCheckbox.IsChecked)
                 properties.Add(new GameSettingsProperty { Category = "SharedUtility", Key = "disableFileCaching", Value = "1" });
-            if ((bool)DisableAsyncLoaderCheckbox.IsChecked)
+            if (DisableAsyncLoaderCheckbox.IsChecked is not null && (bool)DisableAsyncLoaderCheckbox.IsChecked)
                 properties.Add(new GameSettingsProperty { Category = "SharedFile", Key = "enableAsynchronousLoader", Value = "0" });
-            if ((bool)LowDetailCharactersCheckbox.IsChecked)
+            if (LowDetailCharactersCheckbox.IsChecked is not null && (bool)LowDetailCharactersCheckbox.IsChecked)
                 properties.Add(new GameSettingsProperty { Category = "ClientSkeletalAnimation", Key = "skipL0", Value = "1" });
-            if ((bool)LowDetailMeshesCheckbox.IsChecked)
+            if (LowDetailMeshesCheckbox.IsChecked is not null && (bool)LowDetailMeshesCheckbox.IsChecked)
                 properties.Add(new GameSettingsProperty { Category = "ClientObject/DetailAppearanceTemplate", Key = "skipL0", Value = "1" });
 
             await _fileHandler.SaveOptionsCfg(properties);
@@ -1014,7 +1056,7 @@ namespace LauncherApp
         {
             SettingsDisableButtons();
 
-            if ((bool)DevAdminCheckbox.IsChecked)
+            if (DevAdminCheckbox.IsChecked is not null && (bool)DevAdminCheckbox.IsChecked)
             {
                 await _settingsHandler.ToggleSettingsAsync("Admin", true);
             }
@@ -1023,7 +1065,7 @@ namespace LauncherApp
                 await _settingsHandler.ToggleSettingsAsync("Admin", false);
             }
             
-            if ((bool)DevDebugCheckbox.IsChecked)
+            if (DevDebugCheckbox.IsChecked is not null && (bool)DevDebugCheckbox.IsChecked)
             {
                 await _settingsHandler.ToggleSettingsAsync("DebugExamine", true);
             }
@@ -1056,10 +1098,13 @@ namespace LauncherApp
                 if (OptionsInstallDirectoryTextbox.Text.Trim() != gameLocation.Trim())
                 {
                     await _settingsHandler.SetGameLocationAsync(OptionsInstallDirectoryTextbox.Text.Trim());
-                    await CheckGameFiles(true, _previousInstallationDirectory);
+                    if (_previousInstallationDirectory is not null)
+                    {
+                        await CheckGameFiles(true, _previousInstallationDirectory);
+                    }
                 }
 
-                if ((bool)ModsReshadeCheckbox.IsChecked || (bool)ModsHdTextureCheckbox.IsChecked)
+                if ((ModsReshadeCheckbox.IsChecked is not null && ModsHdTextureCheckbox.IsChecked is not null) && ((bool)ModsReshadeCheckbox.IsChecked || (bool)ModsHdTextureCheckbox.IsChecked))
                 {
                     CharacterSelectGrid.Visibility = Visibility.Collapsed;
 
@@ -1080,13 +1125,13 @@ namespace LauncherApp
                     CharacterSelectGrid.Visibility = Visibility.Visible;
                 }
 
-                if (!(bool)ModsReshadeCheckbox.IsChecked)
+                if (ModsReshadeCheckbox.IsChecked is not null && !(bool)ModsReshadeCheckbox.IsChecked)
                 {
                     await _settingsHandler.ToggleSettingsAsync("Reshade", false);
                     await DownloadHandler.DeleteNonTreMod("reshade");
                 }
 
-                if (!(bool)ModsHdTextureCheckbox.IsChecked)
+                if (ModsHdTextureCheckbox.IsChecked is not null && !(bool)ModsHdTextureCheckbox.IsChecked)
                 {
                     await _settingsHandler.ToggleSettingsAsync("HDTextures", false);
                     TreModHandler treModHandler = new();
@@ -1168,19 +1213,31 @@ namespace LauncherApp
             ScanEnableButtons();
         }
 
-        async Task<bool> CheckAutoLoginAsync()
+        async Task<bool?> CheckAutoLoginAsync()
         {
             Dictionary<string, string> accounts = await _accountHandler.GetAccountCredentialsAsync();
 
-            accounts.TryGetValue("Username", out string username);
-            accounts.TryGetValue("Password", out string password);
+            accounts.TryGetValue("Username", out string? username);
+            accounts.TryGetValue("Password", out string? password);
 
             if (await _settingsHandler.CheckAutoLoginEnabledAsync())
             {
                 if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
                 {
-                    _launcherSettings.TryGetValue("ApiUrl", out string apiUrl);
-                    GameLoginResponseProperties loginProperties = await ApiHandler.AccountLoginAsync(apiUrl, username, password);
+                    string? apiUrl = "";
+                    if (_launcherSettings is not null)
+                    {
+                        _launcherSettings.TryGetValue("ApiUrl", out apiUrl);
+                    }
+                    
+                    GameLoginResponseProperties? loginProperties = new();
+                    if (apiUrl is not null)
+                    {
+                        loginProperties = await ApiHandler.AccountLoginAsync(apiUrl, username, password);
+                    }
+
+                    if (loginProperties is null)
+                        return null;
 
                     _loginProperties = loginProperties;
                     _gamePassword = password;
@@ -1342,13 +1399,13 @@ namespace LauncherApp
         {
             Dictionary<string, string> accounts = await _accountHandler.GetAccountCredentialsAsync();
 
-            accounts.TryGetValue("Username", out string username);
+            accounts.TryGetValue("Username", out string? username);
 
             LogoutButton.Visibility = Visibility.Visible;
             UsernameTextBlock.Visibility = Visibility.Visible;
             UsernameTextBlock.Text =
                 System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(
-                    username.ToLower()
+                    username!.ToLower()
                 );
 
             UpdateScreen((int)Screens.UPDATES_GRID);
@@ -1381,16 +1438,19 @@ namespace LauncherApp
             CharacterNameComboBox.Items.Add(lastCharacter);
 
             bool noneExists = false;
-            foreach (string character in _loginProperties.Characters)
+            if (_loginProperties.Characters is not null)
             {
-                if (character != lastCharacter)
+                foreach (string character in _loginProperties.Characters)
                 {
-                    CharacterNameComboBox.Items.Add(character);
-                }
+                    if (character != lastCharacter)
+                    {
+                        CharacterNameComboBox.Items.Add(character);
+                    }
 
-                if (character == "None" || lastCharacter == "None")
-                {
-                    noneExists = true;
+                    if (character == "None" || lastCharacter == "None")
+                    {
+                        noneExists = true;
+                    }
                 }
             }
 
@@ -1425,8 +1485,8 @@ namespace LauncherApp
         void OpenCefBrowser(string url)
         {
             UpdateScreen((int)Screens.UPDATES_GRID);
-            if (_currentAddress != url) Browser.LoadUrlAsync(url);
-            _currentAddress = url;
+            //if (_currentAddress != url) Browser.LoadUrlAsync(url);
+            //_currentAddress = url;
         }
     }
 }

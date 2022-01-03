@@ -757,7 +757,7 @@
                 </Grid.Background>
 
                 <Grid x:Name="UpdatesGrid" Margin="18,0,0,0">
-                    <cefSharp:ChromiumWebBrowser x:Name="Browser" Address="http://tc.darknaught.com:8787/html/" />
+                    <!--<cefSharp:ChromiumWebBrowser x:Name="Browser" Address="http://tc.darknaught.com:8787/html/" />-->
                 </Grid>
 
                 <!-- Settings -->

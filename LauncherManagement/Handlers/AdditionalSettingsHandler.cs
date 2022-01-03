@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace LauncherManagement
 {
     public class AdditionalSettingsHandler : DatabaseHandler
     {
-        public async Task<List<DatabaseProperties.AdditionalSettings>> GetSettings()
+        public async Task<List<DatabaseProperties.AdditionalSettings>?> GetSettings()
         {
             return await ExecuteAdditionalSettingsAsync
                 (
@@ -34,13 +32,13 @@ namespace LauncherManagement
 
         public async Task InsertDefaultRows()
         {
-            List<DatabaseProperties.AdditionalSettings> settings = await ExecuteAdditionalSettingsAsync
+            List<DatabaseProperties.AdditionalSettings>? settings = await ExecuteAdditionalSettingsAsync
                 (
                     "SELECT * " +
                     "FROM AdditionalSettings;"
                 );
 
-            if (settings.Count < 1)
+            if (settings is not null && settings.Count < 1)
             {
                 await ExecuteAdditionalSettingsAsync
                     (

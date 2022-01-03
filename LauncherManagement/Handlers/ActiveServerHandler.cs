@@ -7,9 +7,9 @@ namespace LauncherManagement
     {
         public async Task GetActiveServer()
         {
-            List<DatabaseProperties.ActiveServer> config = await ExecuteActiveServerAsync("SELECT Id FROM ActiveServer;");
+            List<DatabaseProperties.ActiveServer>? config = await ExecuteActiveServerAsync("SELECT Id FROM ActiveServer;");
 
-            ServerSelection.ActiveServer = config[0].Id;
+            ServerSelection.ActiveServer = config![0].Id;
         }
 
         public async Task SetActiveServer(int id)
@@ -26,9 +26,9 @@ namespace LauncherManagement
 
         public async Task InsertDefaultRow()
         {
-            List<DatabaseProperties.ActiveServer> config = await ExecuteActiveServerAsync("SELECT * FROM ActiveServer;");
+            List<DatabaseProperties.ActiveServer>? config = await ExecuteActiveServerAsync("SELECT * FROM ActiveServer;");
 
-            if (config.Count < 1)
+            if (config is not null && config.Count < 1)
             {
                 await ExecuteActiveServerAsync
                     (

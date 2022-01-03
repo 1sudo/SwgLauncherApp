@@ -2,7 +2,9 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
     <RootNamespace>LauncherApp</RootNamespace>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
@@ -71,7 +73,7 @@
 
   <ItemGroup>
     <PackageReference Include="Autoupdater.NET.Official" Version="1.7.0" />
-    <PackageReference Include="CefSharp.Wpf" Version="92.0.260" />
+    <PackageReference Include="CefSharp.Wpf" Version="96.0.180" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
+﻿using System.Diagnostics;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace LauncherManagement
 {
@@ -164,7 +160,7 @@ namespace LauncherManagement
 
                 try
                 {
-                    new FileInfo(filePath).Directory.Create();
+                    new FileInfo(filePath).Directory!.Create();
                 }
                 catch (Exception e)
                 {
@@ -267,9 +263,9 @@ namespace LauncherManagement
             Dictionary<string, string> gameSettings = await settingsHandler.GetGameOptionsControls();
             Dictionary<string, string> settings = await configHandler.GetLauncherSettings();
 
-            settings.TryGetValue("SWGLoginHost", out string host);
-            settings.TryGetValue("SWGLoginPort", out string port);
-            gameSettings.TryGetValue("MaxZoom", out string maxZoom);
+            settings.TryGetValue("SWGLoginHost", out string? host);
+            settings.TryGetValue("SWGLoginPort", out string? port);
+            gameSettings.TryGetValue("MaxZoom", out string? maxZoom);
 
             string cfgText = $"[ClientGame]\n" +
                 $"loginServerAddress0={host}\n" +
