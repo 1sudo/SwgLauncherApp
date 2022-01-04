@@ -2,10 +2,12 @@
 using Newtonsoft.Json.Linq;
 using System.Net;
 using System.Security.Cryptography;
+using System;
+using System.Diagnostics;
 
 namespace LauncherManagement
 {
-    public class DownloadHandler
+    public class DownloadHandler : IProgress<float>
     {
         static readonly LauncherConfigHandler _configHandler = new();
         static Dictionary<string, string> _launcherSettings = new();
@@ -26,11 +28,16 @@ namespace LauncherManagement
         public static Action<string>? OnInstallCheckFailed { get; set; }
         public static string? BaseGameLocation { get; set; }
 
-        internal static async Task<List<DownloadableFile>> DownloadManifestAsync(string manifestFile)
+        internal static async Task<List<DownloadableFile>> DownloadManifestAsync(bool isTreMod = false, string treMod = "")
         {
-            byte[] contents = await Task.Run(() => DownloadAsync(manifestFile).Result);
-
-            return GetFileList(System.Text.Encoding.UTF8.GetString(contents));
+            if (isTreMod)
+            {
+                return GetFileList(await Task.Run(() => DownloadAsync<string>(treMod, "", true, true)));
+            }
+            else
+            {
+                return GetFileList(await Task.Run(() => DownloadAsync<string>("", "", false, true)));
+            }
         }
 
         internal static async Task<List<string>> DownloadTreList()
@@ -55,21 +62,18 @@ namespace LauncherManagement
                 liveCfgAddress = address + manifestFilePath.Split("/")[0] + $"/livecfg.json";
             }
             
-
-            using WebClient client = new();
+            using HttpClient cl = new();
 
             string contents = "";
-            List<string> treList = new();
+            List<string>? treList = new();
 
             try
             {
-                contents = client.DownloadString(new Uri(liveCfgAddress));
+                contents = await cl.GetStringAsync(new Uri(liveCfgAddress));
 
                 if (contents is not null)
                 {
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                     treList = JsonConvert.DeserializeObject<List<string>>(contents);
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                 }
             }
             catch (Exception e)
@@ -98,17 +102,9 @@ namespace LauncherManagement
                 // Notify UI of filename
                 OnCurrentFileDownloading?.Invoke("download", file, i, listLength);
 
-                byte[] contents = await Task.Run(() => DownloadAsync(file, isMod));
+                await Task.Run(() => DownloadAsync<bool>(file, Path.Join(downloadLocation, file), isMod));
 
-                // Create directory before writing to file if it doesn't exist
-                if (downloadLocation is not null && file is not null)
-                {
-                    new FileInfo(Path.Join(downloadLocation, file)).Directory!.Create();
-                }
-
-                await File.WriteAllBytesAsync(Path.Join(downloadLocation, file), contents);
-
-                ++i;
+                i++;
             }
 
             OnDownloadCompleted?.Invoke();
@@ -339,13 +335,13 @@ namespace LauncherManagement
 
             if (string.IsNullOrEmpty(modName) && manifestFilePath is not null)
             {
-                downloadableFiles = await DownloadManifestAsync(manifestFilePath);
+                downloadableFiles = await DownloadManifestAsync();
             }
             else
             {
                 if (manifestFilePath is not null)
                 {
-                    downloadableFiles = await DownloadManifestAsync(manifestFilePath.Split("/")[0] + $"/{modName}.json");
+                    downloadableFiles = await DownloadManifestAsync(true, modName);
                 }
 
                 if (isTreMod)
@@ -379,15 +375,50 @@ namespace LauncherManagement
             await DownloadFilesFromListAsync(fileList, downloadLocation, !string.IsNullOrEmpty(modName));
         }
 
-        internal static async Task<byte[]> DownloadAsync(string file, bool isMod = false)
+        internal static async Task<T> DownloadAsync<T>(string file, string downloadLocation, bool isMod = false, bool isManifest = false)
         {
             _launcherSettings = await _configHandler.GetLauncherSettings();
 
-            byte[] data;
-
-            using WebClient client = new();
+            using HttpClient client = new();
 
             Uri uri;
+
+            if (isManifest)
+            {
+                try
+                {
+                    _launcherSettings.TryGetValue("ManifestFileUrl", out string? manifestFileUrl);
+                    _launcherSettings.TryGetValue("ManifestFilePath", out string? manifestFilePath);
+
+                    if (isMod)
+                    {
+                        manifestFilePath = manifestFilePath!.Split("/")[0] + $"/{file}.json";
+                    }
+
+                    uri = new Uri(manifestFileUrl + manifestFilePath);
+
+                    return (T)Convert.ChangeType(await client.GetStringAsync(uri), typeof(T));
+                }
+                catch
+                {
+                    try
+                    {
+                        _launcherSettings.TryGetValue("BackupManifestFileUrl", out string? backupManifestFileUrl);
+                        _launcherSettings.TryGetValue("ManifestFilePath", out string? manifestFilePath);
+
+                        uri = new Uri(backupManifestFileUrl + manifestFilePath);
+
+                        return (T)Convert.ChangeType(await client.GetStringAsync(uri), typeof(T));
+                    }
+                    catch (Exception e)
+                    {
+                        await LogHandler.Log(LogType.CRITICAL, "| DownloadAsync | All download servers unavailable!");
+                        OnServerError?.Invoke(e.ToString());
+                        return (T)Convert.ChangeType(false, typeof(T));
+                    }
+                }
+            }
+
             if (_primaryServerOffline)
             {
                 _launcherSettings.TryGetValue("BackupManifestFileUrl", out string? backupManifestFileUrl);
@@ -415,12 +446,19 @@ namespace LauncherManagement
                 }
             }
 
-            client.DownloadProgressChanged += OnDownloadProgressChanged;
-
             try
             {
-                data = await client.DownloadDataTaskAsync(uri);
-                return data;
+                using HttpResponseMessage response = client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead).Result;
+                long length = int.Parse(response.Content.Headers.First(h => h.Key.Equals("Content-Length")).Value.First());
+
+                response.EnsureSuccessStatusCode();
+
+                using Stream contentStream = await response.Content.ReadAsStreamAsync();
+                using Stream fileStream = new FileStream(downloadLocation, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true);
+
+                await DoStreamWriteAsync(contentStream, fileStream, length);
+
+                return (T)Convert.ChangeType(true, typeof(T));
             }
             // If the download server is unavailable, try the backup server
             catch
@@ -432,23 +470,59 @@ namespace LauncherManagement
                 _launcherSettings.TryGetValue("BackupManifestFileUrl", out string? backupManifestFileUrl);
                 Uri uri2 = new(backupManifestFileUrl + file);
 
-                client.DownloadProgressChanged += OnDownloadProgressChanged;
-
                 try
                 {
-                    data = await client.DownloadDataTaskAsync(uri2);
-                    return data;
+                    using HttpResponseMessage response = client.GetAsync(uri2, HttpCompletionOption.ResponseHeadersRead).Result;
+                    long length = int.Parse(response.Content.Headers.First(h => h.Key.Equals("Content-Length")).Value.First());
+
+                    response.EnsureSuccessStatusCode();
+
+                    using Stream contentStream = await response.Content.ReadAsStreamAsync();
+                    using Stream fileStream = new FileStream(downloadLocation, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true);
+
+                    await DoStreamWriteAsync(contentStream, fileStream, length);
+
+                    return (T)Convert.ChangeType(true, typeof(T));
                 }
                 // If the backup server is unavailable, error
                 catch (Exception e)
                 {
                     await LogHandler.Log(LogType.CRITICAL, "| DownloadAsync | All download servers unavailable!");
                     OnServerError?.Invoke(e.ToString());
-                    return Array.Empty<byte>();
+                    return (T)Convert.ChangeType(false, typeof(T));
                 }
             }
         }
 
+        internal static async Task DoStreamWriteAsync(Stream contentStream, Stream fileStream, long length)
+        {
+            long bytesReceived = 0L;
+            long totalBytesToReceive = 0L;
+            byte[] buffer = new byte[8192];
+            bool endOfStream = false;
+
+            while (!endOfStream)
+            {
+                var read = await contentStream.ReadAsync(buffer);
+                if (read == 0)
+                {
+                    endOfStream = true;
+                }
+                else
+                {
+                    await fileStream.WriteAsync(buffer.AsMemory(0, read));
+
+                    bytesReceived += read;
+                    totalBytesToReceive += 1;
+
+                    if (totalBytesToReceive % 100 == 0)
+                    {
+                        int progressPercentage = (int)Math.Round((double)bytesReceived / length * 1000, 0);
+                        OnDownloadProgressUpdated?.Invoke(bytesReceived, totalBytesToReceive, progressPercentage);
+                    }
+                }
+            }
+        }
         static async Task CheckSpecialCircumstances(string modName, string gamePath)
         {
             try
@@ -475,7 +549,7 @@ namespace LauncherManagement
 
             if (manifestFilePath is not null)
             {
-                downloadableFiles = await DownloadManifestAsync(manifestFilePath.Split("/")[0] + $"/{modName}.json");
+                downloadableFiles = await DownloadManifestAsync(true, modName);
             }
 
             SettingsHandler settingsHandler = new();
@@ -518,6 +592,11 @@ namespace LauncherManagement
         static void OnDownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
             OnDownloadProgressUpdated?.Invoke(e.BytesReceived, e.TotalBytesToReceive, e.ProgressPercentage);
+        }
+
+        public void Report(float value)
+        {
+            throw new NotImplementedException();
         }
     }
 }

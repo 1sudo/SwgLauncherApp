@@ -36,8 +36,6 @@ namespace LauncherApp
         double _currentFileStatus;
         double _totalFileStatus;
         string? _gamePassword;
-        string? _currentAddress;
-        readonly string _updatesAddress = "http://tc.darknaught.com:8787/html/";
         static bool _postLoad = false;
         string? _previousInstallationDirectory;
         Dictionary<string, string>? _launcherSettings;
@@ -71,10 +69,13 @@ namespace LauncherApp
         #region WindowManagement
         async void Window_Initialized(object sender, EventArgs e)
         {
+            ProgressGrid.Visibility = Visibility.Collapsed;
+            webView.DefaultBackgroundColor = System.Drawing.Color.Transparent;
+
             // start here
             await ConfigureDatabase();
 
-            _currentAddress = _updatesAddress;
+            await ConfigFile.GenerateNewConfig();
 
             _screens = new List<Grid>()
             {
@@ -413,7 +414,7 @@ namespace LauncherApp
 
         void SkillplannerButton_Click(object sender, RoutedEventArgs e)
         {
-            OpenCefBrowser("https://swgsremu.com/skillplanner/#/");
+            // OpenCefBrowser("https://swgsremu.com/skillplanner/#/");
         }
 
         void VoteButton_Click(object sender, RoutedEventArgs e)
@@ -1164,7 +1165,7 @@ namespace LauncherApp
         }
         void PatchNotesButton_Click(object sender, RoutedEventArgs e)
         {
-            OpenCefBrowser(_updatesAddress);
+            UpdateScreen((int)Screens.UPDATES_GRID);
         }
 
         void WebsiteButton_Click(object sender, RoutedEventArgs e)
@@ -1339,7 +1340,7 @@ namespace LauncherApp
                 DownloadProgress2.Value = progressPercentage;
 
                 DownloadProgressText2.Text = $"{ _currentFile }";
-                DownloadProgressTextRight2.Text = $"{progressPercentage}%";
+                DownloadProgressTextRight2.Text = $"{progressPercentage / 10}%";
                 DownloadProgressTextRight.Text = $"({ _currentFileStatus }/{ _totalFileStatus })";
                 DownloadProgressText.Text = $"Downloading Files";
                 // + $"{ UnitConversion.ToSize(bytesReceived, UnitConversion.SizeUnits.MB) }MB / " +
@@ -1480,13 +1481,6 @@ namespace LauncherApp
             {
                 ResolutionBox.Items.Add(resolution);
             }
-        }
-
-        void OpenCefBrowser(string url)
-        {
-            UpdateScreen((int)Screens.UPDATES_GRID);
-            //if (_currentAddress != url) Browser.LoadUrlAsync(url);
-            //_currentAddress = url;
         }
     }
 }

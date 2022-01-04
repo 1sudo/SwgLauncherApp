@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:LauncherApp" xmlns:cefSharp="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
+        xmlns:local="clr-namespace:LauncherApp" xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         x:Class="LauncherApp.MainWindow"
         mc:Ignorable="d"
         Title="MainWindow" Height="610" Width="1130" WindowStyle="None" MouseDown="Window_MouseDown" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Initialized="Window_Initialized" KeyDown="Window_KeyDown">
@@ -730,7 +730,7 @@
                         <ProgressBar x:Name="DownloadProgress" Style="{DynamicResource RoundedProgressBar}" Grid.Row="1"/>
                         <TextBlock x:Name="DownloadProgressText2" TextWrapping="Wrap" HorizontalAlignment="Left" FontFamily="Bahnschrift SemiCondensed" Foreground="#FFCBD4DD" Grid.Row="2" FontSize="10" VerticalAlignment="Bottom"/>
                         <TextBlock x:Name="DownloadProgressTextRight2" TextWrapping="Wrap" HorizontalAlignment="Right" FontFamily="Bahnschrift SemiBold" Foreground="White" Grid.Row="2" VerticalAlignment="Bottom" FontSize="10"/>
-                        <ProgressBar x:Name="DownloadProgress2" Style="{DynamicResource RoundedProgressBar}" Grid.Row="3"/>
+                        <ProgressBar x:Name="DownloadProgress2" Style="{DynamicResource RoundedProgressBar}" Grid.Row="3" Maximum="1000"/>
                     </Grid>
 
                     <Grid x:Name="CharacterSelectGrid" Grid.Row="1" HorizontalAlignment="Stretch" Margin="0,0,0,18" >
@@ -758,6 +758,7 @@
 
                 <Grid x:Name="UpdatesGrid" Margin="18,0,0,0">
                     <!--<cefSharp:ChromiumWebBrowser x:Name="Browser" Address="http://tc.darknaught.com:8787/html/" />-->
+                    <wv2:WebView2 Name="webView" Source="http://login.darknaught.com:8080/frontpage/" />
                 </Grid>
 
                 <!-- Settings -->
