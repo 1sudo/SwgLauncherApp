@@ -70,7 +70,9 @@ namespace LauncherApp
         async void Window_Initialized(object sender, EventArgs e)
         {
             ProgressGrid.Visibility = Visibility.Collapsed;
-            webView.DefaultBackgroundColor = System.Drawing.Color.Transparent;
+            PlayButton.Content = "Updating";
+            PlayButton.IsEnabled = false;
+            webView.DefaultBackgroundColor = Color.Transparent;
 
             // start here
             await ConfigureDatabase();
@@ -855,7 +857,7 @@ namespace LauncherApp
 
         async void FullScanButton_Click(object sender, RoutedEventArgs e)
         {
-            ScanDisableButtons();
+            ScanDisableButtons(true);
             await DownloadHandler.CheckFilesAsync(await _settingsHandler.GetGameLocationAsync(), true);
             ScanEnableButtons();
         }
@@ -863,8 +865,6 @@ namespace LauncherApp
         private void OptionsInstallDirectoryButton_Click(object sender, RoutedEventArgs e)
         {
             _previousInstallationDirectory = OptionsInstallDirectoryTextbox.Text;
-
-            Trace.WriteLine(_previousInstallationDirectory);
 
             using var dialog = new System.Windows.Forms.FolderBrowserDialog();
             System.Windows.Forms.DialogResult result = dialog.ShowDialog();
@@ -894,12 +894,16 @@ namespace LauncherApp
             SubmitSettingsButton.IsEnabled = true;
         }
 
-        void ScanDisableButtons()
+        void ScanDisableButtons(bool fullscan = false)
         {
-            ProgressGrid.Visibility = Visibility.Visible;
+            if (fullscan)
+            {
+                ProgressGrid.Visibility = Visibility.Visible;
+                CharacterSelectGrid.Visibility = Visibility.Collapsed;
+            }
+            
             PlayButton.IsEnabled = false;
             OptionsFullScanButton.IsEnabled = false;
-            CharacterSelectGrid.Visibility = Visibility.Collapsed;
             PlayButton.Content = "Updating";
             RevertDeveloperButton.IsEnabled = false;
             RevertModsButton.IsEnabled = false;
