@@ -5,21 +5,6 @@ namespace LauncherManagement
 {
     public class CharacterHandler : DatabaseHandler
     {
-        public async Task<string> GetLastSavedCharacterAsync()
-        {
-            List<DatabaseProperties.Characters>? characters = await ExecuteCharacterAsync
-                (
-                    $"SELECT * FROM Characters;'"
-                );
-
-            if (characters is not null && characters.Count > 0)
-            {
-                return (string.IsNullOrEmpty(characters[0].Character)) ? "None" : characters[0].Character ?? "None";
-            }
-
-            return "None";
-        }
-
         public async Task SaveCharacterAsync(string character)
         {
             List<DatabaseProperties.Characters>? characters = await ExecuteCharacterAsync

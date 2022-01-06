@@ -1,5 +1,7 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using System.Text.Json;
+using System.Diagnostics;
+using System.Net.Http.Json;
+using System.Text;
 
 namespace LauncherManagement
 {
@@ -14,7 +16,7 @@ namespace LauncherManagement
                 RequestUri = new Uri($"{url}/account/login/{username}"),
                 Headers =
                 {
-                    { "Accept", "application/json" },
+                    { "Accept", "application/text" },
                 },
                 Content = new FormUrlEncodedContent(new Dictionary<string, string>
                 {
@@ -28,21 +30,13 @@ namespace LauncherManagement
                 
                 response.EnsureSuccessStatusCode();
 
-                var body = await response.Content.ReadAsStringAsync();
-
-                JObject? json = null;
-
-#pragma warning disable CS8604 // Possible null reference argument.
-                json = JObject.Parse((string?)JToken.Parse(body ?? ""));
-#pragma warning restore CS8604 // Possible null reference argument.
-
-                GameLoginResponseProperties? loginProperties = JsonConvert.DeserializeObject<GameLoginResponseProperties>(json!.ToString());
-
-                return loginProperties;
+                return await response.Content.ReadFromJsonAsync<GameLoginResponseProperties>();
             }
             catch (Exception e)
             {
                 await LogHandler.Log(LogType.ERROR, "| AccountLoginAsync | " + e.Message.ToString());
+
+                Trace.WriteLine(e.Message);
 
                 return new GameLoginResponseProperties
                 {
@@ -62,7 +56,7 @@ namespace LauncherManagement
                 RequestUri = new Uri($"{url}/account/create/{accountProperties.Username}"),
                 Headers =
                 {
-                    { "Accept", "application/json" },
+                    { "Accept", "application/text" },
                 },
                 Content = new FormUrlEncodedContent(new Dictionary<string, string>
                 {
@@ -82,19 +76,14 @@ namespace LauncherManagement
                 using HttpResponseMessage response = await client.SendAsync(request);
                 
                 response.EnsureSuccessStatusCode();
-                string body = await response.Content.ReadAsStringAsync();
 
-                JToken? token = JToken.Parse(body);
-
-                JObject json = JObject.Parse((string?)token ?? "");
-
-                GameAccountCreationResponseProperties? accountCreationProperties = JsonConvert.DeserializeObject<GameAccountCreationResponseProperties>(json.ToString());
-
-                return accountCreationProperties;
+                return await response.Content.ReadFromJsonAsync<GameAccountCreationResponseProperties>();
             }
             catch (Exception e)
             {
                 await LogHandler.Log(LogType.ERROR, "| AccountCreationAsync | " + e.Message.ToString());
+
+                Trace.WriteLine(e.Message);
 
                 return new GameAccountCreationResponseProperties
                 {

@@ -1,16 +1,25 @@
 ﻿using System.Text.Json.Serialization;
 using System.Text.Json;
+using System.Diagnostics;
 
 namespace LauncherManagement
 {
     public class ConfigFile
     {
+        [JsonPropertyName("activeServer")]
+        public int ActiveServer { get; set; }
+
         [JsonPropertyName("servers")]
         public Dictionary<int, AccountProperties>? Servers { get; set; }
 
         public async static Task GenerateNewConfig()
         {
+            if (File.Exists("config.json"))
+                return;
+
             ConfigFile config = new();
+
+            config.ActiveServer = 0;
 
             List<AdditionalSettingProperties> additionalSettings = new()
             {
@@ -29,6 +38,7 @@ namespace LauncherManagement
             {
                 Username = "",
                 Password = "",
+                Characters = new List<string>(),
                 ServerSelection = "SWG Legacy Test Server (Sudo)",
                 ApiUrl = "http://login.darknaught.com:5000",
                 ManifestFilePath = "manifest/required.json",
@@ -43,10 +53,10 @@ namespace LauncherManagement
                 Fps = 60,
                 Ram = 2048,
                 MaxZoom = 5,
-                Admin = 0,
-                DebugExamine = 0,
-                Reshade = 0,
-                HDTextures = 0,
+                Admin = false,
+                DebugExamine = false,
+                Reshade = false,
+                HDTextures = false,
                 AdditionalSettings = additionalSettings,
                 TreMods = new TreModProperties()
             };
@@ -84,6 +94,51 @@ namespace LauncherManagement
 
             return null;
         }
+
+        public static async Task SaveCredentialsAsync(ConfigFile config)
+        {
+            await Task.Run(() =>
+            {
+                CipherHandler cipher = new();
+                config.Servers![config.ActiveServer].Username = CipherHandler.Encode(cipher.Transform(config.Servers![config.ActiveServer].Username!.ToLower()));
+                config.Servers![config.ActiveServer].Password = CipherHandler.Encode(cipher.Transform(config.Servers![config.ActiveServer].Password!));
+            });
+
+            await SetConfig(config);
+        }
+
+        public static Tuple<string, string> GetAccountCredentials(ConfigFile config)
+        {
+            CipherHandler cipher = new();
+            string username = cipher.Transform(CipherHandler.Decode(config.Servers![config.ActiveServer].Username!));
+            string password = cipher.Transform(CipherHandler.Decode(config.Servers![config.ActiveServer].Password!));
+
+            return Tuple.Create(username, password);
+        }
+
+        public static async Task SaveCharactersAsync(List<string> characters, ConfigFile config)
+        {
+            if (characters is not null)
+            {
+                List<string> characterList;
+                
+                characterList = characters;
+
+                if (!characterList.Contains("None"))
+                {
+                    characterList.Insert(0, "None");
+                }
+
+                config!.Servers![config.ActiveServer].Characters = characterList;
+
+                await SetConfig(config);
+            }
+        }
+
+        /*public static async Task<List<string>> GetCharactersAsync(GameLoginResponseProperties properties)
+        {
+            
+        }*/
     }
 
     public class AccountProperties
@@ -92,6 +147,8 @@ namespace LauncherManagement
         public string? Username { get; set; }
         [JsonPropertyName("password")]
         public string? Password { get; set; }
+        [JsonPropertyName("characters")]
+        public List<string>? Characters { get; set; }
         [JsonPropertyName("serverSelection")]
         public string? ServerSelection { get; set; }
         [JsonPropertyName("apiUrl")]
@@ -121,13 +178,13 @@ namespace LauncherManagement
         [JsonPropertyName("maxZoom")]
         public int MaxZoom { get; set; }
         [JsonPropertyName("admin")]
-        public int Admin { get; set; }
+        public bool Admin { get; set; }
         [JsonPropertyName("debugExamine")]
-        public int DebugExamine { get; set; }
+        public bool DebugExamine { get; set; }
         [JsonPropertyName("reshade")]
-        public int Reshade { get; set; }
+        public bool Reshade { get; set; }
         [JsonPropertyName("hdTextures")]
-        public int HDTextures { get; set; }
+        public bool HDTextures { get; set; }
         [JsonPropertyName("additionalSettings")]
         public List<AdditionalSettingProperties>? AdditionalSettings { get; set; }
         [JsonPropertyName("treMods")]

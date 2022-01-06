@@ -2,15 +2,11 @@
 using Newtonsoft.Json.Linq;
 using System.Net;
 using System.Security.Cryptography;
-using System;
-using System.Diagnostics;
 
 namespace LauncherManagement
 {
-    public class DownloadHandler : IProgress<float>
+    public class DownloadHandler
     {
-        static readonly LauncherConfigHandler _configHandler = new();
-        static Dictionary<string, string> _launcherSettings = new();
         static bool _primaryServerOffline = false;
 
         static readonly List<string> ClientChecksums = new() { 
@@ -27,6 +23,7 @@ namespace LauncherManagement
         public static Action<string>? OnServerError { get; set; }
         public static Action<string>? OnInstallCheckFailed { get; set; }
         public static string? BaseGameLocation { get; set; }
+        static ConfigFile? _config;
 
         internal static async Task<List<DownloadableFile>> DownloadManifestAsync(bool isTreMod = false, string treMod = "")
         {
@@ -42,11 +39,9 @@ namespace LauncherManagement
 
         internal static async Task<List<string>> DownloadTreList()
         {
-            Dictionary<string, string> launcherSettings = await _configHandler.GetLauncherSettings();
-
-            launcherSettings.TryGetValue("ManifestFileUrl", out string? primaryUrl);
-            launcherSettings.TryGetValue("BackupManifestFileUrl", out string? backupUrl);
-            launcherSettings.TryGetValue("ManifestFilePath", out string? manifestFilePath);
+            string? primaryUrl = _config!.Servers![_config.ActiveServer].ManifestFileUrl;
+            string? backupUrl = _config!.Servers![_config.ActiveServer].BackupManifestFileUrl;
+            string? manifestFilePath = _config!.Servers![_config.ActiveServer].ManifestFilePath;
 
             string address = "";
 
@@ -326,10 +321,11 @@ namespace LauncherManagement
             return false;
         }
 
-        public static async Task CheckFilesAsync(string downloadLocation, bool isFullScan = false, string modName = "", bool isTreMod = false, bool isDirChange = false, string previousDir = "")
+        public static async Task CheckFilesAsync(ConfigFile config, bool isFullScan = false, string modName = "", bool isTreMod = false, bool isDirChange = false, string previousDir = "")
         {
-            _launcherSettings = await _configHandler.GetLauncherSettings();
-            _launcherSettings.TryGetValue("ManifestFilePath", out string? manifestFilePath);
+            _config = config;
+
+            string? manifestFilePath = _config!.Servers![_config.ActiveServer].ManifestFilePath;
 
             List<DownloadableFile> downloadableFiles = new();
 
@@ -354,30 +350,32 @@ namespace LauncherManagement
             List<string> fileList;
             if (isFullScan)
             {
-                fileList = await Task.Run(() => GetBadFilesAsync(downloadLocation, downloadableFiles, true));
+                fileList = await Task.Run(() => GetBadFilesAsync(_config.Servers![_config.ActiveServer].GameLocation!, downloadableFiles, true));
             }
             else
             {
-                fileList = await Task.Run(() => GetBadFilesAsync(downloadLocation, downloadableFiles));
+                fileList = await Task.Run(() => GetBadFilesAsync(_config.Servers![_config.ActiveServer].GameLocation!, downloadableFiles));
 
                 if (isDirChange)
                 {
-                    await Task.Run(() => AttemptCopyFilesFromListAsync(fileList, downloadLocation, true, previousDir));
+                    await Task.Run(() => AttemptCopyFilesFromListAsync(fileList, _config.Servers![_config.ActiveServer].GameLocation!, true, previousDir));
                 }
                 else
                 {
-                    await Task.Run(() => AttemptCopyFilesFromListAsync(fileList, downloadLocation));
+                    await Task.Run(() => AttemptCopyFilesFromListAsync(fileList, _config.Servers![_config.ActiveServer].GameLocation!));
                 }
                 
-                fileList = await Task.Run(() => GetBadFilesAsync(downloadLocation, downloadableFiles));
+                fileList = await Task.Run(() => GetBadFilesAsync(_config.Servers![_config.ActiveServer].GameLocation!, downloadableFiles));
             }
 
-            await DownloadFilesFromListAsync(fileList, downloadLocation, !string.IsNullOrEmpty(modName));
+            await DownloadFilesFromListAsync(fileList, _config.Servers![_config.ActiveServer].GameLocation!, !string.IsNullOrEmpty(modName));
         }
 
         internal static async Task<T> DownloadAsync<T>(string file, string downloadLocation, bool isMod = false, bool isManifest = false)
         {
-            _launcherSettings = await _configHandler.GetLauncherSettings();
+            string? manifestFileUrl = _config!.Servers![_config.ActiveServer].ManifestFileUrl;
+            string? manifestFilePath = _config!.Servers![_config.ActiveServer].ManifestFilePath;
+            string? backupManifestFileUrl = _config!.Servers![_config.ActiveServer].BackupManifestFileUrl;
 
             using HttpClient client = new();
 
@@ -387,9 +385,6 @@ namespace LauncherManagement
             {
                 try
                 {
-                    _launcherSettings.TryGetValue("ManifestFileUrl", out string? manifestFileUrl);
-                    _launcherSettings.TryGetValue("ManifestFilePath", out string? manifestFilePath);
-
                     if (isMod)
                     {
                         manifestFilePath = manifestFilePath!.Split("/")[0] + $"/{file}.json";
@@ -403,9 +398,6 @@ namespace LauncherManagement
                 {
                     try
                     {
-                        _launcherSettings.TryGetValue("BackupManifestFileUrl", out string? backupManifestFileUrl);
-                        _launcherSettings.TryGetValue("ManifestFilePath", out string? manifestFilePath);
-
                         uri = new Uri(backupManifestFileUrl + manifestFilePath);
 
                         return (T)Convert.ChangeType(await client.GetStringAsync(uri), typeof(T));
@@ -421,7 +413,6 @@ namespace LauncherManagement
 
             if (_primaryServerOffline)
             {
-                _launcherSettings.TryGetValue("BackupManifestFileUrl", out string? backupManifestFileUrl);
                 if (isMod)
                 {
                     string fileUrl = backupManifestFileUrl + "mods/" + file;
@@ -434,7 +425,6 @@ namespace LauncherManagement
             }
             else
             {
-                _launcherSettings.TryGetValue("ManifestFileUrl", out string? manifestFileUrl);
                 if (isMod)
                 {
                     string fileUrl = manifestFileUrl + "mods/" + file;
@@ -467,7 +457,6 @@ namespace LauncherManagement
 
                 _primaryServerOffline = true;
 
-                _launcherSettings.TryGetValue("BackupManifestFileUrl", out string? backupManifestFileUrl);
                 Uri uri2 = new(backupManifestFileUrl + file);
 
                 try
@@ -523,6 +512,7 @@ namespace LauncherManagement
                 }
             }
         }
+
         static async Task CheckSpecialCircumstances(string modName, string gamePath)
         {
             try
@@ -541,9 +531,7 @@ namespace LauncherManagement
 
         public async static Task DeleteNonTreMod(string modName)
         {
-            Dictionary<string, string> launcherSettings = await _configHandler.GetLauncherSettings();
-
-            launcherSettings.TryGetValue("ManifestFilePath", out string? manifestFilePath);
+            string? manifestFilePath = _config!.Servers![_config.ActiveServer].ManifestFilePath;
 
             List<DownloadableFile> downloadableFiles = new();
 
@@ -552,9 +540,7 @@ namespace LauncherManagement
                 downloadableFiles = await DownloadManifestAsync(true, modName);
             }
 
-            SettingsHandler settingsHandler = new();
-
-            string gamePath = await settingsHandler.GetGameLocationAsync();
+            string? gamePath = _config!.Servers![_config.ActiveServer].GameLocation;
 
             try
             {
@@ -586,17 +572,12 @@ namespace LauncherManagement
             }
             catch { }
 
-            await CheckSpecialCircumstances(modName, gamePath);
+            await CheckSpecialCircumstances(modName, gamePath!);
         }
 
         static void OnDownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
             OnDownloadProgressUpdated?.Invoke(e.BytesReceived, e.TotalBytesToReceive, e.ProgressPercentage);
-        }
-
-        public void Report(float value)
-        {
-            throw new NotImplementedException();
         }
     }
 }

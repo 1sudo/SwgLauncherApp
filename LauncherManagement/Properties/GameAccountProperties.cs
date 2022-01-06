@@ -1,11 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System.Text.Json.Serialization;
 
 namespace LauncherManagement
 {
     public class GameLoginResponseProperties
     {
+        [JsonPropertyName("Result")]
         public string? Result { get; set; }
+
+        [JsonPropertyName("Username")]
         public string? Username { get; set; }
+
+        [JsonPropertyName("Characters")]
         public List<string>? Characters { get; set; }
     }
 
