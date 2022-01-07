@@ -1,7 +1,6 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Net;
+﻿using System.Net;
 using System.Security.Cryptography;
+using System.Text.Json;
 
 namespace LauncherManagement
 {
@@ -27,13 +26,13 @@ namespace LauncherManagement
 
         internal static async Task<List<DownloadableFile>> DownloadManifestAsync(bool isTreMod = false, string treMod = "")
         {
-            if (isTreMod)
+            if (isTreMod && (treMod is not null && treMod != string.Empty))
             {
-                return GetFileList(await Task.Run(() => DownloadAsync<string>(treMod, "", true, true)));
+                return JsonSerializer.Deserialize<List<DownloadableFile>>(await Task.Run(() => DownloadAsync<string>(treMod, "", true, true))) ?? new List<DownloadableFile>();
             }
             else
             {
-                return GetFileList(await Task.Run(() => DownloadAsync<string>("", "", false, true)));
+                return JsonSerializer.Deserialize<List<DownloadableFile>>(await Task.Run(() => DownloadAsync<string>("", "", false, true))) ?? new List<DownloadableFile>();
             }
         }
 
@@ -68,7 +67,7 @@ namespace LauncherManagement
 
                 if (contents is not null)
                 {
-                    treList = JsonConvert.DeserializeObject<List<string>>(contents);
+                    treList = JsonSerializer.Deserialize<List<string>>(contents);
                 }
             }
             catch (Exception e)
@@ -154,22 +153,6 @@ namespace LauncherManagement
             using Stream source = File.OpenRead(sourcePath);
             using Stream destination = File.Create(destinationPath);
             await source.CopyToAsync(destination);
-        }
-
-        internal static List<DownloadableFile> GetFileList(string listData)
-        {
-            List<DownloadableFile> fileList = new();
-
-            // Parses a JSON array and iterates through items in the array
-            foreach (JToken item in JArray.Parse(listData))
-            {
-                // Deserialize the JSON string, add it to a new 'DownloadableFile' object and add it to the file list
-                DownloadableFile downloadableFile = JsonConvert.DeserializeObject<DownloadableFile>(item.ToString());
-
-                fileList.Add(downloadableFile);
-            }
-
-            return fileList;
         }
 
         internal static string GetMd5Checksum(string filePath)
@@ -342,8 +325,18 @@ namespace LauncherManagement
 
                 if (isTreMod)
                 {
-                    TreModHandler treModHandler = new();
-                    await treModHandler.EnableMod(modName, downloadableFiles);
+                    List<string> downloadableFileList = new();
+
+                    foreach (DownloadableFile file in downloadableFiles)
+                    {
+                        downloadableFileList.Add(file.Name);
+                    }
+
+                    config.Servers![config.ActiveServer].TreMods!.Add(new TreModProperties()
+                    {
+                        ModName = modName,
+                        FileList = downloadableFileList
+                    });
                 }
             }
 
@@ -373,6 +366,8 @@ namespace LauncherManagement
 
         internal static async Task<T> DownloadAsync<T>(string file, string downloadLocation, bool isMod = false, bool isManifest = false)
         {
+            _config = await ConfigFile.GetConfig();
+
             string? manifestFileUrl = _config!.Servers![_config.ActiveServer].ManifestFileUrl;
             string? manifestFilePath = _config!.Servers![_config.ActiveServer].ManifestFilePath;
             string? backupManifestFileUrl = _config!.Servers![_config.ActiveServer].BackupManifestFileUrl;
@@ -390,17 +385,13 @@ namespace LauncherManagement
                         manifestFilePath = manifestFilePath!.Split("/")[0] + $"/{file}.json";
                     }
 
-                    uri = new Uri(manifestFileUrl + manifestFilePath);
-
-                    return (T)Convert.ChangeType(await client.GetStringAsync(uri), typeof(T));
+                    return (T)Convert.ChangeType(await client.GetStringAsync(new Uri(manifestFileUrl + manifestFilePath)), typeof(T));
                 }
                 catch
                 {
                     try
                     {
-                        uri = new Uri(backupManifestFileUrl + manifestFilePath);
-
-                        return (T)Convert.ChangeType(await client.GetStringAsync(uri), typeof(T));
+                        return (T)Convert.ChangeType(await client.GetStringAsync(new Uri(backupManifestFileUrl + manifestFilePath)), typeof(T));
                     }
                     catch (Exception e)
                     {

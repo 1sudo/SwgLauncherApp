@@ -38,11 +38,7 @@ namespace LauncherApp
         string? _previousInstallationDirectory;
         int _activeServer;
         ConfigFile? _launcherSettings;
-        readonly LauncherConfigHandler _configHandler = new();
-        readonly ActiveServerHandler _activeServerHandler = new();
-        readonly SettingsHandler _settingsHandler = new();
-        readonly FileHandler _fileHandler = new();
-        readonly CaptchaProperties _captchaProperties = CaptchaController.QuestionAndAnswer();
+        readonly CaptchaProperties _captchaProperties = CaptchaHandler.QuestionAndAnswer();
         #endregion
 
         #region Constructor
@@ -123,10 +119,10 @@ namespace LauncherApp
                 _postLoad = true;
             }
 
-            await PopulateControls();
+            PopulateControls();
         }
 
-        async Task PopulateControls(bool skipLoginServersBox = false)
+        void PopulateControls(bool skipLoginServersBox = false)
         {
             DevAPIurl.Text = _launcherSettings!.Servers![_activeServer].ApiUrl;
             DevManifestURL.Text = _launcherSettings!.Servers![_activeServer].ManifestFileUrl;
@@ -159,9 +155,9 @@ namespace LauncherApp
 
             if (!skipLoginServersBox)
             {
-                foreach (string type in await _configHandler.GetServerTypes())
+                foreach (KeyValuePair<int, AccountProperties> item in _launcherSettings.Servers)
                 {
-                    OptionsLoginServerBox.Items.Add(type);
+                    OptionsLoginServerBox.Items.Add(item.Key);
                 }
             }
 
@@ -233,7 +229,7 @@ namespace LauncherApp
             }
         }
 
-        async void CharacterNameComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        void CharacterNameComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
         }
@@ -419,16 +415,16 @@ namespace LauncherApp
 
                 if (selectedCharacter != "None" && selectedCharacter is not null)
                 {
-                    await AppHandler.StartGameAsync(_launcherSettings!.Servers![_activeServer].GameLocation!, password, username ?? "", selectedCharacter, true);
+                    await AppHandler.StartGameAsync(_launcherSettings, password, username ?? "", selectedCharacter, true);
                 }
                 else
                 {
-                    await AppHandler.StartGameAsync(_launcherSettings!.Servers![_activeServer].GameLocation!, password, username ?? "");
+                    await AppHandler.StartGameAsync(_launcherSettings, password, username ?? "");
                 }
             }
             catch
             {
-                await AppHandler.StartGameAsync(_launcherSettings!.Servers![_activeServer].GameLocation!, password, username ?? "");
+                await AppHandler.StartGameAsync(_launcherSettings, password, username ?? "");
             }
 
             PlayButton.IsEnabled = true;
@@ -438,7 +434,7 @@ namespace LauncherApp
 
         async void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
-            await _fileHandler.GenerateMissingFiles();
+            await FileHandler.GenerateMissingFiles(_launcherSettings);
 
             int fps = _launcherSettings!.Servers![_activeServer].Fps;
             int ram = _launcherSettings!.Servers![_activeServer].Ram;
@@ -450,9 +446,9 @@ namespace LauncherApp
             string vertexShaderVersion = "";
             string pixelShaderVersion = "";
 
-            List<GameSettingsProperty> properties = await _fileHandler.ParseOptionsCfg();
+            List<AdditionalSettingProperties> properties = await FileHandler.ParseOptionsCfg(_launcherSettings);
 
-            foreach (GameSettingsProperty property in properties)
+            foreach (AdditionalSettingProperties property in properties)
             {
                 switch (property.Key)
                 {
@@ -665,7 +661,7 @@ namespace LauncherApp
 
                 await ConfigFile.SetConfig(_launcherSettings);
 
-                await _fileHandler.GenerateMissingFiles();
+                await FileHandler.GenerateMissingFiles(_launcherSettings);
                 UpdateScreen((int)Screens.GAME_VALIDATION_GRID);
             }
             else
@@ -680,7 +676,7 @@ namespace LauncherApp
                     string location = AdvancedSetupTextbox.Text.Replace("\\", "/");
                     _launcherSettings!.Servers![_activeServer].GameLocation = location;
                     await ConfigFile.SetConfig(_launcherSettings);
-                    await _fileHandler.GenerateMissingFiles();
+                    await FileHandler.GenerateMissingFiles(_launcherSettings);
                     UpdateScreen((int)Screens.GAME_VALIDATION_GRID);
                 }
             }
@@ -923,7 +919,7 @@ namespace LauncherApp
         async void SubmitSettingsButton_Click(object sender, RoutedEventArgs e)
         {
             SettingsDisableButtons();
-            List<GameSettingsProperty> properties = new();
+            List<AdditionalSettingProperties> properties = new();
 
             int fps = 0;
             int ram = 0;
@@ -954,86 +950,85 @@ namespace LauncherApp
                 case 4: maxZoom = 10; break;
             }
 
-            await _settingsHandler.SetGameOptions(new DatabaseProperties.Settings
-            {
-                Fps = fps,
-                Ram = ram,
-                MaxZoom = maxZoom
-            });
+            _launcherSettings!.Servers![_activeServer].Fps = fps;
+            _launcherSettings!.Servers![_activeServer].Ram = ram;
+            _launcherSettings!.Servers![_activeServer].MaxZoom = maxZoom;
+
+            await ConfigFile.SetConfig(_launcherSettings);
 
             string screenWidth = ResolutionBox.SelectedValue.ToString()!.Split("x")[0];
             string screenHeight = ResolutionBox.SelectedValue.ToString()!.Split("x")[1].Split("@")[0];
             string refreshRate = ResolutionBox.SelectedValue.ToString()!.Split("@")[1];
 
-            properties.Add(new GameSettingsProperty { Category = "Direct3d9", Key = "fullscreenRefreshRate", Value = $"{refreshRate}" });
+            properties.Add(new AdditionalSettingProperties { Category = "Direct3d9", Key = "fullscreenRefreshRate", Value = $"{refreshRate}" });
 
             if (ShaderBox.SelectedIndex == 1)
             {
-                properties.Add(new GameSettingsProperty { Category = "Direct3d9", Key = "maxVertexShaderVersion", Value = "0x0200" });
-                properties.Add(new GameSettingsProperty { Category = "Direct3d9", Key = "maxPixelShaderVersion", Value = "0x0200" });
+                properties.Add(new AdditionalSettingProperties { Category = "Direct3d9", Key = "maxVertexShaderVersion", Value = "0x0200" });
+                properties.Add(new AdditionalSettingProperties { Category = "Direct3d9", Key = "maxPixelShaderVersion", Value = "0x0200" });
             }
 
             if (ShaderBox.SelectedIndex == 2)
             {
-                properties.Add(new GameSettingsProperty { Category = "Direct3d9", Key = "maxVertexShaderVersion", Value = "0x0101" });
-                properties.Add(new GameSettingsProperty { Category = "Direct3d9", Key = "maxPixelShaderVersion", Value = "0x0104" });
+                properties.Add(new AdditionalSettingProperties { Category = "Direct3d9", Key = "maxVertexShaderVersion", Value = "0x0101" });
+                properties.Add(new AdditionalSettingProperties { Category = "Direct3d9", Key = "maxPixelShaderVersion", Value = "0x0104" });
             }
 
             if (ShaderBox.SelectedIndex == 3)
             {
-                properties.Add(new GameSettingsProperty { Category = "Direct3d9", Key = "maxVertexShaderVersion", Value = "0x0101" });
-                properties.Add(new GameSettingsProperty { Category = "Direct3d9", Key = "maxPixelShaderVersion", Value = "0x0101" });
+                properties.Add(new AdditionalSettingProperties { Category = "Direct3d9", Key = "maxVertexShaderVersion", Value = "0x0101" });
+                properties.Add(new AdditionalSettingProperties { Category = "Direct3d9", Key = "maxPixelShaderVersion", Value = "0x0101" });
             }
 
             if (ShaderBox.SelectedIndex == 4)
             {
-                properties.Add(new GameSettingsProperty { Category = "Direct3d9", Key = "maxVertexShaderVersion", Value = "0" });
-                properties.Add(new GameSettingsProperty { Category = "Direct3d9", Key = "maxPixelShaderVersion", Value = "0" });
+                properties.Add(new AdditionalSettingProperties { Category = "Direct3d9", Key = "maxVertexShaderVersion", Value = "0" });
+                properties.Add(new AdditionalSettingProperties { Category = "Direct3d9", Key = "maxPixelShaderVersion", Value = "0" });
             }
 
             if (DisableVsyncCheckbox.IsChecked is not null && (bool)DisableVsyncCheckbox.IsChecked)
-                properties.Add(new GameSettingsProperty { Category = "Direct3d9", Key = "allowTearing", Value = "1" });
+                properties.Add(new AdditionalSettingProperties { Category = "Direct3d9", Key = "allowTearing", Value = "1" });
 
-            properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "screenWidth", Value = $"{screenWidth}" });
-            properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "screenHeight", Value = $"{screenHeight}" });
+            properties.Add(new AdditionalSettingProperties { Category = "ClientGraphics", Key = "screenWidth", Value = $"{screenWidth}" });
+            properties.Add(new AdditionalSettingProperties { Category = "ClientGraphics", Key = "screenHeight", Value = $"{screenHeight}" });
             if (UseSafeRendererCheckbox.IsChecked is not null && (bool)UseSafeRendererCheckbox.IsChecked)
-                properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "useSafeRenderer", Value = "1" });
+                properties.Add(new AdditionalSettingProperties { Category = "ClientGraphics", Key = "useSafeRenderer", Value = "1" });
             if (BorderlessWindowCheckbox.IsChecked is not null && (bool)BorderlessWindowCheckbox.IsChecked)
-                properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "borderlessWindow", Value = "1" });
+                properties.Add(new AdditionalSettingProperties { Category = "ClientGraphics", Key = "borderlessWindow", Value = "1" });
             if (WindowModeCheckbox.IsChecked is not null && (bool)WindowModeCheckbox.IsChecked)
-                properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "windowed", Value = "1" });
+                properties.Add(new AdditionalSettingProperties { Category = "ClientGraphics", Key = "windowed", Value = "1" });
             if (LowDetailTexturesCheckbox.IsChecked is not null && (bool)LowDetailTexturesCheckbox.IsChecked)
-                properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "discardHighestMipMapLevels", Value = "1" });
+                properties.Add(new AdditionalSettingProperties { Category = "ClientGraphics", Key = "discardHighestMipMapLevels", Value = "1" });
             if (LowDetailNormalsCheckbox.IsChecked is not null && (bool)LowDetailNormalsCheckbox.IsChecked)
-                properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "discardHighestNormalMipMapLevels", Value = "1" });
+                properties.Add(new AdditionalSettingProperties { Category = "ClientGraphics", Key = "discardHighestNormalMipMapLevels", Value = "1" });
             if (DisableBumpMappingCheckbox.IsChecked is not null && (bool)DisableBumpMappingCheckbox.IsChecked)
-                properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "disableOptionTag", Value = "DOT3" });
+                properties.Add(new AdditionalSettingProperties { Category = "ClientGraphics", Key = "disableOptionTag", Value = "DOT3" });
             if (DisableMultiPassRenderingCheckbox.IsChecked is not null && (bool)DisableMultiPassRenderingCheckbox.IsChecked)
-                properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "disableOptionTag", Value = "HIQL" });
+                properties.Add(new AdditionalSettingProperties { Category = "ClientGraphics", Key = "disableOptionTag", Value = "HIQL" });
             if (DisableHardwareMouseCheckbox.IsChecked is not null && (bool)DisableHardwareMouseCheckbox.IsChecked)
-                properties.Add(new GameSettingsProperty { Category = "ClientGraphics", Key = "useHardwareMouseCursor", Value = "0" });
+                properties.Add(new AdditionalSettingProperties { Category = "ClientGraphics", Key = "useHardwareMouseCursor", Value = "0" });
             if (SkipIntroCheckbox.IsChecked is not null && (bool)SkipIntroCheckbox.IsChecked)
-                properties.Add(new GameSettingsProperty { Category = "ClientGame", Key = "skipIntro", Value = "1" });
+                properties.Add(new AdditionalSettingProperties { Category = "ClientGame", Key = "skipIntro", Value = "1" });
             if (DisableWorldPreloadingCheckbox.IsChecked is not null && (bool)DisableWorldPreloadingCheckbox.IsChecked)
-                properties.Add(new GameSettingsProperty { Category = "ClientGame", Key = "preloadWorldSnapshot", Value = "0" });
+                properties.Add(new AdditionalSettingProperties { Category = "ClientGame", Key = "preloadWorldSnapshot", Value = "0" });
             if (DisableFastMouseCheckbox.IsChecked is not null && (bool)DisableFastMouseCheckbox.IsChecked)
-                properties.Add(new GameSettingsProperty { Category = "ClientUserInterface", Key = "alwaysSetMouseCursor", Value = "1" });
+                properties.Add(new AdditionalSettingProperties { Category = "ClientUserInterface", Key = "alwaysSetMouseCursor", Value = "1" });
             if (DisableAudioCheckbox.IsChecked is not null && (bool)DisableAudioCheckbox.IsChecked)
-                properties.Add(new GameSettingsProperty { Category = "ClientAudio", Key = "disableMiles", Value = "1" });
+                properties.Add(new AdditionalSettingProperties { Category = "ClientAudio", Key = "disableMiles", Value = "1" });
             if (DisableLODManagerCheckbox.IsChecked is not null && (bool)DisableLODManagerCheckbox.IsChecked)
-                properties.Add(new GameSettingsProperty { Category = "ClientSkeletalAnimation", Key = "lodManagerEnable", Value = "0" });
+                properties.Add(new AdditionalSettingProperties { Category = "ClientSkeletalAnimation", Key = "lodManagerEnable", Value = "0" });
             if (DisableTextureBakingCheckbox.IsChecked is not null && (bool)DisableTextureBakingCheckbox.IsChecked)
-                properties.Add(new GameSettingsProperty { Category = "ClientTextureRenderer", Key = "disableTextureBaking", Value = "1" });
+                properties.Add(new AdditionalSettingProperties { Category = "ClientTextureRenderer", Key = "disableTextureBaking", Value = "1" });
             if (DisableFileCachingCheckbox.IsChecked is not null && (bool)DisableFileCachingCheckbox.IsChecked)
-                properties.Add(new GameSettingsProperty { Category = "SharedUtility", Key = "disableFileCaching", Value = "1" });
+                properties.Add(new AdditionalSettingProperties { Category = "SharedUtility", Key = "disableFileCaching", Value = "1" });
             if (DisableAsyncLoaderCheckbox.IsChecked is not null && (bool)DisableAsyncLoaderCheckbox.IsChecked)
-                properties.Add(new GameSettingsProperty { Category = "SharedFile", Key = "enableAsynchronousLoader", Value = "0" });
+                properties.Add(new AdditionalSettingProperties { Category = "SharedFile", Key = "enableAsynchronousLoader", Value = "0" });
             if (LowDetailCharactersCheckbox.IsChecked is not null && (bool)LowDetailCharactersCheckbox.IsChecked)
-                properties.Add(new GameSettingsProperty { Category = "ClientSkeletalAnimation", Key = "skipL0", Value = "1" });
+                properties.Add(new AdditionalSettingProperties { Category = "ClientSkeletalAnimation", Key = "skipL0", Value = "1" });
             if (LowDetailMeshesCheckbox.IsChecked is not null && (bool)LowDetailMeshesCheckbox.IsChecked)
-                properties.Add(new GameSettingsProperty { Category = "ClientObject/DetailAppearanceTemplate", Key = "skipL0", Value = "1" });
+                properties.Add(new AdditionalSettingProperties { Category = "ClientObject/DetailAppearanceTemplate", Key = "skipL0", Value = "1" });
 
-            await _fileHandler.SaveOptionsCfg(properties);
+            await FileHandler.SaveOptionsCfg(_launcherSettings, properties);
 
             SettingsEnableButtons();
         }
@@ -1064,15 +1059,21 @@ namespace LauncherApp
                 await ConfigFile.SetConfig(_launcherSettings);
             }
 
-            await _configHandler.SetLauncherSettings(new Dictionary<string, string>()
+            _launcherSettings.Servers[_activeServer].ApiUrl = DevAPIurl.Text;
+            _launcherSettings.Servers[_activeServer].ManifestFileUrl = DevManifestURL.Text;
+            _launcherSettings.Servers[_activeServer].BackupManifestFileUrl = DevBackupManifestURL.Text;
+            _launcherSettings.Servers[_activeServer].ManifestFilePath = DevManifestFilePath.Text;
+            _launcherSettings.Servers[_activeServer].SWGLoginHost = DevSWGhostname.Text;
+            try 
             {
-                { "ApiUrl", DevAPIurl.Text },
-                { "ManifestFileUrl", DevManifestURL.Text },
-                { "BackupManifestFileUrl", DevBackupManifestURL.Text },
-                { "ManifestFilePath", DevManifestFilePath.Text },
-                { "SWGLoginHost", DevSWGhostname.Text },
-                { "SWGLoginPort", DevSWGport.Text }
-            });
+                _launcherSettings.Servers[_activeServer].SWGLoginPort = int.Parse(DevSWGport.Text);
+            } 
+            catch
+            {
+
+            }
+
+            await ConfigFile.SetConfig(_launcherSettings);
 
             SettingsEnableButtons();
         }
@@ -1132,15 +1133,25 @@ namespace LauncherApp
                 {
                     _launcherSettings.Servers![_activeServer].HDTextures = false;
                     await ConfigFile.SetConfig(_launcherSettings);
-                    TreModHandler treModHandler = new();
-                    await treModHandler.DisableMod("hdtextures");
+
+                    foreach (TreModProperties property in _launcherSettings.Servers[_activeServer].TreMods!)
+                    {
+                        if (property.ModName == "hdtextures")
+                        {
+                            _launcherSettings.Servers[_activeServer].TreMods!.Remove(property);
+                        }
+                    }
                 }
 
                 ProgressGrid.Visibility = Visibility.Collapsed;
 
-                if (ServerSelection.ActiveServer != OptionsLoginServerBox.SelectedIndex + 1)
+                if (_activeServer != OptionsLoginServerBox.SelectedIndex + 1)
                 {
-                    await _activeServerHandler.SetActiveServer(OptionsLoginServerBox.SelectedIndex + 1);
+                    _launcherSettings.ActiveServer = OptionsLoginServerBox.SelectedIndex;
+                    await ConfigFile.SetConfig(_launcherSettings);
+
+                    _launcherSettings = await ConfigFile.GetConfig();
+
                     LogoutButton_Click(this, new RoutedEventArgs());
                 }
 
@@ -1381,7 +1392,7 @@ namespace LauncherApp
             UpdateScreen((int)Screens.UPDATES_GRID);
 
             GetCharactersAsync();
-            await PopulateControls(true);
+            PopulateControls(true);
             LoggedInEnableControls();
 
             try
@@ -1411,18 +1422,6 @@ namespace LauncherApp
                 }
             }
         }
-
-/*        async Task ConfigureDatabase()
-        {
-            DatabaseHandler db = new();
-            await db.CreateTables();
-
-            await _configHandler.InsertDefaultRows();
-            await _activeServerHandler.InsertDefaultRow();
-            await _settingsHandler.InsertDefaultRow();
-            await _additionalSettingsHandler.InsertDefaultRows();
-            await _activeServerHandler.GetActiveServer();
-        }*/
 
         #endregion
 

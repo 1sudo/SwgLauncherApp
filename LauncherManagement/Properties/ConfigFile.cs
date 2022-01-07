@@ -1,6 +1,5 @@
 ﻿using System.Text.Json.Serialization;
 using System.Text.Json;
-using System.Diagnostics;
 
 namespace LauncherManagement
 {
@@ -58,7 +57,7 @@ namespace LauncherManagement
                 Reshade = false,
                 HDTextures = false,
                 AdditionalSettings = additionalSettings,
-                TreMods = new TreModProperties()
+                TreMods = new List<TreModProperties>()
             };
 
             config.Servers = new Dictionary<int, AccountProperties>() { { 0, accountProperties } };
@@ -134,11 +133,6 @@ namespace LauncherManagement
                 await SetConfig(config);
             }
         }
-
-        /*public static async Task<List<string>> GetCharactersAsync(GameLoginResponseProperties properties)
-        {
-            
-        }*/
     }
 
     public class AccountProperties
@@ -188,7 +182,7 @@ namespace LauncherManagement
         [JsonPropertyName("additionalSettings")]
         public List<AdditionalSettingProperties>? AdditionalSettings { get; set; }
         [JsonPropertyName("treMods")]
-        public TreModProperties? TreMods { get; set; }
+        public List<TreModProperties>? TreMods { get; set; }
     }
 
     public class AdditionalSettingProperties
@@ -206,6 +200,6 @@ namespace LauncherManagement
         [JsonPropertyName("modName")]
         public string? ModName { get; set; }
         [JsonPropertyName("fileList")]
-        public string? FileList { get; set; }
+        public List<string>? FileList { get; set; }
     }
 }

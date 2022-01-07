@@ -1,22 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace LauncherManagement
 {
     public class FileHandler
     {
-        readonly SettingsHandler _settings = new();
-        readonly AdditionalSettingsHandler _additionalSettings = new();
-
-        public async Task GenerateMissingFiles()
+        public async static Task GenerateMissingFiles(ConfigFile? config)
         {
-            List<DatabaseProperties.AdditionalSettings>? properties = await _additionalSettings.GetSettings();
+            List<AdditionalSettingProperties>? properties = config!.Servers![config.ActiveServer].AdditionalSettings;
 
-            string path = Path.Join(await _settings.GetGameLocationAsync(), "options.cfg");
+            string path = Path.Join(config!.Servers![config.ActiveServer].GameLocation, "options.cfg");
 
             new FileInfo(path).Directory!.Create();
 
@@ -26,7 +18,7 @@ namespace LauncherManagement
                 StringBuilder sb = new();
                 if (properties is not null)
                 {
-                    foreach (DatabaseProperties.AdditionalSettings property in properties)
+                    foreach (AdditionalSettingProperties property in properties)
                     {
                         if (property.Category is not null && property.Category != lastCategory)
                         {
@@ -52,12 +44,11 @@ namespace LauncherManagement
             }
         }
 
-        public async Task<List<GameSettingsProperty>> ParseOptionsCfg()
+        public static async Task<List<AdditionalSettingProperties>> ParseOptionsCfg(ConfigFile? config)
         {
-            string[] lines = await File.ReadAllLinesAsync(Path.Join(
-                await _settings.GetGameLocationAsync(), "options.cfg"));
+            string[] lines = await File.ReadAllLinesAsync(Path.Join(config!.Servers![config.ActiveServer].GameLocation, "options.cfg"));
 
-            List<GameSettingsProperty> properties = new();
+            List<AdditionalSettingProperties> properties = new();
 
             string currentCategory = "";
 
@@ -76,7 +67,7 @@ namespace LauncherManagement
                     key = line.Split('=')[0];
                     value = line.Split('=')[1];
 
-                    GameSettingsProperty property = new()
+                    AdditionalSettingProperties property = new()
                     {
                         Category = currentCategory,
                         Key = key,
@@ -90,9 +81,9 @@ namespace LauncherManagement
             return properties;
         }
 
-        public async Task SaveOptionsCfg(List<GameSettingsProperty> properties)
+        public static async Task SaveOptionsCfg(ConfigFile? config, List<AdditionalSettingProperties> properties)
         {
-            string path = Path.Join(await _settings.GetGameLocationAsync(), "options.cfg");
+            string path = Path.Join(config!.Servers![config.ActiveServer].GameLocation, "options.cfg");
 
             StringBuilder sb = new();
             List<string> lines = new();
@@ -103,7 +94,7 @@ namespace LauncherManagement
             {
                 sb.AppendLine("# options.cfg - Please do not edit this auto-generated file.");
 
-                foreach (GameSettingsProperty property in properties)
+                foreach (AdditionalSettingProperties property in properties)
                 {
                     if (property.Category is not null && property.Category != lastCategory)
                     {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
-
-namespace LauncherManagement
+﻿namespace LauncherManagement
 {
     public class CipherHandler
     {

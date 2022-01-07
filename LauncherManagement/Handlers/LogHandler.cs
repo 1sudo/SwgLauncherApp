@@ -1,9 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
-
-namespace LauncherManagement
+﻿namespace LauncherManagement
 {
     public enum LogType
     {

@@ -7,7 +7,7 @@ namespace LauncherManagement
     {
         static readonly bool _cuClient = false;
 
-        public static async Task StartGameAsync(string serverPath, string password = "", 
+        public static async Task StartGameAsync(ConfigFile? config, string password = "", 
             string username = "", string charactername = "", bool autoEnterZone = false)
         {
             // Run Async to prevent launcher from locking up when starting game and writing bytes
@@ -15,22 +15,24 @@ namespace LauncherManagement
             {
                 try
                 {
-                    bool configWritten = await WriteLoginConfigAsync();
-                    await WriteLauncherConfigAsync();
-                    await WriteLiveConfigAsync();
+                    bool configWritten = await WriteLoginConfigAsync(config);
+                    await WriteLauncherConfigAsync(config);
+                    await WriteLiveConfigAsync(config);
+
+                    string? gameLocation = config!.Servers![config.ActiveServer].GameLocation;
 
                     if (configWritten)
                     {
                         if (!_cuClient)
                         {
                             // Read SWGEmu.exe and seek to 0x1153
-                            string exePath = Path.Join(serverPath, "SWGEmu.exe");
+                            string exePath = Path.Join(gameLocation, "SWGEmu.exe");
                             FileStream rs = File.OpenRead(exePath);
                             rs.Seek(0x1153, SeekOrigin.Begin);
 
                             // Convert FPS integer (casted to float) to hex
                             string hexSelection = BitConverter.ToString(
-                                BitConverter.GetBytes((float)GameOptionsProperties.Fps)).Replace("-", "");
+                                BitConverter.GetBytes((float)config!.Servers![config.ActiveServer].Fps)).Replace("-", "");
 
                             // Read the next 3 bytes to ensure we're at the right position and 
                             // the binary hasn't been altered
@@ -48,9 +50,6 @@ namespace LauncherManagement
                                 // Close Read to prepare for write
                                 rs.Dispose();
 
-                                Trace.WriteLine(hex);
-                                Trace.WriteLine(hexSelection);
-
                                 // If the selected FPS already matches hex value in the 
                                 // binary, don't write to it again (faster loading)
                                 if (hex != hexSelection)
@@ -59,7 +58,7 @@ namespace LauncherManagement
                                     ws.Seek(0x1156, SeekOrigin.Begin);
 
                                     // Create byte array of FPS value
-                                    byte[] bytes = BitConverter.GetBytes((float)GameOptionsProperties.Fps);
+                                    byte[] bytes = BitConverter.GetBytes((float)config!.Servers![config.ActiveServer].Fps);
 
                                     // Write FPS float at 0x1156
                                     foreach (byte b in bytes)
@@ -80,22 +79,22 @@ namespace LauncherManagement
                                 startInfo.Arguments = $"-- -s ClientGame loginClientPassword={password} autoConnectToLoginServer=1 loginClientID={username} autoConnectToGameServer=0 -s Station -s SwgClient allowMultipleInstances=true";
                             }
 
-                            startInfo.EnvironmentVariables["SWGCLIENT_MEMORY_SIZE_MB"] = GameOptionsProperties.Ram.ToString();
+                            startInfo.EnvironmentVariables["SWGCLIENT_MEMORY_SIZE_MB"] = config!.Servers![config.ActiveServer].Ram.ToString();
                             startInfo.UseShellExecute = false;
-                            startInfo.WorkingDirectory = serverPath;
-                            startInfo.FileName = Path.Join(serverPath, "SWGEmu.exe");
+                            startInfo.WorkingDirectory = gameLocation;
+                            startInfo.FileName = Path.Join(gameLocation, "SWGEmu.exe");
 
                             Process.Start(startInfo);
                         }
                         else
                         {
-                            string exePath = Path.Join(serverPath, "SwgClient_r.exe");
+                            string exePath = Path.Join(gameLocation, "SwgClient_r.exe");
 
                             ProcessStartInfo startInfo = new();
-                            startInfo.EnvironmentVariables["SWGCLIENT_MEMORY_SIZE_MB"] = GameOptionsProperties.Ram.ToString();
+                            startInfo.EnvironmentVariables["SWGCLIENT_MEMORY_SIZE_MB"] = config!.Servers![config.ActiveServer].Ram.ToString();
                             startInfo.UseShellExecute = false;
-                            startInfo.WorkingDirectory = serverPath;
-                            startInfo.FileName = Path.Join(serverPath, "SwgClient_r.exe");
+                            startInfo.WorkingDirectory = gameLocation;
+                            startInfo.FileName = Path.Join(gameLocation, "SwgClient_r.exe");
 
                             Process.Start(startInfo);
                         }
@@ -138,10 +137,9 @@ namespace LauncherManagement
             }
         }
 
-        public static async Task<bool> WriteConfigAsync(string file, string text)
+        public static async Task<bool> WriteConfigAsync(ConfigFile? config, string file, string text)
         {
-            SettingsHandler _settingsHandler = new();
-            string gameLocation = await _settingsHandler.GetGameLocationAsync();
+            string? gameLocation = config!.Servers![config.ActiveServer].GameLocation;
 
             if (!string.IsNullOrEmpty(gameLocation))
             {
@@ -183,12 +181,10 @@ namespace LauncherManagement
             return false;
         }
 
-        static async Task WriteLauncherConfigAsync()
+        static async Task WriteLauncherConfigAsync(ConfigFile? config)
         {
-            SettingsHandler _settingsHandler = new();
-
-            bool admin = await _settingsHandler.GetAdminAsync();
-            bool debugExamine = await _settingsHandler.GetDebugExamineAsync();
+            bool admin = config!.Servers![config.ActiveServer].Admin;
+            bool debugExamine = config.Servers[config.ActiveServer].DebugExamine;
 
             string cfgText = $"[SwgClient]\n" +
                 "\tallowMultipleInstances=true\n\n" +
@@ -197,10 +193,10 @@ namespace LauncherManagement
                 "[ClientUserInterface]\n" +
                 $"\tdebugExamine={debugExamine.ToString().ToLower()}";
 
-            await WriteConfigAsync("launcher", cfgText);
+            await WriteConfigAsync(config, "launcher", cfgText);
         }
 
-        static async Task WriteLiveConfigAsync()
+        static async Task WriteLiveConfigAsync(ConfigFile? config)
         {
             List<string> treList = await DownloadHandler.DownloadTreList();
 
@@ -211,24 +207,23 @@ namespace LauncherManagement
 
             sb.Append(header);
 
-            TreModHandler treModHandler = new();
-            Dictionary<string, List<string>> modList = await treModHandler.GetMods();
+            List<TreModProperties>? modList = config!.Servers![config.ActiveServer].TreMods;
 
             int count = treList.Count;
             int modFileCount = 0;
 
-            foreach (KeyValuePair<string, List<string>> mod in modList)
+            foreach (TreModProperties mod in modList!)
             {
-                modFileCount += mod.Value.Count;
+                modFileCount += mod.FileList!.Count;
             }
 
             modFileCount += count;
 
-            foreach (KeyValuePair<string, List<string>> mod in modList)
+            foreach (TreModProperties mod in modList)
             {
-                mod.Value.Reverse();
+                mod.FileList!.Reverse();
 
-                foreach (string treFile in mod.Value)
+                foreach (string treFile in mod.FileList)
                 {
                     sb.Append($"\tsearchTree_00_{modFileCount}={treFile}\n");
                     modFileCount -= 1;
@@ -253,26 +248,21 @@ namespace LauncherManagement
 
             sb.Append(footer);
 
-            await WriteConfigAsync("live", sb.ToString());
+            await WriteConfigAsync(config, "live", sb.ToString());
         }
 
-        static async Task<bool> WriteLoginConfigAsync()
+        static async Task<bool> WriteLoginConfigAsync(ConfigFile? config)
         {
-            SettingsHandler settingsHandler = new();
-            LauncherConfigHandler configHandler = new();
-            Dictionary<string, string> gameSettings = await settingsHandler.GetGameOptionsControls();
-            Dictionary<string, string> settings = await configHandler.GetLauncherSettings();
-
-            settings.TryGetValue("SWGLoginHost", out string? host);
-            settings.TryGetValue("SWGLoginPort", out string? port);
-            gameSettings.TryGetValue("MaxZoom", out string? maxZoom);
+            string? host = config!.Servers![config.ActiveServer].SWGLoginHost;
+            int port = config.Servers[config.ActiveServer].SWGLoginPort;
+            int maxZoom = config.Servers[config.ActiveServer].MaxZoom;
 
             string cfgText = $"[ClientGame]\n" +
                 $"loginServerAddress0={host}\n" +
                 $"loginServerPort0={port}\n" +
                 $"freeChaseCameraMaximumZoom={maxZoom}";
 
-            return await WriteConfigAsync("login", cfgText);
+            return await WriteConfigAsync(config, "login", cfgText);
         }
 
         public async static void StartGameConfig(string serverPath)

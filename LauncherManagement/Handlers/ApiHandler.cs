@@ -1,7 +1,5 @@
-﻿using System.Text.Json;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net.Http.Json;
-using System.Text;
 
 namespace LauncherManagement
 {
@@ -35,8 +33,6 @@ namespace LauncherManagement
             catch (Exception e)
             {
                 await LogHandler.Log(LogType.ERROR, "| AccountLoginAsync | " + e.Message.ToString());
-
-                Trace.WriteLine(e.Message);
 
                 return new GameLoginResponseProperties
                 {
@@ -82,8 +78,6 @@ namespace LauncherManagement
             catch (Exception e)
             {
                 await LogHandler.Log(LogType.ERROR, "| AccountCreationAsync | " + e.Message.ToString());
-
-                Trace.WriteLine(e.Message);
 
                 return new GameAccountCreationResponseProperties
                 {

@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace LauncherManagement
+﻿namespace LauncherManagement
 {
-    public static class CaptchaController
+    public static class CaptchaHandler
     {
         public static CaptchaProperties QuestionAndAnswer()
         {

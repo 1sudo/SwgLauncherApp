@@ -1,10 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
+﻿using System.Security.Cryptography;
+using System.Text.Json;
 
 namespace LauncherManagement
 {
@@ -42,7 +37,10 @@ namespace LauncherManagement
                 }
             }
 
-            string output  = JsonConvert.SerializeObject(listOfFiles, Formatting.Indented);
+            JsonSerializerOptions options = new();
+            options.WriteIndented = true;
+
+            string output  = JsonSerializer.Serialize(listOfFiles, options);
 
             await File.WriteAllTextAsync(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "required.json"), output);
         }
@@ -62,7 +60,10 @@ namespace LauncherManagement
                 }
             }
 
-            string json = JsonConvert.SerializeObject(treFiles, Formatting.Indented);
+            JsonSerializerOptions options = new();
+            options.WriteIndented = true;
+
+            string json = JsonSerializer.Serialize(treFiles, options);
 
             await File.WriteAllTextAsync(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "livecfg.json"), json);
         }
