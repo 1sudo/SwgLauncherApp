@@ -406,8 +406,7 @@ namespace LauncherManagement
             {
                 if (isMod)
                 {
-                    string fileUrl = backupManifestFileUrl + "mods/" + file;
-                    uri = new Uri(fileUrl);
+                    uri = new Uri(backupManifestFileUrl + "mods/" + file);
                 }
                 else
                 {
@@ -418,8 +417,7 @@ namespace LauncherManagement
             {
                 if (isMod)
                 {
-                    string fileUrl = manifestFileUrl + "mods/" + file;
-                    uri = new Uri(fileUrl);
+                    uri = new Uri(manifestFileUrl + "mods/" + file);
                 }
                 else
                 {

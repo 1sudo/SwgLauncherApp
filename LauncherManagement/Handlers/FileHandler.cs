@@ -161,5 +161,24 @@ namespace LauncherManagement
                 await LogHandler.Log(LogType.ERROR, "| SaveOptionsCfg |" + e.Message);
             }
         }
+
+        public static async Task SaveDeveloperOptionsCfg(ConfigFile? config)
+        {
+            using StreamWriter sw = new(Path.Join(config!.Servers![config.ActiveServer].GameLocation, "swgemu_login.cfg"));
+
+            await sw.WriteAsync("[ClientGame]\n" +
+                $"loginServerAddress0={config.Servers[config.ActiveServer].SWGLoginHost}\n" +
+                $"loginServerPort0={config.Servers[config.ActiveServer].SWGLoginPort}\n" +
+                $"freeChaseCameraMaximumZoom={config.Servers[config.ActiveServer].MaxZoom}\n");
+
+            using StreamWriter sw2 = new(Path.Join(config!.Servers![config.ActiveServer].GameLocation, "launcher.cfg"));
+
+            await sw2.WriteAsync("[SwgClient]\n" +
+                "\tallowMultipleInstances=true\n\n" +
+                "[ClientGame]\n" +
+                $"\t0fd345d9={config.Servers[config.ActiveServer].Admin}\n\n" +
+                "[ClientUserInterface]\n" +
+                $"\tdebugExamine={config.Servers[config.ActiveServer].DebugExamine}");
+        }
     }
 }

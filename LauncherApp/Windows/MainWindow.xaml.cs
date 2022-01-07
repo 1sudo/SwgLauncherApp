@@ -1075,6 +1075,8 @@ namespace LauncherApp
 
             await ConfigFile.SetConfig(_launcherSettings);
 
+            await FileHandler.SaveDeveloperOptionsCfg(_launcherSettings);
+
             SettingsEnableButtons();
         }
 
