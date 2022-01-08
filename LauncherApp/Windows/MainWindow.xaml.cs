@@ -65,9 +65,6 @@ namespace LauncherApp
             PlayButton.IsEnabled = false;
             webView.DefaultBackgroundColor = Color.Transparent;
 
-            // start here
-            // await ConfigureDatabase();
-
             await ConfigFile.GenerateNewConfig();
 
             _launcherSettings = await ConfigFile.GetConfig();
@@ -157,7 +154,7 @@ namespace LauncherApp
             {
                 foreach (KeyValuePair<int, AccountProperties> item in _launcherSettings.Servers)
                 {
-                    OptionsLoginServerBox.Items.Add(item.Key);
+                    OptionsLoginServerBox.Items.Add(item.Value.ServerSelection);
                 }
             }
 
