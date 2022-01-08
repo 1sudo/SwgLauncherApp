@@ -5,6 +5,8 @@ namespace LauncherManagement
 {
     public class ConfigFile
     {
+        readonly static string _configFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LauncherApp/config.json");
+
         [JsonPropertyName("activeServer")]
         public int ActiveServer { get; set; }
 
@@ -13,7 +15,12 @@ namespace LauncherManagement
 
         public async static Task GenerateNewConfig()
         {
-            if (File.Exists("config.json"))
+            if (!Directory.Exists(Path.GetDirectoryName(_configFile)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(_configFile)!);
+            }
+
+            if (File.Exists(_configFile))
                 return;
 
             ConfigFile config = new();
@@ -65,24 +72,29 @@ namespace LauncherManagement
             JsonSerializerOptions options = new();
             options.WriteIndented = true;
 
-            using StreamWriter sw = new("config.json");
+            using StreamWriter sw = new(_configFile);
 
             await sw.WriteAsync(JsonSerializer.Serialize(config, options));
         }
 
         public async static Task SetConfig(ConfigFile config)
         {
+            if (!Directory.Exists(Path.GetDirectoryName(_configFile)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(_configFile)!);
+            }
+
             JsonSerializerOptions options = new();
             options.WriteIndented = true;
 
-            using StreamWriter sw = new("config.json");
+            using StreamWriter sw = new(_configFile);
 
             await sw.WriteAsync(JsonSerializer.Serialize(config, options));
         }
 
         public async static Task<ConfigFile?> GetConfig()
         {
-            using StreamReader sr = new("config.json", true);
+            using StreamReader sr = new(_configFile, true);
 
             string? data = await sr.ReadToEndAsync();
 
