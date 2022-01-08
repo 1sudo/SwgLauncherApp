@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
+using System.Reflection;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -65,58 +68,69 @@ namespace LauncherApp
             PlayButton.IsEnabled = false;
             webView.DefaultBackgroundColor = Color.Transparent;
 
-            await ConfigFile.GenerateNewConfig();
-
-            _launcherSettings = await ConfigFile.GetConfig();
-            _activeServer = _launcherSettings!.ActiveServer;
-
-            _screens = new List<Grid>()
+            // Try / catch to regenerate config if it's bad
+            try
             {
-                SetupGrid,
-                RulesAndRegulationsGrid,
-                InstallDirectoryGrid,
-                GameValidationGrid,
-                AccountGrid,
-                LoginGrid,
-                CreateAccountGrid,
-                PrimaryGrid,
-                UpdatesGrid,
-                SettingsGrid,
-                OptionsAndModsGrid,
-                DeveloperGrid
-            };
+                await ConfigFile.GenerateNewConfig();
 
-            NotLoggedInDisableControls();
+                _launcherSettings = await ConfigFile.GetConfig();
+                _activeServer = _launcherSettings!.ActiveServer;
 
-            bool isGameConfigValidated = ValidateGameConfig();
-
-            if (isGameConfigValidated)
-            {
-                bool isVerified = _launcherSettings.Servers![_activeServer].Verified;
-
-                if (isVerified)
+                _screens = new List<Grid>()
                 {
-                    UpdateScreen((int)Screens.LOGIN_GRID);
-                    bool? isLoggedIn = await CheckAutoLoginAsync();
+                    SetupGrid,
+                    RulesAndRegulationsGrid,
+                    InstallDirectoryGrid,
+                    GameValidationGrid,
+                    AccountGrid,
+                    LoginGrid,
+                    CreateAccountGrid,
+                    PrimaryGrid,
+                    UpdatesGrid,
+                    SettingsGrid,
+                    OptionsAndModsGrid,
+                    DeveloperGrid
+                };
 
-                    if ((bool)isLoggedIn)
+                NotLoggedInDisableControls();
+
+                bool isGameConfigValidated = ValidateGameConfig();
+
+                if (isGameConfigValidated)
+                {
+                    bool isVerified = _launcherSettings.Servers![_activeServer].Verified;
+
+                    if (isVerified)
                     {
-                        await HandleLogin();
+                        UpdateScreen((int)Screens.LOGIN_GRID);
+                        bool? isLoggedIn = await CheckAutoLoginAsync();
+
+                        if ((bool)isLoggedIn)
+                        {
+                            await HandleLogin();
+                        }
+                        else
+                        {
+                            UpdateScreen((int)Screens.LOGIN_GRID);
+                        }
                     }
                     else
                     {
-                        UpdateScreen((int)Screens.LOGIN_GRID);
+                        UpdateScreen((int)Screens.GAME_VALIDATION_GRID);
                     }
-                }
-                else
-                {
-                    UpdateScreen((int)Screens.GAME_VALIDATION_GRID);
+
+                    _postLoad = true;
                 }
 
-                _postLoad = true;
+                PopulateControls();
+
             }
-
-            PopulateControls();
+            catch
+            {
+                await ConfigFile.GenerateNewConfig(true);
+                System.Windows.Forms.Application.Restart();
+                Environment.Exit(0);
+            }
         }
 
         void PopulateControls(bool skipLoginServersBox = false)

@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using System.Text.Json;
+using System.Runtime.Serialization;
 
 namespace LauncherManagement
 {
@@ -13,8 +14,13 @@ namespace LauncherManagement
         [JsonPropertyName("servers")]
         public Dictionary<int, AccountProperties>? Servers { get; set; }
 
-        public async static Task GenerateNewConfig()
+        public async static Task GenerateNewConfig(bool deleteCurrent = false)
         {
+            if (deleteCurrent)
+            {
+                File.Delete(_configFile);
+            }
+
             if (!Directory.Exists(Path.GetDirectoryName(_configFile)))
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(_configFile)!);
@@ -152,50 +158,73 @@ namespace LauncherManagement
     {
         [JsonPropertyName("username")]
         public string? Username { get; set; }
+
         [JsonPropertyName("password")]
         public string? Password { get; set; }
+
         [JsonPropertyName("characters")]
         public List<string>? Characters { get; set; }
+
         [JsonPropertyName("lastSelectedCharacter")]
-        public int LastSelectedCharacter { get; set; }
+        public int LastSelectedCharacter { get; set; } = 0;
+
         [JsonPropertyName("serverSelection")]
         public string? ServerSelection { get; set; }
+
         [JsonPropertyName("apiUrl")]
         public string? ApiUrl { get; set; }
+
         [JsonPropertyName("manifestFilePath")]
         public string? ManifestFilePath { get; set; }
+
         [JsonPropertyName("manifestFileUrl")]
         public string? ManifestFileUrl { get; set; }
+
         [JsonPropertyName("backupManifestFileUrl")]
         public string? BackupManifestFileUrl { get; set; }
+
         [JsonPropertyName("swgLoginHost")]
         public string? SWGLoginHost { get; set; }
+
         [JsonPropertyName("swgLoginPort")]
         public int SWGLoginPort { get; set; }
+
         [JsonPropertyName("gameLocation")]
         public string? GameLocation { get; set; }
+
         [JsonPropertyName("serverName")]
         public string? ServerName { get; set; }
+
         [JsonPropertyName("autoLogin")]
         public bool AutoLogin { get; set; }
+
         [JsonPropertyName("verified")]
         public bool Verified { get; set; }
+
         [JsonPropertyName("fps")]
         public int Fps { get; set; }
+
         [JsonPropertyName("ram")]
         public int Ram { get; set; }
+
         [JsonPropertyName("maxZoom")]
         public int MaxZoom { get; set; }
+
         [JsonPropertyName("admin")]
         public bool Admin { get; set; }
+
         [JsonPropertyName("debugExamine")]
         public bool DebugExamine { get; set; }
+
         [JsonPropertyName("reshade")]
         public bool Reshade { get; set; }
+
         [JsonPropertyName("hdTextures")]
         public bool HDTextures { get; set; }
+
         [JsonPropertyName("additionalSettings")]
         public List<AdditionalSettingProperties>? AdditionalSettings { get; set; }
+
         [JsonPropertyName("treMods")]
         public List<TreModProperties>? TreMods { get; set; }
     }
@@ -204,8 +233,10 @@ namespace LauncherManagement
     {
         [JsonPropertyName("category")]
         public string? Category { get; set; }
+
         [JsonPropertyName("key")]
         public string? Key { get; set; }
+
         [JsonPropertyName("value")]
         public string? Value { get; set; }
     }
@@ -214,6 +245,7 @@ namespace LauncherManagement
     {
         [JsonPropertyName("modName")]
         public string? ModName { get; set; }
+
         [JsonPropertyName("fileList")]
         public List<string>? FileList { get; set; }
     }
