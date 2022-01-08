@@ -156,6 +156,11 @@ namespace LauncherApp
                 {
                     OptionsLoginServerBox.Items.Add(item.Value.ServerSelection);
                 }
+
+                if (_launcherSettings!.Servers![_activeServer].LastSelectedCharacter > 0)
+                {
+                    CharacterNameComboBox.SelectedIndex = _launcherSettings!.Servers![_activeServer].LastSelectedCharacter;
+                }
             }
 
             OptionsLoginServerBox.SelectedIndex = _activeServer;
@@ -226,9 +231,11 @@ namespace LauncherApp
             }
         }
 
-        void CharacterNameComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        async void CharacterNameComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            _launcherSettings!.Servers![_activeServer].LastSelectedCharacter = CharacterNameComboBox.SelectedIndex;
 
+            await ConfigFile.SetConfig(_launcherSettings);
         }
 
         void CreateSecurityQuestionTextblock_Initialized(object sender, EventArgs e)

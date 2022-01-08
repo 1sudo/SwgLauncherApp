@@ -45,6 +45,7 @@ namespace LauncherManagement
                 Username = "",
                 Password = "",
                 Characters = new List<string>(),
+                LastSelectedCharacter = 0,
                 ServerSelection = "SWG Legacy Test Server (Sudo)",
                 ApiUrl = "http://login.darknaught.com:5000",
                 ManifestFilePath = "manifest/required.json",
@@ -155,6 +156,8 @@ namespace LauncherManagement
         public string? Password { get; set; }
         [JsonPropertyName("characters")]
         public List<string>? Characters { get; set; }
+        [JsonPropertyName("lastSelectedCharacter")]
+        public int LastSelectedCharacter { get; set; }
         [JsonPropertyName("serverSelection")]
         public string? ServerSelection { get; set; }
         [JsonPropertyName("apiUrl")]
