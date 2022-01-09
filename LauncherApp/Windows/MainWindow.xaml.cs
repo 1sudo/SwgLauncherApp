@@ -60,6 +60,10 @@ namespace LauncherApp
 
             ToolStripButton aboutButton = new() { Text = "About" };
 
+            ToolStripLabel versionLabel = new() { Text = "v1.0.0.18" };
+
+            menuStrip.Items.Add(versionLabel);
+            menuStrip.Items.Add(new ToolStripSeparator());
             menuStrip.Items.Add(aboutButton);
             menuStrip.Items.Add(exitButton);
 
@@ -1583,19 +1587,22 @@ namespace LauncherApp
                         {
                             time = string.Format("{0:D1} minutes", t.Minutes);
                         }
-                        else if (status.Status.Trim() == "online" && (t.Minutes == 0 || t.Minutes == 1))
+                        else if (status.Status!.Trim() == "online" && (t.Minutes == 0 || t.Minutes == 1))
                         {
-                            time = string.Format("1 minute", t.Minutes);
+                            time = "1 minute";
                         }
 
                         Trace.WriteLine(status.Uptime);
 
-                        ServerStatusLabel.Text = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(status.Status);
+                        ServerStatusLabel.Text = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(status.Status!);
                         UptimeLabel.Text = time;
                     });
 
                     Thread.Sleep(30000);
-                } catch { }
+                } catch (Exception e)
+                {
+                    await LogHandler.Log(LogType.ERROR, "| DoWork | " + e.Message.ToString());
+                }
             }
         }
     }

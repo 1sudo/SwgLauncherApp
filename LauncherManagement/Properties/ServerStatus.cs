@@ -5,10 +5,10 @@ namespace LauncherManagement
     public class ServerStatus
     {
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         [JsonPropertyName("status")]
-        public string Status { get; set; }
+        public string? Status { get; set; }
 
         [JsonPropertyName("connected")]
         public long Connected { get; set; }
