@@ -1504,6 +1504,10 @@ namespace LauncherApp
                 {
                     CharacterNameComboBox.Items.Add(character);
                 }
+                if (_launcherSettings.Servers![_activeServer].LastSelectedCharacter < 1)
+                {
+                    CharacterNameComboBox.SelectedIndex = 0;
+                }
             }
         }
 
