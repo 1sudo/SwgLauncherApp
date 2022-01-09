@@ -757,6 +757,16 @@ namespace LauncherApp
 
                 if (loginProperties!.Result == "Success")
                 {
+                    ResultText.Text = "";
+                    ResultText.Visibility = Visibility.Collapsed;
+                    CreateUsernameTextbox.Text = "";
+                    CreateEmailTextbox.Text = "";
+                    CreatePasswordTextbox.Password = "";
+                    CreateConfirmPasswordTextbox.Password = "";
+                    CreateDiscordTextbox.Text = "";
+                    CreateSecurityQuestionTextbox.Text = "";
+                    NewsletterCheckbox.IsChecked = false;
+                    accountCreationResponseTextbox.Visibility = Visibility.Collapsed;
                     await ConfigFile.SaveCharactersAsync(loginProperties!.Characters!, _launcherSettings);
                 }
             }
@@ -769,14 +779,25 @@ namespace LauncherApp
                 case "Success": 
                     await HandleLogin();
                     break;
-                case "ServerDown": 
+                case "ServerDown":
+                    ResultText.Visibility = Visibility.Visible;
+                    ResultText.Foreground = System.Windows.Media.Brushes.Red;
                     ResultText.Text = "API server down!"; 
                     break;
-                case "InvalidCredentials": 
+                case "InvalidCredentials":
+                    ResultText.Visibility = Visibility.Visible;
+                    ResultText.Foreground = System.Windows.Media.Brushes.Red;
                     ResultText.Text = "Invalid username or password!"; 
                     break;
                 case "DatabaseConnectionError":
+                    ResultText.Visibility = Visibility.Visible;
+                    ResultText.Foreground = System.Windows.Media.Brushes.Red;
                     ResultText.Text = "Database connection error!";
+                    break;
+                default:
+                    ResultText.Visibility = Visibility.Visible;
+                    ResultText.Foreground = System.Windows.Media.Brushes.Red;
+                    ResultText.Text = loginProperties.Result;
                     break;
             }
         }
@@ -827,7 +848,7 @@ namespace LauncherApp
                                 NewsletterCheckbox.IsChecked = false;
                             }
 
-                            await ApiHandler.AccountCreationAsync(apiUrl, new GameAccountCreationProperties()
+                            GameAccountCreationResponseProperties response = await ApiHandler.AccountCreationAsync(apiUrl, new GameAccountCreationProperties()
                             {
                                 Username = CreateUsernameTextbox.Text,
                                 Email = CreateEmailTextbox.Text,
@@ -835,24 +856,51 @@ namespace LauncherApp
                                 PasswordConfirmation = CreateConfirmPasswordTextbox.Password,
                                 Discord = CreateDiscordTextbox.Text,
                                 SubscribeToNewsletter = (bool)NewsletterCheckbox.IsChecked
-                            }, _captchaProperties);
-                        }
+                            }, _captchaProperties) ?? new GameAccountCreationResponseProperties();
 
-                        //MessageBox.Show(creation.Result);
+                            if (response.Result!.Trim() == "Success")
+                            {
+                                ResultText.Visibility = Visibility.Visible;
+                                ResultText.Foreground = System.Windows.Media.Brushes.Green;
+                                ResultText.Text = "Account Created.";
+
+                                UpdateScreen((int)Screens.LOGIN_GRID);
+
+                                UsernameTextbox.Text = CreateUsernameTextbox.Text;
+                                PasswordTextbox.Password = CreatePasswordTextbox.Password;
+
+                                CreateUsernameTextbox.Text = "";
+                                CreateEmailTextbox.Text = "";
+                                CreatePasswordTextbox.Password = "";
+                                CreateConfirmPasswordTextbox.Password = "";
+                                CreateDiscordTextbox.Text = "";
+                                CreateSecurityQuestionTextbox.Text = "";
+                                NewsletterCheckbox.IsChecked = false;
+                                accountCreationResponseTextbox.Visibility = Visibility.Collapsed;
+                            }
+                            else
+                            {
+                                accountCreationResponseTextbox.Text = response.Result!.Trim();
+                                accountCreationResponseTextbox.Visibility = Visibility.Visible;
+                            }
+                        }
                     }
                     else
                     {
-                        //MessageBox.Show("Captcha is incorrect!");
+                        accountCreationResponseTextbox.Text = "Captcha is incorrect!";
+                        accountCreationResponseTextbox.Visibility = Visibility.Visible;
                     }
                 }
                 else
                 {
-                    //MessageBox.Show("Error parsing captcha answer! Report this to staff!");
+                    accountCreationResponseTextbox.Text = "Error parsing captcha answer! Report this to staff!";
+                    accountCreationResponseTextbox.Visibility = Visibility.Visible;
                 }
             }
             else
             {
-                //MessageBox.Show("Passwords do not match!");
+                accountCreationResponseTextbox.Text = "Passwords do not match!";
+                accountCreationResponseTextbox.Visibility = Visibility.Visible;
             }
         }
 
@@ -1419,6 +1467,8 @@ namespace LauncherApp
         {
             (string username, string _) = ConfigFile.GetAccountCredentials(_launcherSettings!);
 
+
+            
             LogoutButton.Visibility = Visibility.Visible;
             UsernameTextBlock.Visibility = Visibility.Visible;
             UsernameTextBlock.Text = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(username!.ToLower());

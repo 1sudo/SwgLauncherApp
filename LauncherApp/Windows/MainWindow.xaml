@@ -1215,7 +1215,7 @@
                         ACCOUNT LOGIN
                     </TextBlock>
 
-                    <TextBlock x:Name="ResultText" Foreground="#FFF32A2A" FontFamily="Bahnschrift" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14">
+                    <TextBlock x:Name="ResultText" Foreground="#FFF32A2A" FontFamily="Bahnschrift" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" Visibility="Collapsed">
                     </TextBlock>
 
                     <Grid>
@@ -1420,6 +1420,8 @@
                                 </TextBlock>
                             </StackPanel>
                         </UniformGrid>
+
+                        <TextBlock x:Name="accountCreationResponseTextbox" Foreground="#FF0000" Margin="5,5,0,0"></TextBlock>
                     </StackPanel>
 
                     <!-- Create Account Navigation Buttons -->
