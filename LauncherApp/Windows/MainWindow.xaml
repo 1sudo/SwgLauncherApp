@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:LauncherApp" xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         x:Class="LauncherApp.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="610" Width="1130" WindowStyle="None" MouseDown="Window_MouseDown" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Initialized="Window_Initialized" KeyDown="Window_KeyDown">
+        Title="MainWindow" Height="610" Width="1130" WindowStyle="None" MouseDown="Window_MouseDown" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Initialized="Window_Initialized" KeyDown="Window_KeyDown" Closing="Window_Closing" StateChanged="Window_StateChanged">
 
     <!-- #region WindowResources -->
     <Window.Resources>

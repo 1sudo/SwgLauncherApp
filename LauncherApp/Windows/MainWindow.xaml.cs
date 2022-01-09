@@ -1,7 +1,4 @@
-﻿using System.Diagnostics;
-using System.IO;
-using System.Reflection;
-using System.Text.Json;
+﻿using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -42,12 +39,29 @@ namespace LauncherApp
         int _activeServer;
         ConfigFile? _launcherSettings;
         readonly CaptchaProperties _captchaProperties = CaptchaHandler.QuestionAndAnswer();
+        readonly NotifyIcon _notifyIcon;
         #endregion
 
         #region Constructor
         public MainWindow()
         {
             InitializeComponent();
+
+            _notifyIcon = new();
+            _notifyIcon.Icon = new Icon(@"legacy.ico");
+            _notifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(NotifyIcon_MouseDoubleClick!);
+
+            ContextMenuStrip menuStrip = new();
+
+            ToolStripButton exitButton = new() { Text = "Exit" };
+            exitButton.Click += (s, e) => Environment.Exit(0);
+
+            ToolStripButton aboutButton = new() { Text = "About" };
+
+            menuStrip.Items.Add(aboutButton);
+            menuStrip.Items.Add(exitButton);
+
+            _notifyIcon.ContextMenuStrip = menuStrip;
 
             DownloadHandler.OnCurrentFileDownloading += ShowFileBeingDownloaded;
             DownloadHandler.OnDownloadProgressUpdated += DownloadProgressUpdated;
@@ -1450,6 +1464,37 @@ namespace LauncherApp
             foreach (string resolution in DisplayResolutions.GetResolutions())
             {
                 ResolutionBox.Items.Add(resolution);
+            }
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            e.Cancel = true;
+            this.WindowState = WindowState.Minimized;
+            this.ShowInTaskbar = true;
+            this.Hide();
+        }
+
+        void NotifyIcon_MouseDoubleClick(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            this.Show();
+            this.WindowState = WindowState.Normal;
+        }
+
+        private void Window_StateChanged(object sender, EventArgs e)
+        {
+            if (this.WindowState == WindowState.Minimized)
+            {
+                this.ShowInTaskbar = false;
+                _notifyIcon.BalloonTipTitle = "Minimize Sucessful";
+                _notifyIcon.BalloonTipText = "Minimized the app ";
+                _notifyIcon.ShowBalloonTip(400);
+                _notifyIcon.Visible = true;
+            }
+            else if (this.WindowState == WindowState.Normal)
+            {
+                _notifyIcon.Visible = false;
+                this.ShowInTaskbar = true;
             }
         }
     }

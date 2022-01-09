@@ -71,7 +71,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="legacy.ico" />
+    <Content Include="legacy.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
