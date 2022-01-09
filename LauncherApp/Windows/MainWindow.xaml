@@ -639,11 +639,11 @@
                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="24,0,18,0" Opacity="0.8">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Style="{DynamicResource ServerStatusText}">SERVER STATUS:</TextBlock>
-                        <TextBlock Style="{DynamicResource ServerStatusData}" Foreground="#CCFFFFFF">Online</TextBlock>
+                        <TextBlock x:Name="ServerStatusLabel" Style="{DynamicResource ServerStatusData}" Foreground="#CCFFFFFF">Online</TextBlock>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Style="{DynamicResource ServerStatusText}">UPTIME:</TextBlock>
-                        <TextBlock Style="{DynamicResource ServerStatusData}" Foreground="#CCFFFFFF">6 Days 23 Hours 59 Minutes</TextBlock>
+                        <TextBlock x:Name="UptimeLabel" Style="{DynamicResource ServerStatusData}" Foreground="#CCFFFFFF">6 Days 23 Hours 59 Minutes</TextBlock>
                     </StackPanel>
                 </StackPanel>
                 <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">

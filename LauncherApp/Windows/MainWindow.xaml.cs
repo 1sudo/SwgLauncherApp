@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.Globalization;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -89,6 +91,9 @@ namespace LauncherApp
 
                 _launcherSettings = await ConfigFile.GetConfig();
                 _activeServer = _launcherSettings!.ActiveServer;
+
+                Thread newThread = new(DoWork);
+                newThread.Start();
 
                 _screens = new List<Grid>()
                 {
@@ -1521,7 +1526,7 @@ namespace LauncherApp
             }
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = true;
             this.WindowState = WindowState.Minimized;
@@ -1535,7 +1540,7 @@ namespace LauncherApp
             this.WindowState = WindowState.Normal;
         }
 
-        private void Window_StateChanged(object sender, EventArgs e)
+        void Window_StateChanged(object sender, EventArgs e)
         {
             if (this.WindowState == WindowState.Minimized)
             {
@@ -1549,6 +1554,48 @@ namespace LauncherApp
             {
                 _notifyIcon.Visible = false;
                 this.ShowInTaskbar = true;
+            }
+        }
+
+        public async void DoWork()
+        {
+            while (true)
+            {
+                try
+                {
+                    ServerStatus status = await ApiHandler.RetrieveStatus(_launcherSettings);
+
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        TimeSpan t = TimeSpan.FromSeconds(status.Uptime);
+
+                        string time = "";
+
+                        if (t.Days > 0)
+                        {
+                            time = string.Format("{0:D1} days, {1:D1} hours, {2:D1} minutes", t.Days, t.Hours, t.Minutes);
+                        }
+                        else if (t.Hours > 0)
+                        {
+                            time = string.Format("{0:D1} hours, {1:D1} minutes", t.Hours, t.Minutes);
+                        }
+                        else if (t.Minutes > 0)
+                        {
+                            time = string.Format("{0:D1} minutes", t.Minutes);
+                        }
+                        else if (status.Status.Trim() == "online" && (t.Minutes == 0 || t.Minutes == 1))
+                        {
+                            time = string.Format("1 minute", t.Minutes);
+                        }
+
+                        Trace.WriteLine(status.Uptime);
+
+                        ServerStatusLabel.Text = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(status.Status);
+                        UptimeLabel.Text = time;
+                    });
+
+                    Thread.Sleep(30000);
+                } catch { }
             }
         }
     }

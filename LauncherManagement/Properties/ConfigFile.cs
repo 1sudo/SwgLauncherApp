@@ -56,6 +56,7 @@ namespace LauncherManagement
                 ManifestFilePath = "manifest/required.json",
                 ManifestFileUrl = "http://login.darknaught.com:8080/files/",
                 BackupManifestFileUrl = "http://login.darknaught.com:8080/files/",
+                StatusUrl = "http://login.darknaught.com:8080/status/status.json",
                 SWGLoginHost = "login.darknaught.com",
                 SWGLoginPort = 44453,
                 GameLocation = "",
@@ -181,6 +182,9 @@ namespace LauncherManagement
 
         [JsonPropertyName("backupManifestFileUrl")]
         public string? BackupManifestFileUrl { get; set; }
+
+        [JsonPropertyName("statusUrl")]
+        public string? StatusUrl { get; set; }
 
         [JsonPropertyName("swgLoginHost")]
         public string? SWGLoginHost { get; set; }

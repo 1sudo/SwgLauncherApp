@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace LauncherManagement
 {
@@ -84,6 +85,13 @@ namespace LauncherManagement
                     Result = "ServerDown",
                 };
             }
+        }
+
+        public static async Task<ServerStatus> RetrieveStatus(ConfigFile? config)
+        {
+            using HttpClient cl = new();
+
+            return JsonSerializer.Deserialize<ServerStatus>(await cl.GetStringAsync(new Uri(config!.Servers![config.ActiveServer].StatusUrl!)))!;
         }
     }
 }
