@@ -85,6 +85,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1054.31" />
   </ItemGroup>
 

@@ -83,6 +83,10 @@ namespace LauncherApp
         #region WindowManagement
         async void Window_Initialized(object sender, EventArgs e)
         {
+            DiscordHandler discord = new();
+
+            await discord.Initialize();
+
             ProgressGrid.Visibility = Visibility.Collapsed;
             PlayButton.Content = "Updating";
             PlayButton.IsEnabled = false;
