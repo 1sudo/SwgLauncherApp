@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -60,7 +61,7 @@ namespace LauncherApp
 
             ToolStripButton aboutButton = new() { Text = "About" };
 
-            ToolStripLabel versionLabel = new() { Text = "v1.0.0.18" };
+            ToolStripLabel versionLabel = new() { Text = "v1.0.0.19" };
 
             menuStrip.Items.Add(versionLabel);
             menuStrip.Items.Add(new ToolStripSeparator());
@@ -83,9 +84,9 @@ namespace LauncherApp
         #region WindowManagement
         async void Window_Initialized(object sender, EventArgs e)
         {
-            DiscordHandler discord = new();
+            //DiscordHandler discord = new();
 
-            await discord.Initialize();
+            //await discord.Initialize();
 
             ProgressGrid.Visibility = Visibility.Collapsed;
             PlayButton.Content = "Updating";

@@ -18,6 +18,7 @@
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <ApplicationIcon>legacy.ico</ApplicationIcon>
     <PackageIcon>legacy.png</PackageIcon>
+    <StartupObject>LauncherApp.App</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
