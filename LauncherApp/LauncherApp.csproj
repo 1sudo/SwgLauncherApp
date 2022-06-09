@@ -1,0 +1,115 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Images\close-active.png" />
+    <None Remove="Images\close.png" />
+    <None Remove="Images\discord-active.png" />
+    <None Remove="Images\discord.png" />
+    <None Remove="Images\donate-active.png" />
+    <None Remove="Images\donate.png" />
+    <None Remove="Images\icons\close.png" />
+    <None Remove="Images\icons\info.png" />
+    <None Remove="Images\icons\minimize.png" />
+    <None Remove="Images\icons\volume-mute.png" />
+    <None Remove="Images\icons\volume.png" />
+    <None Remove="Images\launcher-bg.jpg" />
+    <None Remove="Images\mantis-active.png" />
+    <None Remove="Images\mantis.png" />
+    <None Remove="Images\minimize-active.png" />
+    <None Remove="Images\minimize.png" />
+    <None Remove="Images\resources-active.png" />
+    <None Remove="Images\resources.png" />
+    <None Remove="Images\setup-active.png" />
+    <None Remove="Images\setup-advanced-active.png" />
+    <None Remove="Images\setup-advanced.png" />
+    <None Remove="Images\setup.png" />
+    <None Remove="Images\sidebar\icons\bug-report.png" />
+    <None Remove="Images\sidebar\icons\developer.png" />
+    <None Remove="Images\sidebar\icons\discord.png" />
+    <None Remove="Images\sidebar\icons\facebook.png" />
+    <None Remove="Images\sidebar\icons\mods.png" />
+    <None Remove="Images\sidebar\icons\paypal.png" />
+    <None Remove="Images\sidebar\icons\resources.png" />
+    <None Remove="Images\sidebar\icons\settings.png" />
+    <None Remove="Images\sidebar\icons\skill-planner.png" />
+    <None Remove="Images\sidebar\icons\swg-logo.png" />
+    <None Remove="Images\sidebar\icons\vote.png" />
+    <None Remove="Images\sidebar\swg-legacy-launcher-logo-bg.png" />
+    <None Remove="Images\sidebar\swg-legacy-launcher-logo.png" />
+    <None Remove="Images\sidebar\swg-legacy-nebula-bg.jpg" />
+    <None Remove="Images\sidebar\swg-legacy-nebula-opacity-mask.png" />
+    <None Remove="Images\skillplanner-active.png" />
+    <None Remove="Images\skillplanner.png" />
+    <None Remove="Images\swg-legacy-launcher-bg.png" />
+    <None Remove="Images\vote-active.png" />
+    <None Remove="Images\vote.png" />
+    <None Remove="legacy.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="legacy.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1108.44" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\close-active.png" />
+    <Resource Include="Images\close.png" />
+    <Resource Include="Images\discord-active.png" />
+    <Resource Include="Images\discord.png" />
+    <Resource Include="Images\donate-active.png" />
+    <Resource Include="Images\donate.png" />
+    <Resource Include="Images\icons\close.png" />
+    <Resource Include="Images\icons\info.png" />
+    <Resource Include="Images\icons\minimize.png" />
+    <Resource Include="Images\icons\volume-mute.png" />
+    <Resource Include="Images\icons\volume.png" />
+    <Resource Include="Images\launcher-bg.jpg" />
+    <Resource Include="Images\mantis-active.png" />
+    <Resource Include="Images\mantis.png" />
+    <Resource Include="Images\minimize-active.png" />
+    <Resource Include="Images\minimize.png" />
+    <Resource Include="Images\resources-active.png" />
+    <Resource Include="Images\resources.png" />
+    <Resource Include="Images\setup-active.png" />
+    <Resource Include="Images\setup-advanced-active.png" />
+    <Resource Include="Images\setup-advanced.png" />
+    <Resource Include="Images\setup.png" />
+    <Resource Include="Images\sidebar\icons\bug-report.png" />
+    <Resource Include="Images\sidebar\icons\developer.png" />
+    <Resource Include="Images\sidebar\icons\discord.png" />
+    <Resource Include="Images\sidebar\icons\facebook.png" />
+    <Resource Include="Images\sidebar\icons\mods.png" />
+    <Resource Include="Images\sidebar\icons\paypal.png" />
+    <Resource Include="Images\sidebar\icons\resources.png" />
+    <Resource Include="Images\sidebar\icons\settings.png" />
+    <Resource Include="Images\sidebar\icons\skill-planner.png" />
+    <Resource Include="Images\sidebar\icons\swg-logo.png" />
+    <Resource Include="Images\sidebar\icons\vote.png" />
+    <Resource Include="Images\sidebar\swg-legacy-launcher-logo-bg.png" />
+    <Resource Include="Images\sidebar\swg-legacy-launcher-logo.png" />
+    <Resource Include="Images\sidebar\swg-legacy-nebula-bg.jpg" />
+    <Resource Include="Images\sidebar\swg-legacy-nebula-opacity-mask.png" />
+    <Resource Include="Images\skillplanner-active.png" />
+    <Resource Include="Images\skillplanner.png" />
+    <Resource Include="Images\swg-legacy-launcher-bg.png" />
+    <Resource Include="Images\vote-active.png" />
+    <Resource Include="Images\vote.png" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,31 @@
+﻿<UserControl x:Class="LauncherApp.Views.UserControls.ScreenContainer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mainscreen="clr-namespace:LauncherApp.Views.UserControls.MainScreen"
+             xmlns:accountscreen="clr-namespace:LauncherApp.Views.UserControls.AccountScreen"
+             xmlns:setupscreen="clr-namespace:LauncherApp.Views.UserControls.SetupScreen" 
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="224" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <mainscreen:MainSidebar x:Name="MainSidebarUserControl" Grid.Row="0" Grid.Column="0" Visibility="Collapsed" />
+        <accountscreen:AccountSidebar x:Name="AccountSidebarUserControl" Grid.Row="0" Grid.Column="0" Visibility="Collapsed"/>
+        <setupscreen:SetupSidebar x:Name="SetupSidebarUserControl" Grid.Row="0" Grid.Column="0" Visibility="Visible"/>
+        <mainscreen:Updates x:Name="UpdatesUserControl" Grid.Row="0" Grid.Column="1" Visibility="Collapsed"/>
+        <mainscreen:Settings x:Name="SettingsUserControl" Grid.Row="0" Grid.Column="1" Visibility="Collapsed"/>
+        <mainscreen:OptionsAndMods x:Name="OptionsAndModsUserControl" Grid.Row="0" Grid.Column="1" Visibility="Collapsed"/>
+        <mainscreen:Developer x:Name="DeveloperUserControl" Grid.Row="0" Grid.Column="1" Visibility="Collapsed"/>
+        <setupscreen:Rules x:Name="RulesUserControl" Grid.Row="0" Grid.Column="1" Visibility="Visible"/>
+        <setupscreen:InstallDirectorySelection x:Name="InstallDirectorySelectionUserControl" Grid.Row="0" Grid.Column="1" Visibility="Collapsed"/>
+        <setupscreen:BaseGameVerification x:Name="BaseGameVerificationUserControl" Grid.Row="0" Grid.Column="1" Visibility="Collapsed"/>
+        <accountscreen:AccountCreation x:Name="AccountCreationUserControl" Grid.Row="0" Grid.Column="1" Visibility="Collapsed"/>
+        <accountscreen:AccountLogin x:Name="AccountLoginUserControl" Grid.Row="0" Grid.Column="1" Visibility="Collapsed"/>
+    </Grid>
+</UserControl>
