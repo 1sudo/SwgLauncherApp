@@ -40,7 +40,9 @@ namespace LauncherApp.ViewModels
 
         private async Task AccountLogin()
         {
-            ConfigFile? config = ConfigFile.GetConfig();
+            ScreenContainerViewModel.EnableScreen(Screen.Updates);
+            ClearAllTextBoxes();
+            /*ConfigFile? config = ConfigFile.GetConfig();
 
             GameLoginResponseProperties? response = await Models.Handlers.ApiHandler.AccountLoginAsync(config!.Servers![config.ActiveServer].ApiUrl!,
                 AccountLoginUsernameTextBox!, AccountLoginPasswordBox!.ToString()!);
@@ -55,7 +57,7 @@ namespace LauncherApp.ViewModels
             else
             {
 
-            }
+            }*/
         }
 
         private void ClearAllTextBoxes()

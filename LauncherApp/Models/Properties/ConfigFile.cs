@@ -58,7 +58,7 @@ namespace LauncherApp.Models.Properties
                 Characters = new List<string>(),
                 LastSelectedCharacter = 0,
                 ServerSelection = "SWG Legacy Test Server (Sudo)",
-                ApiUrl = "http://login.darknaught.com:5000",
+                ApiUrl = "http://192.168.1.102:5000",
                 ManifestFilePath = "manifest/required.json",
                 ManifestFileUrl = "http://login.darknaught.com:8080/files/",
                 BackupManifestFileUrl = "http://login.darknaught.com:8080/files/",
