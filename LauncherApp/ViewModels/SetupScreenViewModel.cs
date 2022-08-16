@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
+using CommunityToolkit.Mvvm.Input;
 using LauncherApp.Models.Properties;
 using LauncherApp.Models.Util;
-using Microsoft.Toolkit.Mvvm.Input;
 
 namespace LauncherApp.ViewModels
 {

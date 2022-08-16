@@ -61,10 +61,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
     <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1108.44" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1293.44" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LibgRPC\LibgRPC.csproj" />
   </ItemGroup>
 
   <ItemGroup>

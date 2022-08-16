@@ -14,7 +14,7 @@ namespace LauncherApp
     /// </summary>
     public partial class MainWindow
     {
-        readonly NotifyIcon _notifyIcon;
+        private readonly NotifyIcon _notifyIcon;
 
         public MainWindow()
         {
@@ -24,7 +24,7 @@ namespace LauncherApp
             MainWindowTitleBarUserControl.DataContext = mainWindowViewModel;
             MainWindowMainMenuUserControl.DataContext = mainWindowViewModel;
 
-            _notifyIcon = new();
+            _notifyIcon = new NotifyIcon();
             _notifyIcon.Icon = new Icon(@"legacy.ico");
             _notifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(NotifyIcon_MouseDoubleClick!);
 
@@ -45,7 +45,7 @@ namespace LauncherApp
             _notifyIcon.ContextMenuStrip = menuStrip;
         }
 
-        void NotifyIcon_MouseDoubleClick(object sender, System.Windows.Forms.MouseEventArgs e)
+        private void NotifyIcon_MouseDoubleClick(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             Show();
             WindowState = WindowState.Normal;
@@ -61,29 +61,29 @@ namespace LauncherApp
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (!TrueExit.Value)
-            {
-                e.Cancel = true;
-                WindowState = WindowState.Minimized;
-                ShowInTaskbar = true;
-                Hide();
-            }
+            if (TrueExit.Value) return;
+
+            e.Cancel = true;
+            WindowState = WindowState.Minimized;
+            ShowInTaskbar = true;
+            Hide();
         }
 
         private void Window_StateChanged(object sender, EventArgs e)
         {
-            if (WindowState == WindowState.Minimized)
+            switch (WindowState)
             {
-                ShowInTaskbar = false;
-                _notifyIcon.BalloonTipTitle = "Minimize Successful";
-                _notifyIcon.BalloonTipText = "Minimized the app ";
-                _notifyIcon.ShowBalloonTip(400);
-                _notifyIcon.Visible = true;
-            }
-            else if (WindowState == WindowState.Normal)
-            {
-                _notifyIcon.Visible = false;
-                ShowInTaskbar = true;
+                case WindowState.Minimized:
+                    ShowInTaskbar = false;
+                    _notifyIcon.BalloonTipTitle = "Minimize Successful";
+                    _notifyIcon.BalloonTipText = "Minimized the app ";
+                    _notifyIcon.ShowBalloonTip(400);
+                    _notifyIcon.Visible = true;
+                    break;
+                case WindowState.Normal:
+                    _notifyIcon.Visible = false;
+                    ShowInTaskbar = true;
+                    break;
             }
         }
 

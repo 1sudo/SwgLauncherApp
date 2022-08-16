@@ -1,5 +1,6 @@
 ﻿using System.Security;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+
 using static LauncherApp.ViewModels.AccountScreenViewModel;
 
 namespace LauncherApp.ViewModels

@@ -1,8 +1,8 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Security;
 using System.Threading.Tasks;
-using LauncherApp.Models.Properties;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 
 namespace LauncherApp.ViewModels
 {
@@ -41,7 +41,16 @@ namespace LauncherApp.ViewModels
         private async Task AccountLogin()
         {
             ScreenContainerViewModel.EnableScreen(Screen.Updates);
+            
+
+            if (AccountLoginUsernameTextBox is null) return;
+
+            Trace.WriteLine($"Login account: {AccountLoginUsernameTextBox}");
+
+            await LibgRPC.Requests.RequestLogin(AccountLoginUsernameTextBox, new System.Net.NetworkCredential(string.Empty, AccountLoginPasswordBox).Password);
+
             ClearAllTextBoxes();
+
             /*ConfigFile? config = ConfigFile.GetConfig();
 
             GameLoginResponseProperties? response = await Models.Handlers.ApiHandler.AccountLoginAsync(config!.Servers![config.ActiveServer].ApiUrl!,
