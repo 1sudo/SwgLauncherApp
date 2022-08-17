@@ -174,7 +174,7 @@
                 ACCOUNT LOGIN
             </TextBlock>
 
-            <TextBlock Foreground="#FFF32A2A" FontFamily="Bahnschrift" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" Visibility="Collapsed"/>
+            <TextBlock Text="{Binding AccountLoginFailedTextBlock}" Foreground="#FFF32A2A" FontFamily="Bahnschrift" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" Visibility="{Binding AccountLoginFailedTextBlockVisibility}"/>
 
             <Grid>
                 <TextBox Text="{Binding AccountLoginUsernameTextBox, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource TextBoxTransparent}" Height="40" />

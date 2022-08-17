@@ -8,6 +8,8 @@ namespace LibgRPC;
 public static class Requests
 {
     private static GrpcChannel? _channel = null;
+    public static Action<List<string>, string>? LoggedIn { get; set; }
+    public static Action<string>? LoginFailed { get; set; }
 
     private static void GrpcInit()
     { 
@@ -50,21 +52,18 @@ public static class Requests
             {
                 response.Status = data.Status;
                 response.Username = data.Username;
-                characters.Add(data.Characters[0]);
+                if (data.Characters.Count > 0) characters.Add(data.Characters[0]);
             }
 
             response.Characters = characters;
+
+            if (response.Status == "ok") LoggedIn?.Invoke(response.Characters, response.Username!);
+            else LoginFailed?.Invoke(response.Status!);
         }
         catch (Exception e)
         {
             Trace.WriteLine(e.StackTrace);
-        }
-
-
-        Trace.WriteLine($"{response.Username}, {response.Status}");
-        foreach (var ch in characters)
-        {
-            Trace.WriteLine(ch);
+            LoginFailed?.Invoke("Unable to reach login server.");
         }
     }
 }

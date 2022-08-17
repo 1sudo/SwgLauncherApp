@@ -1,28 +1,27 @@
 ﻿using System;
 using LauncherApp.Models.Properties;
 
-namespace LauncherApp.Models.Handlers
+namespace LauncherApp.Models.Handlers;
+
+public static class CaptchaHandler
 {
-    public static class CaptchaHandler
+    public static CaptchaProperties QuestionAndAnswer()
     {
-        public static CaptchaProperties QuestionAndAnswer()
+        int val1 = GetRandomNumber(30);
+        int val2 = GetRandomNumber(30);
+
+        return new CaptchaProperties
         {
-            int val1 = GetRandomNumber(30);
-            int val2 = GetRandomNumber(30);
+            Value1 = val1,
+            Value2 = val2,
+            Answer = val1 + val2,
+        };
+    }
 
-            return new CaptchaProperties
-            {
-                Value1 = val1,
-                Value2 = val2,
-                Answer = val1 + val2,
-            };
-        }
+    internal static int GetRandomNumber(int maxVal)
+    {
+        Random rand = new();
 
-        internal static int GetRandomNumber(int maxVal)
-        {
-            Random rand = new();
-
-            return rand.Next(1, maxVal);
-        }
+        return rand.Next(1, maxVal);
     }
 }

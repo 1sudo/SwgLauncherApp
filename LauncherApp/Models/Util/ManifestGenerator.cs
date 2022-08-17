@@ -1,76 +1,64 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading.Tasks;
 using LauncherApp.Models.Properties;
 
-namespace LauncherApp.Models.Util
+namespace LauncherApp.Models.Util;
+
+public static class ManifestGenerator
 {
-    public static class ManifestGenerator
+    public static async Task GenerateManifestAsync(string generateFromFolder)
     {
-        public static async Task GenerateManifestAsync(string generateFromFolder)
+        var files = Directory.GetFiles(generateFromFolder, "*.*", SearchOption.AllDirectories);
+        List<DownloadableFile> listOfFiles = new();
+
+        foreach (var file in files)
         {
-            string[] files = Directory.GetFiles(generateFromFolder, "*.*", SearchOption.AllDirectories);
-            List<DownloadableFile> listOfFiles = new();
+            var splitFile = file.Split(generateFromFolder + "\\")[1].Replace("\\", "/");
 
-            foreach (string file in files)
+            DownloadableFile dFile = new();
+            dFile.Name = splitFile;
+
+            dFile.Size = new FileInfo(file).Length;
+
+            using var md5 = MD5.Create();
+            
+            await using var stream = File.OpenRead(file);
+
+            dFile.Md5 = await Task.Run(() => BitConverter.ToString(md5.ComputeHash(stream))
+                .Replace("-", "").ToLowerInvariant());
+
+            if (file.Contains("swgemu_live.cfg"))
             {
-                string splitFile = file.Split(generateFromFolder + "\\")[1].Replace("\\", "/");
-
-                DownloadableFile dFile = new();
-                dFile.Name = splitFile;
-
-                dFile.Size = new FileInfo(file).Length;
-
-                using (MD5 md5 = MD5.Create())
-                {
-                    using FileStream stream = File.OpenRead(file);
-
-                    dFile.Md5 = await Task.Run(() => BitConverter.ToString(md5.ComputeHash(stream))
-                        .Replace("-", "").ToLowerInvariant());
-                }
-
-                if (file.Contains("swgemu_live.cfg"))
-                {
-                    await ParseLiveCfg(file);
-                }
-                else
-                {
-                    listOfFiles.Add(dFile);
-                }
+                await ParseLiveCfg(file);
             }
-
-            JsonSerializerOptions options = new();
-            options.WriteIndented = true;
-
-            string output = JsonSerializer.Serialize(listOfFiles, options);
-
-            await File.WriteAllTextAsync(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "required.json"), output);
+            else
+            {
+                listOfFiles.Add(dFile);
+            }
         }
 
-        static async Task ParseLiveCfg(string file)
-        {
-            List<string> treFiles = new();
+        JsonSerializerOptions options = new();
+        options.WriteIndented = true;
 
-            string[] lines = await File.ReadAllLinesAsync(file);
+        var output = JsonSerializer.Serialize(listOfFiles, options);
 
-            foreach (string line in lines)
-            {
-                if (line.Contains("searchTree"))
-                {
-                    string treFile = line.Split("=")[1];
-                    treFiles.Add(treFile);
-                }
-            }
-
-            JsonSerializerOptions options = new();
-            options.WriteIndented = true;
-
-            string json = JsonSerializer.Serialize(treFiles, options);
-
-            await File.WriteAllTextAsync(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "livecfg.json"), json);
-        }
+        await File.WriteAllTextAsync(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "required.json"), output);
     }
+
+    private static async Task ParseLiveCfg(string file)
+    {
+        var lines = await File.ReadAllLinesAsync(file);
+
+        var treFiles = (from line in lines where line.Contains("searchTree") select line.Split("=")[1]).ToList();
+
+        var json = JsonSerializer.Serialize(treFiles, new JsonSerializerOptions { WriteIndented = true });
+
+        await File.WriteAllTextAsync(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "livecfg.json"), json);
+    }
+
 }

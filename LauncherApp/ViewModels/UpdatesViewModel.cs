@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace LauncherApp.ViewModels;
 
-namespace LauncherApp.ViewModels
+internal class UpdatesViewModel
 {
-    internal class UpdatesViewModel
-    {
-    }
 }

@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace LauncherApp.Models.Util;
 
-namespace LauncherApp.Models.Util
+public static class TrueExit
 {
-    public static class TrueExit
-    {
-        public static bool Value { get; set; }
-    }
+    public static bool Value { get; set; }
 }

@@ -1,197 +1,211 @@
 ﻿using System.Security;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 using static LauncherApp.ViewModels.AccountScreenViewModel;
 
-namespace LauncherApp.ViewModels
+namespace LauncherApp.ViewModels;
+
+public enum WatermarkType
 {
-    public enum WatermarkType
+    AccountLoginUsername = 0,
+    AccountLoginPassword = 1,
+    AccountCreationUsername = 3,
+    AccountCreationEmail = 4,
+    AccountCreationPassword = 5,
+    AccountCreationPasswordConfirmation = 6,
+    AccountCreationSecurityQuestionAnswer = 7,
+    AccountCreationDiscord = 8
+}
+
+internal class AccountScreenViewModelProperties : ObservableObject
+{
+    private string? _accountLoginUsernameTextBox;
+    private SecureString? _accountLoginPasswordBox;
+    private string? _accountLoginPasswordWatermark;
+    private string? _accountLoginUsernameWatermark;
+    private string? _accountLoginFailedTextBlock;
+    private bool? _accountKeepLoggedInCheckbox;
+    private string? _accountCreationUsernameTextBox;
+    private string? _accountCreationUsernameWatermark;
+    private string? _accountCreationEmailAddressTextBox;
+    private string? _accountCreationEmailAddressWatermark;
+    private SecureString? _accountCreationPasswordBox;
+    private string? _accountCreationPasswordWatermark;
+    private SecureString? _accountCreationPasswordConfirmationBox;
+    private string? _accountCreationPasswordConfirmationWatermark;
+    private bool _accountCreationNewsletterSubscriptionCheckbox;
+    private string? _accountCreationSecurityQuestionAnswerTextBox;
+    private string? _accountCreationSecurityQuestionAnswerWatermark;
+    private string? _accountCreationDiscordTextBox;
+    private string? _accountCreationDiscordWatermark;
+    private bool _createAccountButtonToggle;
+    private bool _accountLoginButtonToggle;
+    private Visibility? _accountLoginFailedTextBlockVisibility;
+
+    public int CurrentScreen { get; set; }
+
+    public string? AccountLoginUsernameTextBox
     {
-        AccountLoginUsername = 0,
-        AccountLoginPassword = 1,
-        AccountCreationUsername = 3,
-        AccountCreationEmail = 4,
-        AccountCreationPassword = 5,
-        AccountCreationPasswordConfirmation = 6,
-        AccountCreationSecurityQuestionAnswer = 7,
-        AccountCreationDiscord = 8
+        get => _accountLoginUsernameTextBox;
+        set
+        {
+            SetProperty(ref _accountLoginUsernameTextBox, value);
+            WatermarkIntercept(this, (int)WatermarkType.AccountLoginUsername);
+        }
+    } 
+
+    public SecureString? AccountLoginPasswordBox
+    {
+        get => _accountLoginPasswordBox;
+        set
+        {
+            SetProperty(ref _accountLoginPasswordBox, value);
+            WatermarkIntercept(this, (int)WatermarkType.AccountLoginPassword);
+        }
     }
 
-    internal class AccountScreenViewModelProperties : ObservableObject
+    public string? AccountLoginPasswordWatermark
     {
-        private string? _accountLoginUsernameTextBox;
-        private SecureString? _accountLoginPasswordBox;
-        private string? _accountLoginPasswordWatermark;
-        private string? _accountLoginUsernameWatermark;
-        private bool? _accountKeepLoggedInCheckbox;
-        private string? _accountCreationUsernameTextBox;
-        private string? _accountCreationUsernameWatermark;
-        private string? _accountCreationEmailAddressTextBox;
-        private string? _accountCreationEmailAddressWatermark;
-        private SecureString? _accountCreationPasswordBox;
-        private string? _accountCreationPasswordWatermark;
-        private SecureString? _accountCreationPasswordConfirmationBox;
-        private string? _accountCreationPasswordConfirmationWatermark;
-        private bool _accountCreationNewsletterSubscriptionCheckbox;
-        private string? _accountCreationSecurityQuestionAnswerTextBox;
-        private string? _accountCreationSecurityQuestionAnswerWatermark;
-        private string? _accountCreationDiscordTextBox;
-        private string? _accountCreationDiscordWatermark;
-        private bool _createAccountButtonToggle;
-        private bool _accountLoginButtonToggle;
+        get => _accountLoginPasswordWatermark;
+        set => SetProperty(ref _accountLoginPasswordWatermark, value);
+    }
 
-        public int CurrentScreen { get; set; }
+    public string? AccountLoginUsernameWatermark
+    {
+        get => _accountLoginUsernameWatermark;
+        set => SetProperty(ref _accountLoginUsernameWatermark, value);
+    }
 
-        public string? AccountLoginUsernameTextBox
+    public string? AccountLoginFailedTextBlock
+    {
+        get => _accountLoginFailedTextBlock;
+        set => SetProperty(ref _accountLoginFailedTextBlock, value);
+    }
+
+    public bool? AccountKeepLoggedInCheckbox
+    {
+        get => _accountKeepLoggedInCheckbox;
+        set => SetProperty(ref _accountKeepLoggedInCheckbox, value);
+    }
+
+    public string? AccountCreationUsernameTextBox
+    {
+        get => _accountCreationUsernameTextBox;
+        set
         {
-            get => _accountLoginUsernameTextBox;
-            set
-            {
-                SetProperty(ref _accountLoginUsernameTextBox, value);
-                WatermarkIntercept(this, (int)WatermarkType.AccountLoginUsername);
-            }
+            SetProperty(ref _accountCreationUsernameTextBox, value);
+            WatermarkIntercept(this, (int)WatermarkType.AccountCreationUsername);
         } 
+    }
 
-        public SecureString? AccountLoginPasswordBox
-        {
-            get => _accountLoginPasswordBox;
-            set
-            {
-                SetProperty(ref _accountLoginPasswordBox, value);
-                WatermarkIntercept(this, (int)WatermarkType.AccountLoginPassword);
-            }
-        }
+    public string? AccountCreationUsernameWatermark
+    {
+        get => _accountCreationUsernameWatermark;
+        set => SetProperty(ref _accountCreationUsernameWatermark, value);
+    }
 
-        public string? AccountLoginPasswordWatermark
+    public string? AccountCreationEmailAddressTextBox
+    {
+        get => _accountCreationEmailAddressTextBox;
+        set
         {
-            get => _accountLoginPasswordWatermark;
-            set => SetProperty(ref _accountLoginPasswordWatermark, value);
+            SetProperty(ref _accountCreationEmailAddressTextBox, value);
+            WatermarkIntercept(this, (int)WatermarkType.AccountCreationEmail);
         }
+    }
 
-        public string? AccountLoginUsernameWatermark
-        {
-            get => _accountLoginUsernameWatermark;
-            set => SetProperty(ref _accountLoginUsernameWatermark, value);
-        }
+    public string? AccountCreationEmailAddressWatermark
+    {
+        get => _accountCreationEmailAddressWatermark;
+        set => SetProperty(ref _accountCreationEmailAddressWatermark, value);
+    }
 
-        public bool? AccountKeepLoggedInCheckbox
+    public SecureString? AccountCreationPasswordBox
+    {
+        get => _accountCreationPasswordBox;
+        set
         {
-            get => _accountKeepLoggedInCheckbox;
-            set => SetProperty(ref _accountKeepLoggedInCheckbox, value);
+            SetProperty(ref _accountCreationPasswordBox, value);
+            WatermarkIntercept(this, (int)WatermarkType.AccountCreationPassword);
         }
+    }
 
-        public string? AccountCreationUsernameTextBox
-        {
-            get => _accountCreationUsernameTextBox;
-            set
-            {
-                SetProperty(ref _accountCreationUsernameTextBox, value);
-                WatermarkIntercept(this, (int)WatermarkType.AccountCreationUsername);
-            } 
-        }
+    public string? AccountCreationPasswordWatermark
+    {
+        get => _accountCreationPasswordWatermark;
+        set => SetProperty(ref _accountCreationPasswordWatermark, value);
+    }
 
-        public string? AccountCreationUsernameWatermark
+    public SecureString? AccountCreationPasswordConfirmationBox
+    {
+        get => _accountCreationPasswordConfirmationBox;
+        set
         {
-            get => _accountCreationUsernameWatermark;
-            set => SetProperty(ref _accountCreationUsernameWatermark, value);
+            SetProperty(ref _accountCreationPasswordConfirmationBox, value);
+            WatermarkIntercept(this, (int)WatermarkType.AccountCreationPasswordConfirmation);
         }
+    }
 
-        public string? AccountCreationEmailAddressTextBox
-        {
-            get => _accountCreationEmailAddressTextBox;
-            set
-            {
-                SetProperty(ref _accountCreationEmailAddressTextBox, value);
-                WatermarkIntercept(this, (int)WatermarkType.AccountCreationEmail);
-            }
-        }
+    public string? AccountCreationPasswordConfirmationWatermark
+    {
+        get => _accountCreationPasswordConfirmationWatermark;
+        set => SetProperty(ref _accountCreationPasswordConfirmationWatermark, value);
+    }
 
-        public string? AccountCreationEmailAddressWatermark
-        {
-            get => _accountCreationEmailAddressWatermark;
-            set => SetProperty(ref _accountCreationEmailAddressWatermark, value);
-        }
+    public bool AccountCreationNewsletterSubscriptionCheckbox
+    {
+        get => _accountCreationNewsletterSubscriptionCheckbox;
+        set => SetProperty(ref _accountCreationNewsletterSubscriptionCheckbox, value);
+    }
 
-        public SecureString? AccountCreationPasswordBox
+    public string? AccountCreationSecurityQuestionAnswerTextBox
+    {
+        get => _accountCreationSecurityQuestionAnswerTextBox;
+        set
         {
-            get => _accountCreationPasswordBox;
-            set
-            {
-                SetProperty(ref _accountCreationPasswordBox, value);
-                WatermarkIntercept(this, (int)WatermarkType.AccountCreationPassword);
-            }
+            SetProperty(ref _accountCreationSecurityQuestionAnswerTextBox, value);
+            WatermarkIntercept(this, (int)WatermarkType.AccountCreationSecurityQuestionAnswer);
         }
+    }
 
-        public string? AccountCreationPasswordWatermark
-        {
-            get => _accountCreationPasswordWatermark;
-            set => SetProperty(ref _accountCreationPasswordWatermark, value);
-        }
+    public string? AccountCreationSecurityQuestionAnswerWatermark
+    {
+        get => _accountCreationSecurityQuestionAnswerWatermark;
+        set => SetProperty(ref _accountCreationSecurityQuestionAnswerWatermark, value);
+    }
 
-        public SecureString? AccountCreationPasswordConfirmationBox
+    public string? AccountCreationDiscordTextBox
+    {
+        get => _accountCreationDiscordTextBox;
+        set
         {
-            get => _accountCreationPasswordConfirmationBox;
-            set
-            {
-                SetProperty(ref _accountCreationPasswordConfirmationBox, value);
-                WatermarkIntercept(this, (int)WatermarkType.AccountCreationPasswordConfirmation);
-            }
+            SetProperty(ref _accountCreationDiscordTextBox, value);
+            WatermarkIntercept(this, (int)WatermarkType.AccountCreationDiscord);
         }
+    }
 
-        public string? AccountCreationPasswordConfirmationWatermark
-        {
-            get => _accountCreationPasswordConfirmationWatermark;
-            set => SetProperty(ref _accountCreationPasswordConfirmationWatermark, value);
-        }
+    public string? AccountCreationDiscordWatermark
+    {
+        get => _accountCreationDiscordWatermark;
+        set => SetProperty(ref _accountCreationDiscordWatermark, value);
+    }
 
-        public bool AccountCreationNewsletterSubscriptionCheckbox
-        {
-            get => _accountCreationNewsletterSubscriptionCheckbox;
-            set => SetProperty(ref _accountCreationNewsletterSubscriptionCheckbox, value);
-        }
+    public bool CreateAccountButtonToggle
+    {
+        get => _createAccountButtonToggle;
+        set => SetProperty(ref _createAccountButtonToggle, value);
+    }
 
-        public string? AccountCreationSecurityQuestionAnswerTextBox
-        {
-            get => _accountCreationSecurityQuestionAnswerTextBox;
-            set
-            {
-                SetProperty(ref _accountCreationSecurityQuestionAnswerTextBox, value);
-                WatermarkIntercept(this, (int)WatermarkType.AccountCreationSecurityQuestionAnswer);
-            }
-        }
+    public bool AccountLoginButtonToggle
+    {
+        get => _accountLoginButtonToggle;
+        set => SetProperty(ref _accountLoginButtonToggle, value);
+    }
 
-        public string? AccountCreationSecurityQuestionAnswerWatermark
-        {
-            get => _accountCreationSecurityQuestionAnswerWatermark;
-            set => SetProperty(ref _accountCreationSecurityQuestionAnswerWatermark, value);
-        }
-
-        public string? AccountCreationDiscordTextBox
-        {
-            get => _accountCreationDiscordTextBox;
-            set
-            {
-                SetProperty(ref _accountCreationDiscordTextBox, value);
-                WatermarkIntercept(this, (int)WatermarkType.AccountCreationDiscord);
-            }
-        }
-
-        public string? AccountCreationDiscordWatermark
-        {
-            get => _accountCreationDiscordWatermark;
-            set => SetProperty(ref _accountCreationDiscordWatermark, value);
-        }
-
-        public bool CreateAccountButtonToggle
-        {
-            get => _createAccountButtonToggle;
-            set => SetProperty(ref _createAccountButtonToggle, value);
-        }
-
-        public bool AccountLoginButtonToggle
-        {
-            get => _accountLoginButtonToggle;
-            set => SetProperty(ref _accountLoginButtonToggle, value);
-        }
+    public Visibility? AccountLoginFailedTextBlockVisibility
+    {
+        get => _accountLoginFailedTextBlockVisibility;
+        set => SetProperty(ref _accountLoginFailedTextBlockVisibility, value);
     }
 }

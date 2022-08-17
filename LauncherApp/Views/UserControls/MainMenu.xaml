@@ -119,10 +119,9 @@
                 </StackPanel>
                 <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
                     <!-- Username, max 20 characters -->
-                    <TextBlock Style="{DynamicResource h3}" Visibility="Collapsed">
-                        USERNAME
-                    </TextBlock>
-                    <Button Content="Logout" Style="{DynamicResource MainMenuButton}"  Padding="0,0,0,0" Visibility="Collapsed" HorizontalAlignment="Right" FontFamily="Bahnschrift Light Condensed" Margin="0,0,0,0" HorizontalContentAlignment="Right" FontSize="14"></Button>
+                    <TextBlock Text="{Binding MainWindowUsernameTextBlock, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource h3}" Visibility="{Binding MainWindowUsernameTextBlockVisibility}"/>
+
+                    <Button Command="{Binding LogoutButton}" Content="Logout" Style="{DynamicResource MainMenuButton}"  Padding="0,0,0,0" Visibility="{Binding MainWindowLogoutButton}" HorizontalAlignment="Right" FontFamily="Bahnschrift Light Condensed" Margin="0,0,0,0" HorizontalContentAlignment="Right" FontSize="14"></Button>
                 </StackPanel>
             </Grid>
         </Border>
