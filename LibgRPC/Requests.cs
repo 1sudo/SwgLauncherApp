@@ -2,6 +2,7 @@
 using System.Net.Security;
 using Grpc.Core;
 using Grpc.Net.Client;
+using LauncherWebService.Services;
 
 namespace LibgRPC;
 
@@ -10,6 +11,8 @@ public static class Requests
     private static GrpcChannel? _channel = null;
     public static Action<List<string>, string>? LoggedIn { get; set; }
     public static Action<string>? LoginFailed { get; set; }
+    public static Action<string>? AccountCreated { get; set; }
+    public static Action<string>? AccountCreationFailed { get; set; }
 
     private static void GrpcInit()
     { 
@@ -34,7 +37,7 @@ public static class Requests
     {
         if (_channel is null) GrpcInit();
 
-        var client = new LoginManager.LoginManagerClient(_channel);
+        var client = new AccountLoginManager.AccountLoginManagerClient(_channel);
 
         var reply = client.RequestLogin(new LoginRequest
         {
@@ -64,6 +67,32 @@ public static class Requests
         {
             Trace.WriteLine(e.StackTrace);
             LoginFailed?.Invoke("Unable to reach login server.");
+        }
+    }
+
+    public static async Task RequestAccount(Models.AccountModel account)
+    {
+        if (_channel is null) GrpcInit();
+
+        var client = new AccountCreationManager.AccountCreationManagerClient(_channel);
+
+        var reply = await client.RequestCreateAsync(new CreateRequest()
+        {
+            Username = account.username,
+            Email = account.email,
+            Password = account.password,
+            SubscribeToNewsletter = account.subscribed,
+            SecretQuestionAnswer = 0,
+            DiscordId = account.discord
+        });
+
+        if (reply.Status == "ok")
+        {
+            AccountCreated?.Invoke("Account Created Successfully.");
+        }
+        else
+        {
+            AccountCreationFailed?.Invoke(reply.Status);
         }
     }
 }

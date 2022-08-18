@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using CommunityToolkit.Mvvm.Input;
 using LauncherApp.Models.Properties;
+using LibgRPC.Models;
 
 namespace LauncherApp.ViewModels;
 
@@ -29,6 +31,8 @@ internal class AccountScreenViewModel : AccountScreenViewModelProperties
         AccountCreationCancelButton = new RelayCommand(GoToAccountLoginScreen);
         LibgRPC.Requests.LoggedIn += OnLoggedIn;
         LibgRPC.Requests.LoginFailed += OnLoginFailed;
+        LibgRPC.Requests.AccountCreated += OnAccountCreated;
+        LibgRPC.Requests.AccountCreationFailed += OnAccountCreationFailed;
 
         AccountLoginUsernameWatermark = "Username";
         AccountLoginPasswordWatermark = "Password";
@@ -38,6 +42,27 @@ internal class AccountScreenViewModel : AccountScreenViewModelProperties
         AccountCreationPasswordConfirmationWatermark = "Password Confirmation";
         AccountCreationSecurityQuestionAnswerWatermark = "Answer";
         AccountCreationDiscordWatermark = "Discord ID - e.g. User#1234";
+    }
+
+    private void OnAccountCreated(string status)
+    {
+        ClearAllTextBoxes();
+        ScreenContainerViewModel.EnableScreen(Screen.AccountLogin);
+    }
+
+    private void OnAccountCreationFailed(string status)
+    {
+        AccountCreationFailedTextBlockVisibility = Visibility.Visible;
+        AccountCreationFailedTextBlock = status;
+
+        Thread t = new(() =>
+        {
+            Thread.Sleep(ErrorSleepTime);
+            AccountCreationFailedTextBlockVisibility = Visibility.Collapsed;
+            AccountCreationFailedTextBlock = "";
+        });
+
+        t.Start();
     }
 
     private void OnLoggedIn(List<string> characters, string username)
@@ -87,19 +112,33 @@ internal class AccountScreenViewModel : AccountScreenViewModelProperties
     {
         AccountCreationUsernameTextBox = string.Empty;
         AccountCreationEmailAddressTextBox = string.Empty;
-        if (AccountCreationPasswordBox is not null) AccountCreationPasswordBox.Clear();
-        if (AccountCreationPasswordConfirmationBox is not null) AccountCreationPasswordConfirmationBox.Clear();
+        AccountCreationPasswordBox?.Clear();
+        AccountCreationPasswordConfirmationBox?.Clear();
         AccountCreationNewsletterSubscriptionCheckbox = false;
         AccountCreationSecurityQuestionAnswerTextBox = string.Empty;
         AccountCreationDiscordTextBox = string.Empty;
         AccountLoginUsernameTextBox = string.Empty;
-        if (AccountLoginPasswordBox is not null) AccountLoginPasswordBox.Clear();
+        AccountLoginPasswordBox?.Clear();
         AccountKeepLoggedInCheckbox = false;
     }
 
-    private void CreateAccount()
+    private async void CreateAccount()
     {
+        var password1 = new System.Net.NetworkCredential(string.Empty, AccountCreationPasswordBox).Password;
+        var password2 = new System.Net.NetworkCredential(string.Empty, AccountCreationPasswordConfirmationBox).Password;
+        var subscribed = (AccountCreationNewsletterSubscriptionCheckbox == true) ? 1 : 0;
 
+        if (password1 == password2)
+        {
+            await LibgRPC.Requests.RequestAccount(new AccountModel
+            {
+                username = AccountCreationUsernameTextBox,
+                password = password1,
+                email = AccountCreationEmailAddressTextBox,
+                discord = AccountCreationDiscordTextBox ?? "",
+                subscribed = subscribed,
+            });
+        }
     }
 
     private void GoToAccountLoginScreen()

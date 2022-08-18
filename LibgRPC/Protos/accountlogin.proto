@@ -1,10 +1,10 @@
-﻿syntax = "proto3";
+syntax = "proto3";
 
-option csharp_namespace = "LibgRPC";
+option csharp_namespace = "LauncherWebService.Services";
 
-package login;
+package accountlogin;
 
-service LoginManager {
+service AccountLoginManager {
 	rpc RequestLogin (LoginRequest) returns (stream LoginReply);
 }
 

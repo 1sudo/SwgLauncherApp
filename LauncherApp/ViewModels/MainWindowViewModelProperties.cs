@@ -8,6 +8,7 @@ internal class MainWindowViewModelProperties : ObservableObject
     private string? _mainWindowUsernameTextBlock;
     private Visibility? _mainWindowUsernameTextBlockVisibility;
     private Visibility? _mainWindowLogoutButton;
+    private bool? _updatesButtonIsEnabled;
 
     public string? MainWindowUsernameTextBlock
     {
@@ -25,5 +26,11 @@ internal class MainWindowViewModelProperties : ObservableObject
     {
         get => _mainWindowLogoutButton;
         set => SetProperty(ref _mainWindowLogoutButton, value);
+    }
+
+    public bool? UpdatesButtonIsEnabled
+    {
+        get => _updatesButtonIsEnabled;
+        set => SetProperty(ref _updatesButtonIsEnabled, value);
     }
 }

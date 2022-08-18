@@ -39,9 +39,11 @@ internal class AccountScreenViewModelProperties : ObservableObject
     private string? _accountCreationSecurityQuestionAnswerWatermark;
     private string? _accountCreationDiscordTextBox;
     private string? _accountCreationDiscordWatermark;
+    private string? _accountCreationFailedTextBlock;
     private bool _createAccountButtonToggle;
     private bool _accountLoginButtonToggle;
     private Visibility? _accountLoginFailedTextBlockVisibility;
+    private Visibility? _accountCreationFailedTextBlockVisibility;
 
     public int CurrentScreen { get; set; }
 
@@ -191,6 +193,12 @@ internal class AccountScreenViewModelProperties : ObservableObject
         set => SetProperty(ref _accountCreationDiscordWatermark, value);
     }
 
+    public string? AccountCreationFailedTextBlock
+    {
+        get => _accountCreationFailedTextBlock;
+        set => SetProperty(ref _accountCreationFailedTextBlock, value);
+    }
+
     public bool CreateAccountButtonToggle
     {
         get => _createAccountButtonToggle;
@@ -207,5 +215,11 @@ internal class AccountScreenViewModelProperties : ObservableObject
     {
         get => _accountLoginFailedTextBlockVisibility;
         set => SetProperty(ref _accountLoginFailedTextBlockVisibility, value);
+    }
+
+    public Visibility? AccountCreationFailedTextBlockVisibility
+    {
+        get => _accountCreationFailedTextBlockVisibility;
+        set => SetProperty(ref _accountCreationFailedTextBlockVisibility, value);
     }
 }

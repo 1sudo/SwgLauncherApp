@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option csharp_namespace = "LauncherWebService.Services";
+
+package accountcreate;
+
+service AccountCreationManager {
+	rpc RequestCreate (CreateRequest) returns (CreateReply);
+}
+
+message CreateRequest {
+	string username = 1;
+	string email = 2;
+	string password = 3;
+	int32 subscribeToNewsletter = 4;
+	int32 secretQuestionAnswer = 5;
+	string discordId = 6;
+}
+
+message CreateReply {
+	string status = 1;
+}

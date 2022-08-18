@@ -278,7 +278,7 @@
             </Grid.ColumnDefinitions>
 
             <Button Command="{Binding AccountCreationCreateAccountButton}" Grid.Column="0" Content="Create Account" Style="{DynamicResource NavButton}" FontSize="18" IsEnabled="{Binding CreateAccountButtonToggle}"/>
-            <TextBlock Grid.Column="1" Foreground="#FFF32A2A" FontFamily="Bahnschrift" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14"></TextBlock>
+            <TextBlock Text="{Binding AccountCreationFailedTextBlock, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding AccountCreationFailedTextBlockVisibility}" Grid.Column="1" Foreground="#FFF32A2A" FontFamily="Bahnschrift" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14"></TextBlock>
             <Button Command="{Binding AccountCreationCancelButton}" Content="Cancel" Style="{DynamicResource NavButton}" FontSize="18" Grid.Column="2"/>
         </Grid>
     </Grid>

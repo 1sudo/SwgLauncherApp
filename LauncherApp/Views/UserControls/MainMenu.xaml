@@ -92,7 +92,7 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal">
-                    <Button Content="UPDATES" Style="{DynamicResource MainMenuButton}" Command="{Binding UpdatesButton}"></Button>
+                    <Button Content="UPDATES" Style="{DynamicResource MainMenuButton}" Command="{Binding UpdatesButton, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding UpdatesButtonIsEnabled}"></Button>
                     <Button Content="WEBSITE" Style="{DynamicResource MainMenuButton}"></Button>
                     <Button Content="FORUMS" Style="{DynamicResource MainMenuButton}"></Button>
                     <Button Content="WIKI" Style="{DynamicResource MainMenuButton}"></Button>

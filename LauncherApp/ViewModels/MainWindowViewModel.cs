@@ -12,17 +12,19 @@ internal class MainWindowViewModel : MainWindowViewModelProperties
 
     public MainWindowViewModel()
     {
+        UpdatesButtonIsEnabled = false;
         MainWindowLogoutButton = Visibility.Collapsed;
         MainWindowUsernameTextBlockVisibility = Visibility.Collapsed;
         MinimizeButton = new RelayCommand(() => Application.Current.MainWindow!.Close());
         CloseButton = new RelayCommand(() => Application.Current.MainWindow!.Close());
         UpdatesButton = new RelayCommand(() => ScreenContainerViewModel.EnableScreen(Screen.Updates));
         LogoutButton = new RelayCommand(OnLogout);
-        AccountScreenViewModel.SetUsername += OnLoginSetUsername;
+        AccountScreenViewModel.SetUsername += OnLogin;
     }
 
-    private void OnLoginSetUsername(string username)
+    private void OnLogin(string username)
     {
+        UpdatesButtonIsEnabled = true;
         MainWindowUsernameTextBlock = username.ToUpper();
         MainWindowUsernameTextBlockVisibility = Visibility.Visible;
         MainWindowLogoutButton = Visibility.Visible;
@@ -30,6 +32,7 @@ internal class MainWindowViewModel : MainWindowViewModelProperties
 
     private void OnLogout()
     {
+        UpdatesButtonIsEnabled = false;
         MainWindowUsernameTextBlockVisibility = Visibility.Collapsed;
         MainWindowLogoutButton = Visibility.Collapsed;
         ScreenContainerViewModel.EnableScreen(Screen.AccountLogin);
