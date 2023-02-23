@@ -13,6 +13,27 @@ public static class ManifestGenerator
 {
     public static async Task GenerateManifestAsync(string generateFromFolder)
     {
+        var versionFilePath = Path.Join(generateFromFolder, "version.json");
+
+        // Set to 0 for increment to 1
+        // This will ensure version is set to 1 if version file does not exist
+        var currentVersion = 0;
+
+        if (File.Exists(versionFilePath))
+        {
+            var versionFile = JsonSerializer.Deserialize<VersionFile>(await File.ReadAllTextAsync(versionFilePath));
+            currentVersion = versionFile.Version;
+        }
+
+        await File.WriteAllTextAsync(Path.Join(generateFromFolder, "version.json"), JsonSerializer.Serialize(new VersionFile
+        {
+            Version = currentVersion + 1
+        },
+        new JsonSerializerOptions
+        {
+            WriteIndented = true
+        }));
+
         var files = Directory.GetFiles(generateFromFolder, "*.*", SearchOption.AllDirectories);
         List<DownloadableFile> listOfFiles = new();
 
@@ -20,34 +41,29 @@ public static class ManifestGenerator
         {
             var splitFile = file.Split(generateFromFolder + "\\")[1].Replace("\\", "/");
 
-            DownloadableFile dFile = new();
-            dFile.Name = splitFile;
-
-            dFile.Size = new FileInfo(file).Length;
-
-            using var md5 = MD5.Create();
-            
-            await using var stream = File.OpenRead(file);
-
-            dFile.Md5 = await Task.Run(() => BitConverter.ToString(md5.ComputeHash(stream))
-                .Replace("-", "").ToLowerInvariant());
-
-            if (file.Contains("swgemu_live.cfg"))
+            DownloadableFile dFile = new()
             {
-                await ParseLiveCfg(file);
-            }
-            else
+                Name = splitFile,
+                Size = new FileInfo(file).Length
+            };
+
+            using (var md5 = MD5.Create())
             {
-                listOfFiles.Add(dFile);
+                await using var stream = File.OpenRead(file);
+
+                dFile.Md5 = await Task.Run(() => BitConverter.ToString(md5.ComputeHash(stream))
+                    .Replace("-", "").ToLowerInvariant());
             }
+
+            listOfFiles.Add(dFile);
         }
 
-        JsonSerializerOptions options = new();
-        options.WriteIndented = true;
+        var saveDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
-        var output = JsonSerializer.Serialize(listOfFiles, options);
-
-        await File.WriteAllTextAsync(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "required.json"), output);
+        await File.WriteAllTextAsync(Path.Join(saveDirectory, "required.json"), JsonSerializer.Serialize(listOfFiles, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        }));
     }
 
     private static async Task ParseLiveCfg(string file)

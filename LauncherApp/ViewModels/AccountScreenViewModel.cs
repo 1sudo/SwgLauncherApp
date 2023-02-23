@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -69,7 +68,10 @@ internal class AccountScreenViewModel : AccountScreenViewModelProperties
     {
         var config = ConfigFile.GetConfig();
 
-        ConfigFile.SaveCharacters(characters, config!);
+        if (config is not null)
+        {
+            ConfigFile.SaveCharacters(characters, config);
+        }
 
         ScreenContainerViewModel.EnableScreen(Screen.Updates);
         ClearAllTextBoxes();

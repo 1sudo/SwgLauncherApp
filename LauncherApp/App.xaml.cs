@@ -15,6 +15,10 @@ public partial class App : Application
         if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LauncherApp/config.json"))) 
             await ConfigFile.GenerateNewConfig();
 
+        ConfigFile? config = ConfigFile.GetConfig();
+
+        LibgRPC.Requests.GrpcUrl = config?.Servers?[config.ActiveServer].ServiceUrl;
+
         base.OnStartup(e);
     }
 }

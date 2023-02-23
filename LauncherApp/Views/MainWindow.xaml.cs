@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows;
 using System.Windows.Forms;
@@ -87,8 +88,43 @@ public partial class MainWindow
         }
     }
 
-    private async void Window_Initialized(object sender, EventArgs e)
+    private void Window_Initialized(object sender, EventArgs e)
     {
-        await ConfigFile.GenerateNewConfig();
+        var procName = Process.GetCurrentProcess().ProcessName;
+        var processes = Process.GetProcessesByName(procName);
+
+        if (processes.Length > 1)
+        {
+            System.Windows.MessageBox.Show("Launcher is already running! Check your taskbar for a running instance of the launcher if it's not visible.", "Launcher Already Running", MessageBoxButton.OK, MessageBoxImage.Error);
+            Environment.Exit(0);
+        }
+    }
+
+    private async void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        // Generate manifest file
+        if (Keyboard.IsKeyDown(Key.LeftCtrl) &&
+            Keyboard.IsKeyDown(Key.LeftShift) &&
+            Keyboard.IsKeyDown(Key.F12))
+        {
+            using var dialog = new FolderBrowserDialog();
+            DialogResult result = dialog.ShowDialog();
+            string generateFromFolder = "";
+
+            if (result.ToString().Trim() == "Cancel")
+            {
+                Close();
+            }
+            else if (result.ToString().Trim() == "OK")
+            {
+                generateFromFolder = dialog.SelectedPath.Replace("\\", "/");
+            }
+
+            try
+            {
+                await ManifestGenerator.GenerateManifestAsync(generateFromFolder);
+            }
+            catch { }
+        }
     }
 }

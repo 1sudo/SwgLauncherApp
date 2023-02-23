@@ -12,9 +12,11 @@ public class AppHandler
 {
     static readonly bool _cuClient = false;
 
-    public static async Task StartGameAsync(ConfigFile? config, string password = "",
-        string username = "", string charactername = "", bool autoEnterZone = false)
+    public static async Task StartGameAsync(string password = "", string username = "", 
+        string charactername = "", bool autoEnterZone = false)
     {
+        var config = ConfigFile.GetConfig();
+
         // Run Async to prevent launcher from locking up when starting game and writing bytes
         await Task.Run(async () =>
         {
@@ -203,7 +205,7 @@ public class AppHandler
 
     static async Task WriteLiveConfigAsync(ConfigFile? config)
     {
-        List<string> treList = await DownloadHandler.DownloadTreList();
+        List<string> treList = await HttpHandler.DownloadTreList();
 
         StringBuilder sb = new();
 

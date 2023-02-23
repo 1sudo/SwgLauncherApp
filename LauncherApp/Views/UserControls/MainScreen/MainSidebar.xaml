@@ -252,7 +252,7 @@
                 </Button>
             </StackPanel>
 
-            <Grid Grid.Row="1" HorizontalAlignment="Stretch" Margin="0,0,0,18" Visibility="Collapsed">
+            <Grid Grid.Row="1" HorizontalAlignment="Stretch" Margin="0,0,0,18" Visibility="{Binding DownloadProgressVisibility}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
@@ -260,25 +260,25 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <TextBlock TextWrapping="Wrap" HorizontalAlignment="Left" FontFamily="Bahnschrift SemiBold" Foreground="#FFCBD4DD" Grid.Row="0" VerticalAlignment="Bottom" FontSize="10"/>
-                <TextBlock TextWrapping="Wrap" HorizontalAlignment="Right" FontFamily="Bahnschrift SemiBold" Foreground="White" Grid.Row="0" VerticalAlignment="Bottom" FontSize="10"/>
-                <ProgressBar Style="{DynamicResource RoundedProgressBar}" Grid.Row="1"/>
-                <TextBlock TextWrapping="Wrap" HorizontalAlignment="Left" FontFamily="Bahnschrift SemiCondensed" Foreground="#FFCBD4DD" Grid.Row="2" FontSize="10" VerticalAlignment="Bottom"/>
-                <TextBlock TextWrapping="Wrap" HorizontalAlignment="Right" FontFamily="Bahnschrift SemiBold" Foreground="White" Grid.Row="2" VerticalAlignment="Bottom" FontSize="10"/>
-                <ProgressBar Style="{DynamicResource RoundedProgressBar}" Grid.Row="3" Maximum="1000"/>
+                <TextBlock Text="{Binding ProgressTextTopLeft}" TextWrapping="Wrap" HorizontalAlignment="Left" FontFamily="Bahnschrift SemiBold" Foreground="#FFCBD4DD" Grid.Row="0" VerticalAlignment="Bottom" FontSize="10"/>
+                <TextBlock Text="{Binding ProgressTextTopRight}" TextWrapping="Wrap" HorizontalAlignment="Right" FontFamily="Bahnschrift SemiBold" Foreground="White" Grid.Row="0" VerticalAlignment="Bottom" FontSize="10"/>
+                <ProgressBar Value="{Binding ProgressBarTopValue}" Style="{DynamicResource RoundedProgressBar}" Grid.Row="1"/>
+                <TextBlock Text="{Binding ProgressTextBottomLeft}" TextWrapping="Wrap" HorizontalAlignment="Left" FontFamily="Bahnschrift SemiCondensed" Foreground="#FFCBD4DD" Grid.Row="2" FontSize="10" VerticalAlignment="Bottom"/>
+                <TextBlock Text="{Binding ProgressTextBottomRight}" TextWrapping="Wrap" HorizontalAlignment="Right" FontFamily="Bahnschrift SemiBold" Foreground="White" Grid.Row="2" VerticalAlignment="Bottom" FontSize="10"/>
+                <ProgressBar Value="{Binding ProgressBarBottomValue}" Style="{DynamicResource RoundedProgressBar}" Grid.Row="3" Maximum="1000"/>
             </Grid>
 
-            <Grid Grid.Row="1" HorizontalAlignment="Stretch" Margin="0,0,0,18">
+            <Grid Grid.Row="1" HorizontalAlignment="Stretch" Margin="0,0,0,18" Visibility="{Binding CharacterSelectVisibility}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
                 <TextBlock Text="Character Select" TextWrapping="Wrap" HorizontalAlignment="Left" FontFamily="Bahnschrift SemiBold" Foreground="White" Grid.Row="0" VerticalAlignment="Bottom"/>
-                <ComboBox Style="{DynamicResource ComboBoxTransparent}" Grid.Row="1" SelectedIndex="0"/>
+                <ComboBox SelectedValue="{Binding SelectedCharacter}" Style="{DynamicResource ComboBoxTransparent}" Grid.Row="1" SelectedIndex="0"/>
             </Grid>
 
-            <Button Style="{DynamicResource NavButton}" Content="Play" VerticalAlignment="Bottom" Grid.Row="2"/>
+            <Button Command="{Binding PlayButton}" Style="{DynamicResource NavButton}" Content="{Binding PlayButtonText}" IsHitTestVisible="{Binding PlayButtonEnabled}" IsEnabled="{Binding PlayButtonEnabled}" VerticalAlignment="Bottom" Grid.Row="2"/>
         </Grid>
     </Grid>
     <!--#endregion-->

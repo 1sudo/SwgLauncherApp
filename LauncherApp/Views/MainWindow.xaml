@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:LauncherApp.Views.UserControls"
         mc:Ignorable="d"
         Title="MainWindow" Height="610" Width="1130" WindowStyle="None" 
-        ResizeMode="NoResize" WindowStartupLocation="CenterScreen" MouseDown="Window_MouseDown" Closing="Window_Closing" StateChanged="Window_StateChanged" Initialized="Window_Initialized">
+        ResizeMode="NoResize" WindowStartupLocation="CenterScreen" MouseDown="Window_MouseDown" Closing="Window_Closing" StateChanged="Window_StateChanged" Initialized="Window_Initialized" KeyDown="Window_KeyDown">
 
     <Grid>
         <Grid.Background>

@@ -13,11 +13,14 @@ public static class Requests
     public static Action<string>? LoginFailed { get; set; }
     public static Action<string>? AccountCreated { get; set; }
     public static Action<string>? AccountCreationFailed { get; set; }
+    public static string? GrpcUrl { get; set; }
 
     private static void GrpcInit()
-    { 
+    {
+        if (GrpcUrl is null) return;
+
         // Creates shared gRPC channel, ignoring self-signed errors
-        _channel = GrpcChannel.ForAddress("https://localhost:7198/", new GrpcChannelOptions
+        _channel = GrpcChannel.ForAddress(GrpcUrl, new GrpcChannelOptions
         {
             HttpHandler = new SocketsHttpHandler
             {
@@ -60,8 +63,14 @@ public static class Requests
 
             response.Characters = characters;
 
-            if (response.Status == "ok") LoggedIn?.Invoke(response.Characters, response.Username!);
-            else LoginFailed?.Invoke(response.Status!);
+            if (response.Status == "ok")
+            {
+                LoggedIn?.Invoke(response.Characters, response.Username!);
+            }
+            else
+            {
+                LoginFailed?.Invoke(response.Status!);
+            }
         }
         catch (Exception e)
         {

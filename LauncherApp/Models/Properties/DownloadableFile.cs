@@ -13,3 +13,9 @@ public struct DownloadableFile
     [JsonPropertyName("Md5")]
     public string Md5 { get; set; }
 }
+
+public struct VersionFile
+{
+    [JsonPropertyName("version")]
+    public int Version { get; set; }
+}

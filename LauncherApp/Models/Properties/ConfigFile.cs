@@ -34,9 +34,7 @@ public class ConfigFile
         if (File.Exists(_configFile))
             return;
 
-        ConfigFile config = new();
-
-        config.ActiveServer = 0;
+        ConfigFile config = new() { ActiveServer = 0 };
 
         List<AdditionalSettingProperties> additionalSettings = new()
         {
@@ -57,16 +55,15 @@ public class ConfigFile
             Password = "",
             Characters = new List<string>(),
             LastSelectedCharacter = 0,
-            ServerSelection = "SWG Legacy Test Server (Sudo)",
-            ApiUrl = "http://192.168.1.102:5000",
+            ServerSelection = "SWG Warfront Test Center",
             ManifestFilePath = "manifest/required.json",
-            ManifestFileUrl = "http://login.darknaught.com:8080/files/",
-            BackupManifestFileUrl = "http://login.darknaught.com:8080/files/",
-            StatusUrl = "http://login.darknaught.com:8080/status/status.json",
-            SWGLoginHost = "login.darknaught.com",
+            ServiceUrl = "https://localhost:7198/",
+            BackupServiceUrl = "https://localhost:7198/",
+            StatusUrl = "http://localhost:8085/status/status.json",
+            SWGLoginHost = "tc.swgwarfront.com",
             SWGLoginPort = 44453,
-            GameLocation = "C:/SWGLegacy",
-            ServerName = "SWGLegacy",
+            GameLocation = "C:/SWGWarfront",
+            ServerName = "SWGWarfront",
             AutoLogin = false,
             Verified = false,
             Fps = 60,
@@ -126,6 +123,13 @@ public class ConfigFile
         return null;
     }
 
+    public static AccountProperties? GetCurrentServer()
+    {
+        var config = GetConfig();
+
+        return config?.Servers?[config.ActiveServer] ?? null;
+    }
+
     public static void SaveCredentials(ConfigFile config)
     {
         CipherHandler cipher = new();
@@ -178,9 +182,10 @@ public class AccountProperties
 
     [JsonPropertyName("serverSelection")]
     public string? ServerSelection { get; set; }
-
-    [JsonPropertyName("apiUrl")]
-    public string? ApiUrl { get; set; }
+    [JsonPropertyName("serviceUrl")]
+    public string? ServiceUrl { get; set; }
+    [JsonPropertyName("backupServiceUrl")]
+    public string? BackupServiceUrl { get; set; }
 
     [JsonPropertyName("manifestFilePath")]
     public string? ManifestFilePath { get; set; }
