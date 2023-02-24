@@ -13,6 +13,7 @@ namespace LauncherApp.Models.Handlers;
 public class FileHandler
 {
     public static Action<string, double, double>? OnFullScanFileCheck { get; set; }
+    public static Action<string>? OnInstallCheckFailed { get; set; }
     public static string? BaseGameLocation { get; set; }
     static readonly List<string> ClientChecksums = new()
     {
@@ -21,6 +22,53 @@ public class FileHandler
         "2a55323f8774c43231331cb00014a011", // 144 FPS
         "38feda8e17042a5bc9edf7d9959bdbfe"  // 240 FPS
     };
+
+    public async static Task<bool> CheckBaseInstallation(string location)
+    {
+        try
+        {
+            if (!Directory.Exists(location))
+            {
+                return false;
+            }
+
+            // Files that are required to exist
+            List<string> filesToCheck = new()
+            {
+                "dpvs.dll",
+                "Mss32.dll",
+                "dbghelp.dll"
+            };
+
+            // Files in supposed SWG directory
+            string[] files = Directory.GetFiles(location, "*.*", SearchOption.AllDirectories);
+
+            int numRequiredFiles = 0;
+
+            foreach (string fileToCheck in filesToCheck)
+            {
+                foreach (string file in files)
+                {
+                    if (fileToCheck == file.Split(location + "\\")[1].Trim())
+                    {
+                        numRequiredFiles++;
+                    }
+                }
+            }
+
+            if (numRequiredFiles == 3)
+            {
+                return true;
+            }
+        }
+        catch (Exception e)
+        {
+            await LogHandler.Log(LogType.ERROR, "| CheckBaseInstallation | " + e.Message.ToString());
+            OnInstallCheckFailed?.Invoke(e.Message.ToString());
+        }
+
+        return false;
+    }
 
     public static async Task<bool> UpdateIsAvailable()
     {
@@ -158,6 +206,8 @@ public class FileHandler
 
         List<DownloadableFile> downloadableFiles = new();
 
+        long totalDownloadSize = 0;
+
         if (string.IsNullOrEmpty(modName) && manifestFilePath is not null)
         {
             downloadableFiles = await HttpHandler.DownloadManifestAsync();
@@ -208,12 +258,20 @@ public class FileHandler
             fileList = await Task.Run(() => GetBadFilesAsync(config.Servers![config.ActiveServer].GameLocation!, downloadableFiles));
         }
 
-        foreach (var f in fileList)
+        // Calculate total download size based on 
+        // what files need to be downloaded
+        fileList.ForEach(file =>
         {
-            Trace.WriteLine($"File List file: {f}");
-        }
+            downloadableFiles.ForEach(downloadableFile =>
+            {
+                if (file == downloadableFile.Name)
+                {
+                    totalDownloadSize += downloadableFile.Size;
+                }
+            });
+        });
 
-        await HttpHandler.DownloadFilesFromListAsync(fileList, config.Servers![config.ActiveServer].GameLocation!);
+        await HttpHandler.DownloadFilesFromListAsync(fileList, config.Servers![config.ActiveServer].GameLocation!, totalDownloadSize);
     }
 
     public static async Task AttemptCopyFilesFromListAsync(List<string> fileList, string copyLocation, bool isDirChange = false, string previousDir = "")

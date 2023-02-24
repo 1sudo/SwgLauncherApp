@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Security;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using LauncherApp.Models.Properties;
 
@@ -12,16 +14,16 @@ namespace LauncherApp.Models.Handlers;
 
 public class HttpHandler
 {
-    static bool _primaryServerOffline = false;
+    private static bool _primaryServerOffline = false;
+    public static double DownloadSpeed { get; private set; }
+    public static bool IsDownloading { get; private set; }
     public static Action? OnDownloadStarted { get; set; }
     public static Action? OnDownloadCompleted { get; set; }
     public static Action<string, string, double, double>? OnCurrentFileDownloading { get; set; }
-    public static Action<long, long, int>? OnDownloadProgressUpdated { get; set; }
+    public static Action<double>? OnDownloadProgressUpdated { get; set; }
+    public static Action<double>? OnDownloadRateUpdated { get; set; }
     public static Action<string>? OnServerError { get; set; }
-    public static Action<string>? OnInstallCheckFailed { get; set; }
     public static Action? OnCannotReachWebserver { get; set; }
-    
-    
 
     internal static async Task<VersionFile> DownloadVersionAsync()
     {
@@ -124,92 +126,94 @@ public class HttpHandler
         return treList ?? new List<string>();
     }
 
-    public async static Task<bool> CheckBaseInstallation(string location)
+    private static void NotifyDownloadSpeed()
     {
-        try
+        while (IsDownloading)
         {
-            if (!Directory.Exists(location))
-            {
-                return false;
-            }
-
-            // Files that are required to exist
-            List<string> filesToCheck = new()
-            {
-                "dpvs.dll",
-                "Mss32.dll",
-                "dbghelp.dll"
-            };
-
-            // Files in supposed SWG directory
-            string[] files = Directory.GetFiles(location, "*.*", SearchOption.AllDirectories);
-
-            int numRequiredFiles = 0;
-
-            foreach (string fileToCheck in filesToCheck)
-            {
-                foreach (string file in files)
-                {
-                    if (fileToCheck == file.Split(location + "\\")[1].Trim())
-                    {
-                        numRequiredFiles++;
-                    }
-                }
-            }
-
-            if (numRequiredFiles == 3)
-            {
-                return true;
-            }
+            Thread.Sleep(200);
+            OnDownloadRateUpdated?.Invoke(DownloadSpeed);
         }
-        catch (Exception e)
-        {
-            await LogHandler.Log(LogType.ERROR, "| CheckBaseInstallation | " + e.Message.ToString());
-            OnInstallCheckFailed?.Invoke(e.Message.ToString());
-        }
-
-        return false;
     }
 
-    internal static async Task DownloadFilesFromListAsync(List<string> fileList, string downloadLocation)
+    internal static async Task DownloadFilesFromListAsync(List<string> fileList, string downloadLocation, long totalDownloadSize)
     {
+        var config = ConfigFile.GetCurrentServer();
+        if (config is null) return;
+
         OnDownloadStarted?.Invoke();
+        IsDownloading = true;
 
-        double listLength = fileList.Count;
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+        Task.Run(NotifyDownloadSpeed);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
-        double i = 1;
-        // Key == name, Value == url
+        var tasks = new List<Task>();
+        var semaphore = new SemaphoreSlim(config.DownloadConcurrency);
+        var totalBytesDownloaded = 0L;
+        var stopwatch = Stopwatch.StartNew();
+
         foreach (var file in fileList)
         {
-            // Notify UI of filename
-            OnCurrentFileDownloading?.Invoke("download", file, i, listLength);
+            tasks.Add(Task.Run(async () =>
+            {
+                try
+                {
+                    await semaphore.WaitAsync();
 
-            await DownloadFileAsync(downloadLocation, file);
+                    var filePath = Path.Combine(downloadLocation, file);
+                    var fileInfo = new FileInfo(filePath);
 
-            i++;
+                    await DownloadFileAsync(downloadLocation, file, bytesDownloaded =>
+                    {
+                        Interlocked.Add(ref totalBytesDownloaded, bytesDownloaded);
+                        var elapsedSeconds = stopwatch.Elapsed.TotalSeconds;
+
+                        if (elapsedSeconds > 0)
+                        {
+                            var downloadRate = (double)totalBytesDownloaded / elapsedSeconds;
+
+                            OnDownloadProgressUpdated?.Invoke(((double)totalBytesDownloaded / (double)totalDownloadSize) * 1000);
+                            DownloadSpeed = Math.Round(downloadRate / 125000, 2);
+                        }
+                    });
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }));
         }
 
+        await Task.WhenAll(tasks);
+
         OnDownloadCompleted?.Invoke();
+        IsDownloading = false;
     }
 
-    private static async Task DownloadFileAsync(string downloadLocation, string fileName)
+    private static async Task DownloadFileAsync(string downloadLocation, string fileName, Action<long> downloadProgressCallback)
     {
         try
         {
             var config = ConfigFile.GetConfig();
-
             var manifestFileUrl = Path.Join(config?.Servers?[config.ActiveServer]?.ServiceUrl, "files");
-
             var downloadUrl = Path.Join(manifestFileUrl, fileName);
 
-            using var handler = new HttpClientHandler();
-            handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+            using var handler = new SocketsHttpHandler();
+
+            handler.SslOptions = new SslClientAuthenticationOptions
+            {
+                RemoteCertificateValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
+            };
 
             using var client = new HttpClient(handler);
             client.DefaultRequestVersion = new Version(2, 0);
 
-            using var response = await client.GetAsync(new Uri(downloadUrl),
-                HttpCompletionOption.ResponseHeadersRead);
+            var request = new HttpRequestMessage(HttpMethod.Get, downloadUrl)
+            {
+                VersionPolicy = HttpVersionPolicy.RequestVersionOrHigher
+            };
+
+            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
             long length = long.Parse(response.Content.Headers.First(h =>
                 h.Key.Equals("Content-Length")).Value.First());
@@ -226,18 +230,17 @@ public class HttpHandler
                 }
 
                 await using var fileStream = new FileStream(Path.Join(downloadLocation, fileName),
-                    FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 8192, useAsync: true);
+                    FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true);
 
-                await DoStreamWriteAsync(contentStream, fileStream, length);
+                await DoStreamWriteAsync(contentStream, fileStream, length, downloadProgressCallback);
             }
         }
         catch { }
     }
 
-    private static async Task DoStreamWriteAsync(Stream contentStream, Stream fileStream, long length)
+    private static async Task DoStreamWriteAsync(Stream contentStream, Stream fileStream, long length, Action<long> downloadProgressCallback)
     {
-        var bytesReceived = 0L;
-        var totalBytesToReceive = 0L;
+        var stopwatch = Stopwatch.StartNew();
         var buffer = new byte[8192];
         var endOfStream = false;
 
@@ -252,13 +255,11 @@ public class HttpHandler
             {
                 await fileStream.WriteAsync(buffer.AsMemory(0, read));
 
-                bytesReceived += read;
-                totalBytesToReceive += 1;
+                var elapsedSeconds = stopwatch.Elapsed.TotalSeconds;
 
-                if (totalBytesToReceive % 100 == 0)
+                if (elapsedSeconds > 0)
                 {
-                    var progressPercentage = (int)Math.Round((double)bytesReceived / length * 1000, 0);
-                    OnDownloadProgressUpdated?.Invoke(bytesReceived, totalBytesToReceive, progressPercentage);
+                    downloadProgressCallback(read);
                 }
             }
         }

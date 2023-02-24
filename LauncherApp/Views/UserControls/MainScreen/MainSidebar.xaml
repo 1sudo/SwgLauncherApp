@@ -275,7 +275,7 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Text="Character Select" TextWrapping="Wrap" HorizontalAlignment="Left" FontFamily="Bahnschrift SemiBold" Foreground="White" Grid.Row="0" VerticalAlignment="Bottom"/>
-                <ComboBox SelectedValue="{Binding SelectedCharacter}" Style="{DynamicResource ComboBoxTransparent}" Grid.Row="1" SelectedIndex="0"/>
+                <ComboBox SelectedItem="{Binding SelectedCharacter}" ItemsSource="{Binding CharacterList}" Style="{DynamicResource ComboBoxTransparent}" Grid.Row="1" SelectedIndex="0"/>
             </Grid>
 
             <Button Command="{Binding PlayButton}" Style="{DynamicResource NavButton}" Content="{Binding PlayButtonText}" IsHitTestVisible="{Binding PlayButtonEnabled}" IsEnabled="{Binding PlayButtonEnabled}" VerticalAlignment="Bottom" Grid.Row="2"/>

@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows;
+using System.Windows.Media.TextFormatting;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LauncherApp.Models.Handlers;
@@ -36,11 +39,30 @@ internal class MainSidebarViewModel : ObservableObject
         HttpHandler.OnDownloadCompleted += OnDownloadCompleted;
         HttpHandler.OnCurrentFileDownloading += OnCurrentFileDownloading;
         HttpHandler.OnDownloadProgressUpdated += OnDownloadProgressUpdated;
+        HttpHandler.OnDownloadRateUpdated += OnDownloadRateUpdated;
+    }
+
+    private void GetLastSelectedCharacter()
+    {
+        var config = ConfigFile.GetCurrentServer();
+
+        if (config is not null && !string.IsNullOrEmpty(config.LastSelectedCharacter))
+        {
+            CharacterList?.ToList().ForEach(character =>
+            {
+                if (character == config.LastSelectedCharacter)
+                {
+                    Trace.WriteLine(character);
+                    SelectedCharacter = character;
+                }
+            });
+        }
     }
 
     private async void Play()
     {
-        var config = ConfigFile.GetCurrentServer();
+        var config = ConfigFile.GetConfig();
+        var currentServer = config?.Servers?[config.ActiveServer];
 
         if (config is null) return;
 
@@ -56,11 +78,17 @@ internal class MainSidebarViewModel : ObservableObject
         {
             if (SelectedCharacter != "None" && SelectedCharacter is not null)
             {
-                await AppHandler.StartGameAsync(config?.Password ?? "", config?.Username ?? "", SelectedCharacter, true);
+                if (currentServer is not null)
+                {
+                    currentServer.LastSelectedCharacter = SelectedCharacter;
+                    ConfigFile.SetConfig(config);
+                }
+
+                await AppHandler.StartGameAsync(currentServer?.Password ?? "", currentServer?.Username ?? "", SelectedCharacter, true);
             }
             else
             {
-                await AppHandler.StartGameAsync(config?.Password ?? "", config?.Username ?? "");
+                await AppHandler.StartGameAsync(currentServer?.Password ?? "", currentServer?.Username ?? "");
             }
         }
     }
@@ -69,6 +97,11 @@ internal class MainSidebarViewModel : ObservableObject
     {
         PlayButtonText = "UPDATE";
         PlayButtonEnabled = true;
+
+        CharacterList = new ObservableCollection<string>(characters);
+
+        GetLastSelectedCharacter();
+
         CharacterSelectVisibility = Visibility.Visible;
         DownloadProgressVisibility = Visibility.Collapsed;
 
@@ -105,9 +138,15 @@ internal class MainSidebarViewModel : ObservableObject
 
     }
 
-    private void OnDownloadProgressUpdated(long bytesReceived, long totalBytesToReceive, int progressPercentage)
+    private void OnDownloadProgressUpdated(double progressPercentage)
     {
         ProgressBarBottomValue = progressPercentage;
+    }
+
+    private void OnDownloadRateUpdated(double downloadRate)
+    {
+        ProgressTextBottomLeft = "Download Speed:";
+        ProgressTextBottomRight = downloadRate.ToString() + " Mbps";
     }
 
     private bool? _playButtonEnabled;
@@ -119,6 +158,7 @@ internal class MainSidebarViewModel : ObservableObject
     private double? _progressBarTopValue;
     private double? _progressBarBottomValue;
     private bool _updateAvailable;
+    private ObservableCollection<string>? _characterList;
     private string? _selectedCharacter;
     private Visibility? _characterSelectVisibility;
     private Visibility? _downloadProgressVisibility;
@@ -169,6 +209,12 @@ internal class MainSidebarViewModel : ObservableObject
     {
         get => _progressBarBottomValue; 
         set => SetProperty(ref _progressBarBottomValue, value);
+    }
+
+    public ObservableCollection<string>? CharacterList
+    {
+        get => _characterList;
+        set => SetProperty(ref _characterList, value);
     }
 
     public string? SelectedCharacter

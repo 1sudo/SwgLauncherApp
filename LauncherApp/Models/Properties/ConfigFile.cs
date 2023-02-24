@@ -54,11 +54,12 @@ public class ConfigFile
             Username = "",
             Password = "",
             Characters = new List<string>(),
-            LastSelectedCharacter = 0,
+            LastSelectedCharacter = "",
             ServerSelection = "SWG Warfront Test Center",
             ManifestFilePath = "manifest/required.json",
             ServiceUrl = "https://localhost:7198/",
             BackupServiceUrl = "https://localhost:7198/",
+            DownloadConcurrency = 4,
             StatusUrl = "http://localhost:8085/status/status.json",
             SWGLoginHost = "tc.swgwarfront.com",
             SWGLoginPort = 44453,
@@ -178,7 +179,7 @@ public class AccountProperties
     public List<string>? Characters { get; set; }
 
     [JsonPropertyName("lastSelectedCharacter")]
-    public int LastSelectedCharacter { get; set; }
+    public string? LastSelectedCharacter { get; set; }
 
     [JsonPropertyName("serverSelection")]
     public string? ServerSelection { get; set; }
@@ -186,6 +187,8 @@ public class AccountProperties
     public string? ServiceUrl { get; set; }
     [JsonPropertyName("backupServiceUrl")]
     public string? BackupServiceUrl { get; set; }
+    [JsonPropertyName("downloadConcurrency")]
+    public int DownloadConcurrency { get; set; }
 
     [JsonPropertyName("manifestFilePath")]
     public string? ManifestFilePath { get; set; }

@@ -70,7 +70,7 @@ internal class SetupScreenViewModel : SetupScreenViewModelProperties
         }
         else if (CurrentScreen == (int) Screen.BaseGameVerification)
         {
-            if (await Models.Handlers.HttpHandler.CheckBaseInstallation(BaseGameVerificationSelectedDirectoryTextBox!))
+            if (await Models.Handlers.FileHandler.CheckBaseInstallation(BaseGameVerificationSelectedDirectoryTextBox!))
             {
                 ConfigFile? config = ConfigFile.GetConfig()!;
 
