@@ -65,7 +65,7 @@ internal class MainSidebarViewModel : ObservableObject
         }
     }
 
-    private async void OnLoggedIn(List<string> characters, string username)
+    private async void OnLoggedIn(List<string> characters, string username, bool autoLogin)
     {
         PlayButtonText = "UPDATE";
         PlayButtonEnabled = true;

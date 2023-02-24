@@ -1,4 +1,6 @@
-﻿using System.Windows.Controls;
+﻿using System;
+using System.Windows.Controls;
+using LauncherApp.Models.Properties;
 using LauncherApp.ViewModels;
 
 namespace LauncherApp.Views.UserControls.AccountScreen
@@ -8,6 +10,8 @@ namespace LauncherApp.Views.UserControls.AccountScreen
     /// </summary>
     public partial class AccountLogin
     {
+        public static Action? OnAutoLogin { get; set; }
+
         public AccountLogin()
         {
             InitializeComponent();
@@ -19,6 +23,24 @@ namespace LauncherApp.Views.UserControls.AccountScreen
             {
                 ((AccountScreenViewModel)DataContext).AccountLoginPasswordBox = 
                     ((PasswordBox)sender).SecurePassword;
+            }
+        }
+
+        private void UserControl_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        {
+            AutoLogin();
+        }
+
+        private static void AutoLogin()
+        {
+            var config = ConfigFile.GetCurrentServer();
+
+            if (config is not null && config.Verified)
+            {
+                if (config.AutoLogin)
+                {
+                    OnAutoLogin?.Invoke();
+                }
             }
         }
     }

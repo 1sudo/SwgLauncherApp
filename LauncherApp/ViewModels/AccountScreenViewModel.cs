@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using CommunityToolkit.Mvvm.Input;
 using LauncherApp.Models.Properties;
+using LauncherApp.Views.UserControls;
 using LibgRPC.Models;
 
 namespace LauncherApp.ViewModels;
@@ -32,6 +34,7 @@ internal class AccountScreenViewModel : AccountScreenViewModelProperties
         LibgRPC.Requests.LoginFailed += OnLoginFailed;
         LibgRPC.Requests.AccountCreated += OnAccountCreated;
         LibgRPC.Requests.AccountCreationFailed += OnAccountCreationFailed;
+        Views.UserControls.AccountScreen.AccountLogin.OnAutoLogin += OnAutoLogin;
 
         AccountLoginUsernameWatermark = "Username";
         AccountLoginPasswordWatermark = "Password";
@@ -41,6 +44,13 @@ internal class AccountScreenViewModel : AccountScreenViewModelProperties
         AccountCreationPasswordConfirmationWatermark = "Password Confirmation";
         AccountCreationSecurityQuestionAnswerWatermark = "Answer";
         AccountCreationDiscordWatermark = "Discord ID - e.g. User#1234";
+
+        var config = ConfigFile.GetCurrentServer();
+
+        if (config is not null)
+        {
+            AccountKeepLoggedInCheckbox = config.AutoLogin;
+        }
     }
 
     private void OnAccountCreated(string status)
@@ -64,13 +74,24 @@ internal class AccountScreenViewModel : AccountScreenViewModelProperties
         t.Start();
     }
 
-    private void OnLoggedIn(List<string> characters, string username)
+    private void OnLoggedIn(List<string> characters, string username, bool autoLogin)
     {
         var config = ConfigFile.GetConfig();
+
+        var currentServer = config?.Servers?[config.ActiveServer];
+
+        if (currentServer is not null && !autoLogin)
+        {
+            currentServer.AutoLogin = AccountKeepLoggedInCheckbox;
+            currentServer.Username = AccountLoginUsernameTextBox;
+            string password = new System.Net.NetworkCredential(string.Empty, AccountLoginPasswordBox).Password;
+            currentServer.Password = password;
+        }
 
         if (config is not null)
         {
             ConfigFile.SaveCharacters(characters, config);
+            ConfigFile.SetConfig(config);
         }
 
         ScreenContainerViewModel.EnableScreen(Screen.Updates);
@@ -100,14 +121,26 @@ internal class AccountScreenViewModel : AccountScreenViewModelProperties
         CurrentScreen = (int)Screen.AccountCreation;
     }
 
+    private async void OnAutoLogin()
+    {
+        var config = ConfigFile.GetCurrentServer();
+
+        if (config is not null)
+        {
+            if (config.Username is not null && config.Password is not null)
+            {
+                await LibgRPC.Requests.RequestLogin(config.Username,
+                    new System.Net.NetworkCredential(string.Empty, config.Password).Password, true);
+            }
+        }
+    }
+
     private async Task AccountLogin()
     {
         if (AccountLoginUsernameTextBox is null) return;
 
-        // Factor in active server (config!.Servers![config.ActiveServer].ServiceAddress)
-        // Action calls OnLoggedIn() once authenticated
         await LibgRPC.Requests.RequestLogin(AccountLoginUsernameTextBox, 
-            new System.Net.NetworkCredential(string.Empty, AccountLoginPasswordBox).Password);
+            new System.Net.NetworkCredential(string.Empty, AccountLoginPasswordBox).Password, false);
     }
 
     private void ClearAllTextBoxes()

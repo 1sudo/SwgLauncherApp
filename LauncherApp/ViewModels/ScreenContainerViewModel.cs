@@ -35,9 +35,9 @@ internal class ScreenContainerViewModel : ObservableObject
     {
         _controls = controls;
 
-        ConfigFile? config = ConfigFile.GetConfig();
+        var config = ConfigFile.GetCurrentServer();
 
-        if (config is not null && config.Servers![config.ActiveServer].Verified)
+        if (config is not null && config.Verified)
         {
             EnableScreen(Screen.AccountLogin);
         }

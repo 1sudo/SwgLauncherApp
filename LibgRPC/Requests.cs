@@ -9,7 +9,7 @@ namespace LibgRPC;
 public static class Requests
 {
     private static GrpcChannel? _channel = null;
-    public static Action<List<string>, string>? LoggedIn { get; set; }
+    public static Action<List<string>, string, bool>? LoggedIn { get; set; }
     public static Action<string>? LoginFailed { get; set; }
     public static Action<string>? AccountCreated { get; set; }
     public static Action<string>? AccountCreationFailed { get; set; }
@@ -36,7 +36,7 @@ public static class Requests
         });
     }
 
-    public static async Task RequestLogin(string username, string password)
+    public static async Task RequestLogin(string username, string password, bool autoLogin = false)
     {
         if (_channel is null) GrpcInit();
 
@@ -65,7 +65,14 @@ public static class Requests
 
             if (response.Status == "ok")
             {
-                LoggedIn?.Invoke(response.Characters, response.Username!);
+                if (autoLogin)
+                {
+                    LoggedIn?.Invoke(response.Characters, response.Username!, true);
+                }
+                else
+                {
+                    LoggedIn?.Invoke(response.Characters, response.Username!, false);
+                }
             }
             else
             {
@@ -74,7 +81,7 @@ public static class Requests
         }
         catch (Exception e)
         {
-            Trace.WriteLine(e.StackTrace);
+            Trace.WriteLine(e.Message);
             LoginFailed?.Invoke("Unable to reach login server.");
         }
     }

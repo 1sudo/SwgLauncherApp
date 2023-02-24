@@ -25,7 +25,7 @@ internal class AccountScreenViewModelProperties : ObservableObject
     private string? _accountLoginPasswordWatermark;
     private string? _accountLoginUsernameWatermark;
     private string? _accountLoginFailedTextBlock;
-    private bool? _accountKeepLoggedInCheckbox;
+    private bool _accountKeepLoggedInCheckbox;
     private string? _accountCreationUsernameTextBox;
     private string? _accountCreationUsernameWatermark;
     private string? _accountCreationEmailAddressTextBox;
@@ -55,7 +55,7 @@ internal class AccountScreenViewModelProperties : ObservableObject
             SetProperty(ref _accountLoginUsernameTextBox, value);
             WatermarkIntercept(this, (int)WatermarkType.AccountLoginUsername);
         }
-    } 
+    }
 
     public SecureString? AccountLoginPasswordBox
     {
@@ -85,7 +85,7 @@ internal class AccountScreenViewModelProperties : ObservableObject
         set => SetProperty(ref _accountLoginFailedTextBlock, value);
     }
 
-    public bool? AccountKeepLoggedInCheckbox
+    public bool AccountKeepLoggedInCheckbox
     {
         get => _accountKeepLoggedInCheckbox;
         set => SetProperty(ref _accountKeepLoggedInCheckbox, value);
