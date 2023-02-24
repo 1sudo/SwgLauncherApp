@@ -260,9 +260,9 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <TextBlock Text="{Binding ProgressTextTopLeft}" TextWrapping="Wrap" HorizontalAlignment="Left" FontFamily="Bahnschrift SemiBold" Foreground="#FFCBD4DD" Grid.Row="0" VerticalAlignment="Bottom" FontSize="10"/>
-                <TextBlock Text="{Binding ProgressTextTopRight}" TextWrapping="Wrap" HorizontalAlignment="Right" FontFamily="Bahnschrift SemiBold" Foreground="White" Grid.Row="0" VerticalAlignment="Bottom" FontSize="10"/>
-                <ProgressBar Value="{Binding ProgressBarTopValue}" Style="{DynamicResource RoundedProgressBar}" Grid.Row="1"/>
+                <TextBlock Text="{Binding ProgressTextTopLeft}" TextWrapping="Wrap" HorizontalAlignment="Left" FontFamily="Bahnschrift SemiBold" Foreground="#FFCBD4DD" Grid.Row="1" VerticalAlignment="Bottom" FontSize="10"/>
+                <TextBlock Text="{Binding ProgressTextTopRight}" TextWrapping="Wrap" HorizontalAlignment="Right" FontFamily="Bahnschrift SemiBold" Foreground="White" Grid.Row="1" VerticalAlignment="Bottom" FontSize="10"/>
+                <!--<ProgressBar Value="{Binding ProgressBarTopValue}" Style="{DynamicResource RoundedProgressBar}" Grid.Row="1" Visibility="Collapsed" />-->
                 <TextBlock Text="{Binding ProgressTextBottomLeft}" TextWrapping="Wrap" HorizontalAlignment="Left" FontFamily="Bahnschrift SemiCondensed" Foreground="#FFCBD4DD" Grid.Row="2" FontSize="10" VerticalAlignment="Bottom"/>
                 <TextBlock Text="{Binding ProgressTextBottomRight}" TextWrapping="Wrap" HorizontalAlignment="Right" FontFamily="Bahnschrift SemiBold" Foreground="White" Grid.Row="2" VerticalAlignment="Bottom" FontSize="10"/>
                 <ProgressBar Value="{Binding ProgressBarBottomValue}" Style="{DynamicResource RoundedProgressBar}" Grid.Row="3" Maximum="1000"/>

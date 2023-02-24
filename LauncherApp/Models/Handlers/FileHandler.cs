@@ -225,7 +225,6 @@ public class FileHandler
 
                 foreach (DownloadableFile file in downloadableFiles)
                 {
-                    Trace.WriteLine($"Added file: {file.Name}");
                     downloadableFileList.Add(file.Name);
                 }
 

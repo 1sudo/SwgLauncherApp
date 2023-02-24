@@ -69,7 +69,7 @@ internal class MainSidebarViewModel : ObservableObject
         if (_updateAvailable)
         {
             PlayButtonEnabled = false;
-
+            PlayButtonText = "UPDATING";
             await FileHandler.CheckFilesAsync();
 
             _updateAvailable = false;
@@ -122,6 +122,7 @@ internal class MainSidebarViewModel : ObservableObject
     {
         CharacterSelectVisibility = Visibility.Collapsed;
         DownloadProgressVisibility = Visibility.Visible;
+        ProgressTextBottomLeft = "Downloading Game Files";
     }
 
     private void OnDownloadCompleted()
@@ -145,7 +146,6 @@ internal class MainSidebarViewModel : ObservableObject
 
     private void OnDownloadRateUpdated(double downloadRate)
     {
-        ProgressTextBottomLeft = "Download Speed:";
         ProgressTextBottomRight = downloadRate.ToString() + " Mbps";
     }
 

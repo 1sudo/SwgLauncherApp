@@ -24,7 +24,6 @@ public class AppHandler
             {
                 bool configWritten = await WriteLoginConfigAsync(config);
                 await WriteLauncherConfigAsync(config);
-                await WriteLiveConfigAsync(config);
 
                 string? gameLocation = config!.Servers![config.ActiveServer].GameLocation;
 
