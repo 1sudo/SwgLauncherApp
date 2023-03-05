@@ -84,9 +84,7 @@ public class FileHandler
         var versionFile = JsonSerializer.Deserialize<VersionFile>(await File.ReadAllTextAsync(versionFilePath));
         var remoteVersionFile = await HttpHandler.DownloadVersionAsync();
 
-#pragma warning disable IDE0059 // Unnecessary assignment of a value
-        List<DownloadableFile> downloadableFiles = new();
-#pragma warning restore IDE0059 // Unnecessary assignment of a value
+        List<DownloadableFile> downloadableFiles;
 
         downloadableFiles = await HttpHandler.DownloadManifestAsync();
 
