@@ -191,12 +191,6 @@ public class AccountProperties
     [JsonPropertyName("manifestFilePath")]
     public string? ManifestFilePath { get; set; }
 
-    [JsonPropertyName("manifestFileUrl")]
-    public string? ManifestFileUrl { get; set; }
-
-    [JsonPropertyName("backupManifestFileUrl")]
-    public string? BackupManifestFileUrl { get; set; }
-
     [JsonPropertyName("statusUrl")]
     public string? StatusUrl { get; set; }
 
