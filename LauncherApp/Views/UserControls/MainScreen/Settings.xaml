@@ -170,7 +170,7 @@
                     </TextBlock>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Style="{DynamicResource NavButton}" FontSize="12" Margin="0,0,12,0" Padding="15,5,15,5">Revert</Button>
-                        <Button Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5">Save Changes</Button>
+                        <Button Command="{Binding SaveSettingsButton}" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5">Save Changes</Button>
                     </StackPanel>
                 </DockPanel>
             </Border>
@@ -187,14 +187,14 @@
                         <TextBlock Style="{DynamicResource h3}">
                                     Game Resolution
                         </TextBlock>
-                        <ComboBox SelectedIndex="1" Style="{DynamicResource ComboBoxTransparent}" />
+                        <ComboBox SelectedItem="{Binding SelectedResolution}" ItemsSource="{Binding AvailableResolutions, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource ComboBoxTransparent}" />
                     </StackPanel>
 
                     <StackPanel Margin="4,0,4,0" Grid.Column="1">
                         <TextBlock Style="{DynamicResource h3}">
                                     Shader
                         </TextBlock>
-                        <ComboBox SelectedIndex="0" Style="{DynamicResource ComboBoxTransparent}">
+                        <ComboBox SelectedIndex="{Binding ShaderComboIndex}" Style="{DynamicResource ComboBoxTransparent}">
                             <ComboBoxItem Content="Optimal" />
                             <ComboBoxItem Content="2.0 (Override)" />
                             <ComboBoxItem Content="1.4 (Override)" />
@@ -207,7 +207,7 @@
                         <TextBlock Style="{DynamicResource h3}">
                                     Memory
                         </TextBlock>
-                        <ComboBox SelectedIndex="0" Style="{DynamicResource ComboBoxTransparent}">
+                        <ComboBox SelectedIndex="{Binding MemoryComboIndex}" Style="{DynamicResource ComboBoxTransparent}">
                             <ComboBoxItem Content="4GB" />
                             <ComboBoxItem Content="2GB" />
                             <ComboBoxItem Content="1GB" />
@@ -219,7 +219,7 @@
                         <TextBlock Style="{DynamicResource h3}">
                                     FPS Limit
                         </TextBlock>
-                        <ComboBox SelectedIndex="2" Style="{DynamicResource ComboBoxTransparent}">
+                        <ComboBox SelectedIndex="{Binding FpsComboIndex}" Style="{DynamicResource ComboBoxTransparent}">
                             <ComboBoxItem Content="240" />
                             <ComboBoxItem Content="144" />
                             <ComboBoxItem Content="60" />
@@ -231,7 +231,7 @@
                         <TextBlock Style="{DynamicResource h3}">
                                     Camera Zoom
                         </TextBlock>
-                        <ComboBox SelectedIndex="0" Style="{DynamicResource ComboBoxTransparent}">
+                        <ComboBox SelectedIndex="{Binding MaxZoomComboIndex}" Style="{DynamicResource ComboBoxTransparent}">
                             <ComboBoxItem Content="1 (Default)" />
                             <ComboBoxItem Content="3" />
                             <ComboBoxItem Content="5 (Medium)" />
@@ -247,13 +247,13 @@
                             Display
                 </TextBlock>
                 <UniformGrid Columns="3">
-                    <CheckBox>
+                    <CheckBox IsChecked="{Binding WindowModeCheckbox}">
                         <TextBlock Margin="12,0,0,0">Window Mode</TextBlock>
                     </CheckBox>
-                    <CheckBox>
+                    <CheckBox IsChecked="{Binding BorderlessWindowCheckbox}">
                         <TextBlock Margin="12,0,0,0">Borderless Window</TextBlock>
                     </CheckBox>
-                    <CheckBox>
+                    <CheckBox IsChecked="{Binding DisableVsyncCheckbox}">
                         <TextBlock Margin="12,0,0,0">Disable Vsync (Allow Tearing)</TextBlock>
                     </CheckBox>
                 </UniformGrid>
@@ -262,12 +262,12 @@
             <StackPanel Style="{DynamicResource SettingsColumn}">
                 <TextBlock Style="{DynamicResource h3}">
                             General
-                </TextBlock>
+                </TextBlock> 
                 <UniformGrid Columns="3">
-                    <CheckBox>
+                    <CheckBox IsChecked="{Binding SkipIntroCheckbox}">
                         <TextBlock Margin="12,0,0,0">Skip Intro Sequence</TextBlock>
                     </CheckBox>
-                    <CheckBox>
+                    <CheckBox IsChecked="{Binding DisableAudioCheckbox}">
                         <TextBlock Margin="12,0,0,0">Disable Audio</TextBlock>
                     </CheckBox>
                 </UniformGrid>
@@ -278,31 +278,31 @@
                             Graphics
                 </TextBlock>
                 <UniformGrid Columns="3">
-                    <CheckBox>
+                    <CheckBox IsChecked="{Binding DisableLodManagerCheckbox}">
                         <TextBlock Margin="12,0,0,0">Disable Level of Detail Manager</TextBlock>
                     </CheckBox>
-                    <CheckBox>
+                    <CheckBox IsChecked="{Binding DisableWorldPreloadingCheckbox}">
                         <TextBlock Margin="12,0,0,0">Disable World Preloading</TextBlock>
                     </CheckBox>
-                    <CheckBox>
+                    <CheckBox IsChecked="{Binding UseLowDetailCharactersCheckbox}">
                         <TextBlock Margin="12,0,0,0">Use Low Detail Characters</TextBlock>
                     </CheckBox>
-                    <CheckBox>
+                    <CheckBox IsChecked="{Binding UseLowDetailMeshesCheckbox}">
                         <TextBlock Margin="12,0,0,0">Use Low Detail Meshes</TextBlock>
                     </CheckBox>
-                    <CheckBox>
+                    <CheckBox IsChecked="{Binding DisableTextureBakingCheckbox}">
                         <TextBlock Margin="12,0,0,0">Disable Texture Baking</TextBlock>
                     </CheckBox>
-                    <CheckBox>
+                    <CheckBox IsChecked="{Binding DisableBumpMappingCheckbox}">
                         <TextBlock Margin="12,0,0,0">Disable Bump Mapping</TextBlock>
                     </CheckBox>
-                    <CheckBox>
+                    <CheckBox IsChecked="{Binding UseLowDetailTexturesCheckbox}">
                         <TextBlock Margin="12,0,0,0">Use Low Detail Textures</TextBlock>
                     </CheckBox>
-                    <CheckBox>
+                    <CheckBox IsChecked="{Binding UseLowDetailNormalMapsCheckbox}">
                         <TextBlock Margin="12,0,0,0">Use Low Detail Normal Maps</TextBlock>
                     </CheckBox>
-                    <CheckBox>
+                    <CheckBox IsChecked="{Binding DisableMultiPassRenderingCheckbox}">
                         <TextBlock Margin="12,0,0,0">Disable Multi-Pass Rendering</TextBlock>
                     </CheckBox>
                 </UniformGrid>
@@ -313,19 +313,19 @@
                             Advanced
                 </TextBlock>
                 <UniformGrid Columns="3">
-                    <CheckBox>
+                    <CheckBox IsChecked="{Binding DisableHardwareMouseCursorCheckbox}">
                         <TextBlock Margin="12,0,0,0">Disable Hardware Mouse Cursor</TextBlock>
                     </CheckBox>
-                    <CheckBox>
+                    <CheckBox IsChecked="{Binding DisableFastMouseCursorCheckbox}">
                         <TextBlock Margin="12,0,0,0">Disable Fast Mouse Cursor</TextBlock>
                     </CheckBox>
-                    <CheckBox>
+                    <CheckBox IsChecked="{Binding UseSafeRendererCheckbox}">
                         <TextBlock Margin="12,0,0,0">Use Safe Renderer (Slower)</TextBlock>
                     </CheckBox>
-                    <CheckBox>
+                    <CheckBox IsChecked="{Binding DisableFileCachingCheckbox}">
                         <TextBlock Margin="12,0,0,0">Disable File Caching</TextBlock>
                     </CheckBox>
-                    <CheckBox>
+                    <CheckBox IsChecked="{Binding DisableAsynchronousLoaderCheckbox}">
                         <TextBlock Margin="12,0,0,0">Disable Asynchronous Loader</TextBlock>
                     </CheckBox>
                 </UniformGrid>

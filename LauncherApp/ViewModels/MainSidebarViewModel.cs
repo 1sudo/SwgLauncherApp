@@ -54,7 +54,6 @@ internal class MainSidebarViewModel : ObservableObject
             {
                 if (character == config.LastSelectedCharacter)
                 {
-                    Trace.WriteLine(character);
                     SelectedCharacter = character;
                 }
             });

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -401,78 +401,79 @@ public class FileHandler
 
     public static async Task SaveOptionsCfg(ConfigFile? config, List<AdditionalSettingProperties> properties)
     {
-        string path = Path.Join(config!.Servers![config.ActiveServer].GameLocation, "options.cfg");
-
         StringBuilder sb = new();
-        List<string> lines = new();
-        string allText = "";
-        string lastCategory = "";
 
-        try
+        List<string> propertyHeadings = new() 
+        { 
+            "ClientGraphics", 
+            "Direct3d9", 
+            "ClientGame", 
+            "ClientUserInterface", 
+            "ClientAudio", 
+            "ClientSkeletalAnimation", 
+            "ClientTextureRenderer", 
+            "SharedUtility", 
+            "ClientObject/DetailAppearanceTemplate",
+            "SharedFile",
+            "ClientTerrain",
+            "ClientUserInterface"
+        };
+
+        sb.AppendLine("# options.cfg - Please do not edit this auto-generated file.");
+
+        propertyHeadings.ForEach(heading =>
         {
-            sb.AppendLine("# options.cfg - Please do not edit this auto-generated file.");
-
-            foreach (AdditionalSettingProperties property in properties)
+            if (properties.Where(property => property.Category == heading).Count() > 0 || heading == "SharedUtility" || heading == "ClientAudio")
             {
-                if (property.Category is not null && property.Category != lastCategory)
+                sb.AppendLine($"\n[{heading}]");
+            }
+
+            foreach (var property in properties)
+            {
+                if (property.Category is not null && property.Category == heading)
                 {
-                    lastCategory = property.Category;
-                    lines.Add($"\n[{property.Category}]");
-                    lines.Add($"\t{property.Key}={property.Value}");
+                    sb.AppendLine($"\t{property.Key}={property.Value}");
+                }
+            }
+
+            if (heading == "ClientGraphics")
+            {
+                if (!properties.Any(line => line.Key == "useHardwareMouseCursor"))
+                {
+                    sb.AppendLine("\tuseHardwareMouseCursor=1");
+                }
+
+                if (properties.Any(line => line.Key == "useSafeRenderer" && line.Value == "1"))
+                {
+                    sb.AppendLine("\trasterMajor=5");
+                }
+                else if (properties.Any(line => line.Key == "useSafeRenderer" && line.Value == "0"))
+                {
+                    sb.AppendLine("\trasterMajor=7");
                 }
                 else
                 {
-                    lines.Add($"\t{property.Key}={property.Value}");
+                    sb.AppendLine("\trasterMajor=7");
                 }
             }
 
-            foreach (string line in lines)
+            if (heading == "SharedUtility")
             {
-                allText += line;
+                if (!properties.Any(line => line.Key == "cache"))
+                {
+                    sb.AppendLine("\tcache = \"misc/cache_large.iff\"");
+                }
             }
 
-            foreach (string line in lines)
+            if (heading == "ClientAudio")
             {
-                if (line.Contains("ClientGraphics"))
-                {
-                    if (!allText.Contains("useHardwareMouseCursor"))
-                        sb.AppendLine(line + "\n\tuseHardwareMouseCursor=1");
-
-                    if (allText.Contains("useSafeRenderer=1"))
-                        sb.AppendLine(line + "\n\trasterMajor=5");
-                    else if (allText.Contains("useSafeRenderer=0"))
-                        sb.AppendLine(line + "\n\trasterMajor=7");
-                    else
-                        sb.AppendLine(line + "\n\trasterMajor=7");
-                }
-
-                if (line.Contains("SharedUtility"))
-                {
-                    if (!allText.Contains("cache="))
-                        sb.AppendLine(line + "\n\tcache = \"misc/cache_large.iff\"");
-                }
-
-                if (line.Contains("ClientAudio"))
-                {
-                    sb.AppendLine(line + "\n\tsoundProvider = \"Windows Speaker Configuration\"");
-                }
-
-                sb.AppendLine(line);
-            }
-
-            if (!allText.Contains("ClientAudio"))
-            {
-                sb.AppendLine("\n[ClientAudio]");
                 sb.AppendLine("\tsoundProvider = \"Windows Speaker Configuration\"");
             }
+        });
 
-            if (!allText.Contains("SharedUtility"))
-            {
-                sb.AppendLine("\n[SharedUtility]");
-                sb.AppendLine("\tcache = \"misc/cache_large.iff\"");
-            }
-
-            await File.WriteAllTextAsync(path, sb.ToString());
+        try
+        {
+            await File.WriteAllTextAsync(Path.Join(config!.Servers![config.ActiveServer].GameLocation, "options.cfg"), sb.ToString());
         }
         catch (Exception e)
         {
