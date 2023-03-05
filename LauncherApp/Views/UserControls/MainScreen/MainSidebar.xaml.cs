@@ -1,4 +1,6 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace LauncherApp.Views.UserControls.MainScreen
 {
@@ -10,6 +12,15 @@ namespace LauncherApp.Views.UserControls.MainScreen
         public MainSidebar()
         {
             InitializeComponent();
+        }
+
+        private void UserControl_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        {
+            Window window = Window.GetWindow(this);
+            foreach (InputBinding ib in InputBindings)
+            {
+                window.InputBindings.Add(ib);
+            }
         }
     }
 }

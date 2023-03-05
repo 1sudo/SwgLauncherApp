@@ -6,8 +6,12 @@
              xmlns:viewmodels="clr-namespace:LauncherApp.ViewModels" 
              d:DataContext="{d:DesignInstance Type=viewmodels:MainSidebarViewModel}"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="224">
+             d:DesignHeight="450" d:DesignWidth="224" Loaded="UserControl_Loaded">
 
+    <UserControl.InputBindings>
+        <KeyBinding Key="F11" Command="{Binding EnableDeveloperButton}" />
+    </UserControl.InputBindings>
+    
     <!--#region Resources-->
     <UserControl.Resources>
         <Style x:Key="SidebarButton" TargetType="{x:Type Button}">
@@ -245,7 +249,7 @@
                         <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/mods.png"/>
                     </Button.Background>
                 </Button>
-                <Button Command="{Binding DeveloperButton}" Content="Developer" Style="{DynamicResource SidebarButton}">
+                <Button Visibility="{Binding DeveloperButtonVisibility}" Command="{Binding DeveloperButton}" Content="Developer" Style="{DynamicResource SidebarButton}">
                     <Button.Background>
                         <ImageBrush Stretch="None" AlignmentX="Left" ImageSource="/Images/sidebar/icons/developer.png"/>
                     </Button.Background>

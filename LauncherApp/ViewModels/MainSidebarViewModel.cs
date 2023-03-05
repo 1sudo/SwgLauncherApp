@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
-using System.Windows.Media.TextFormatting;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LauncherApp.Models.Handlers;
@@ -22,6 +21,7 @@ internal class MainSidebarViewModel : ObservableObject
     public IRelayCommand OptionsButton { get; }
     public IRelayCommand DeveloperButton { get; }
     public IRelayCommand PlayButton { get; }
+    public IRelayCommand EnableDeveloperButton { get; }
 
     public MainSidebarViewModel()
     {
@@ -33,6 +33,7 @@ internal class MainSidebarViewModel : ObservableObject
         SettingsButton = new RelayCommand(() => ScreenContainerViewModel.EnableScreen(Screen.Settings));
         OptionsButton = new RelayCommand(() => ScreenContainerViewModel.EnableScreen(Screen.OptionsAndMods));
         DeveloperButton = new RelayCommand(() => ScreenContainerViewModel.EnableScreen(Screen.Developer));
+        EnableDeveloperButton = new RelayCommand(EnableDeveloper);
         PlayButton = new RelayCommand(Play);
         LibgRPC.Requests.LoggedIn += OnLoggedIn;
         HttpHandler.OnDownloadStarted += OnDownloadStarted;
@@ -40,6 +41,7 @@ internal class MainSidebarViewModel : ObservableObject
         HttpHandler.OnCurrentFileDownloading += OnCurrentFileDownloading;
         HttpHandler.OnDownloadProgressUpdated += OnDownloadProgressUpdated;
         HttpHandler.OnDownloadRateUpdated += OnDownloadRateUpdated;
+        DeveloperButtonVisibility = Visibility.Collapsed;
     }
 
     private void GetLastSelectedCharacter()
@@ -56,6 +58,18 @@ internal class MainSidebarViewModel : ObservableObject
                     SelectedCharacter = character;
                 }
             });
+        }
+    }
+
+    private void EnableDeveloper()
+    {
+        if (DeveloperButtonVisibility == Visibility.Collapsed)
+        {
+            DeveloperButtonVisibility = Visibility.Visible;
+        }
+        else
+        {
+            DeveloperButtonVisibility = Visibility.Collapsed;
         }
     }
 
@@ -162,6 +176,13 @@ internal class MainSidebarViewModel : ObservableObject
     private string? _selectedCharacter;
     private Visibility? _characterSelectVisibility;
     private Visibility? _downloadProgressVisibility;
+    private static Visibility? _developerButtonVisibility;
+
+    public Visibility? DeveloperButtonVisibility 
+    {
+        get => _developerButtonVisibility;
+        set => SetProperty(ref _developerButtonVisibility, value);
+    }
 
     public bool? PlayButtonEnabled
     {
