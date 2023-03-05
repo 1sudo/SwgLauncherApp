@@ -58,9 +58,6 @@ public static class DisplayResolutions
 
         List<string> resolutions = new();
 
-        int lastWidth = 0;
-        int lastHeight = 0;
-
         int x = 0;
         while (EnumDisplaySettings(null, x, ref vDevMode))
         {
@@ -68,15 +65,12 @@ public static class DisplayResolutions
             int height = vDevMode.dmPelsHeight;
             int hz = vDevMode.dmDisplayFrequency;
 
-            if (width != lastWidth && height != lastHeight)
-            {
-                resolutions.Add($"{width}x{height}@{hz}");
-            }
+            resolutions.Add($"{width}x{height}x{hz}");
 
-            lastWidth = width;
-            lastHeight = height;
             x++;
         }
+
+        resolutions.Reverse();
 
         return resolutions;
     }
