@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Security;
 using System.Text.Json;
@@ -14,7 +13,7 @@ namespace LauncherApp.Models.Handlers;
 
 public class HttpHandler
 {
-    private static bool _primaryServerOffline = false;
+    private readonly static bool _primaryServerOffline = false;
     public static double DownloadSpeed { get; private set; }
     public static bool IsDownloading { get; private set; }
     public static Action? OnDownloadStarted { get; set; }
@@ -215,9 +214,6 @@ public class HttpHandler
 
             using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
-            long length = long.Parse(response.Content.Headers.First(h =>
-                h.Key.Equals("Content-Length")).Value.First());
-
             if (response.IsSuccessStatusCode)
             {
                 await using var contentStream = await response.Content.ReadAsStreamAsync();
@@ -232,13 +228,13 @@ public class HttpHandler
                 await using var fileStream = new FileStream(Path.Join(downloadLocation, fileName),
                     FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true);
 
-                await DoStreamWriteAsync(contentStream, fileStream, length, downloadProgressCallback);
+                await DoStreamWriteAsync(contentStream, fileStream, downloadProgressCallback);
             }
         }
         catch { }
     }
 
-    private static async Task DoStreamWriteAsync(Stream contentStream, Stream fileStream, long length, Action<long> downloadProgressCallback)
+    private static async Task DoStreamWriteAsync(Stream contentStream, Stream fileStream, Action<long> downloadProgressCallback)
     {
         var stopwatch = Stopwatch.StartNew();
         var buffer = new byte[8192];
