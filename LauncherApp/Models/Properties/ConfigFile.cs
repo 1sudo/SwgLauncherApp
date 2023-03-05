@@ -80,8 +80,7 @@ public class ConfigFile
 
         config.Servers = new Dictionary<int, AccountProperties>() { { 0, accountProperties } };
 
-        JsonSerializerOptions options = new();
-        options.WriteIndented = true;
+        JsonSerializerOptions options = new() { WriteIndented = true };
 
         await using StreamWriter sw = new(_configFile);
 
@@ -102,8 +101,7 @@ public class ConfigFile
             Directory.CreateDirectory(Path.GetDirectoryName(_configFile)!);
         }
 
-        JsonSerializerOptions options = new();
-        options.WriteIndented = true;
+        JsonSerializerOptions options = new() { WriteIndented = true };
 
         using StreamWriter sw = new(_configFile);
 
