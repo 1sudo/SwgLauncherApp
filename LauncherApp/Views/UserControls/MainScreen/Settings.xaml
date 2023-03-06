@@ -169,7 +169,7 @@
                             Game Settings
                     </TextBlock>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Style="{DynamicResource NavButton}" FontSize="12" Margin="0,0,12,0" Padding="15,5,15,5">Revert</Button>
+                        <Button Command="{Binding RevertSettingsButton}" Style="{DynamicResource NavButton}" FontSize="12" Margin="0,0,12,0" Padding="15,5,15,5">Set Defaults</Button>
                         <Button Command="{Binding SaveSettingsButton}" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5">Save Changes</Button>
                     </StackPanel>
                 </DockPanel>
