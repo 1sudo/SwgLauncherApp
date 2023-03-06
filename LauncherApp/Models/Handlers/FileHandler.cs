@@ -209,6 +209,7 @@ public class FileHandler
 
         if (config is null) return;
 
+        long totalDownloadSize = 0;
         List<DownloadableFile> downloadableFiles = new();
 
         downloadableFiles = await HttpHandler.DownloadManifestAsync();
@@ -217,15 +218,27 @@ public class FileHandler
         if (isFullScan)
         {
             fileList = await GetBadFilesAsync(config.GameLocation!, downloadableFiles, true);
+            OnFullScanCompleted?.Invoke();
         }
         else
         {
             fileList = await GetBadFilesAsync(config.GameLocation!, downloadableFiles);
         }
 
-        OnFullScanCompleted?.Invoke();
+        // Calculate total download size based on 
+        // what files need to be downloaded
+        fileList.ForEach(file =>
+        {
+            downloadableFiles.ForEach(downloadableFile =>
+            {
+                if (file == downloadableFile.Name)
+                {
+                    totalDownloadSize += downloadableFile.Size;
+                }
+            });
+        });
 
-        await HttpHandler.DownloadFilesFromListAsync(fileList, config.GameLocation!, fileList.Count);
+        await HttpHandler.DownloadFilesFromListAsync(fileList, config.GameLocation!, totalDownloadSize);
     }
 
     public static async Task AttemptCopyFilesFromListAsync(List<string> fileList, string copyLocation, bool isDirChange = false, string previousDir = "")
