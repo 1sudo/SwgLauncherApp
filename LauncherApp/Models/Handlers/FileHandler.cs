@@ -12,7 +12,10 @@ namespace LauncherApp.Models.Handlers;
 
 public class FileHandler
 {
-    public static Action<string, double, double>? OnFullScanFileCheck { get; set; }
+    public static Action<string, int, int>? OnFullScanFileCheck { get; set; }
+    public static Action? OnFullScanStarted { get; set; }
+    public static Action? OnFullScanCompleted { get; set; }
+    public static Action? UpdateCheckComplete { get; set; }
     public static Action<string>? OnInstallCheckFailed { get; set; }
     public static string? BaseGameLocation { get; set; }
     static readonly List<string> ClientChecksums = new()
@@ -90,6 +93,8 @@ public class FileHandler
 
         var fileList = await GetBadFilesAsync(gameLocation ?? "", downloadableFiles);
 
+        UpdateCheckComplete?.Invoke();
+
         return (versionFile.Version != remoteVersionFile.Version) || (fileList.Count > 0);
     }
 
@@ -97,9 +102,9 @@ public class FileHandler
     {
         List<string> newFileList = new();
 
-        double listLength = fileList.Count;
+        int listLength = fileList.Count;
 
-        double i = 1;
+        int i = 1;
         await Task.Run(() =>
         {
             foreach (DownloadableFile file in fileList)
@@ -196,79 +201,31 @@ public class FileHandler
         return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLowerInvariant();
     }
 
-    public static async Task CheckFilesAsync(bool isFullScan = false, string modName = "", bool isTreMod = false, bool isDirChange = false, string previousDir = "")
+    public static async Task CheckFilesAsync(bool isFullScan = false)
     {
-        ConfigFile? config = ConfigFile.GetConfig();
+        OnFullScanStarted?.Invoke();
 
-        string? manifestFilePath = config!.Servers![config.ActiveServer].ManifestFilePath;
+        var config = ConfigFile.GetCurrentServer();
+
+        if (config is null) return;
 
         List<DownloadableFile> downloadableFiles = new();
 
-        long totalDownloadSize = 0;
-
-        if (string.IsNullOrEmpty(modName) && manifestFilePath is not null)
-        {
-            downloadableFiles = await HttpHandler.DownloadManifestAsync();
-        }
-        else
-        {
-            if (manifestFilePath is not null)
-            {
-                downloadableFiles = await HttpHandler.DownloadManifestAsync();
-            }
-
-            if (isTreMod)
-            {
-                List<string> downloadableFileList = new();
-
-                foreach (DownloadableFile file in downloadableFiles)
-                {
-                    downloadableFileList.Add(file.Name);
-                }
-
-                config.Servers![config.ActiveServer].TreMods!.Add(new TreModProperties()
-                {
-                    ModName = modName,
-                    FileList = downloadableFileList
-                });
-            }
-        }
+        downloadableFiles = await HttpHandler.DownloadManifestAsync();
 
         List<string> fileList;
         if (isFullScan)
         {
-            fileList = await Task.Run(() => GetBadFilesAsync(config.Servers![config.ActiveServer].GameLocation!, downloadableFiles, true));
+            fileList = await GetBadFilesAsync(config.GameLocation!, downloadableFiles, true);
         }
         else
         {
-            fileList = await Task.Run(() => GetBadFilesAsync(config.Servers![config.ActiveServer].GameLocation!, downloadableFiles));
-
-            if (isDirChange)
-            {
-                await Task.Run(() => AttemptCopyFilesFromListAsync(fileList, config.Servers![config.ActiveServer].GameLocation!, true, previousDir));
-            }
-            else
-            {
-                await Task.Run(() => AttemptCopyFilesFromListAsync(fileList, config.Servers![config.ActiveServer].GameLocation!));
-            }
-
-            fileList = await Task.Run(() => GetBadFilesAsync(config.Servers![config.ActiveServer].GameLocation!, downloadableFiles));
+            fileList = await GetBadFilesAsync(config.GameLocation!, downloadableFiles);
         }
 
-        // Calculate total download size based on 
-        // what files need to be downloaded
-        fileList.ForEach(file =>
-        {
-            downloadableFiles.ForEach(downloadableFile =>
-            {
-                if (file == downloadableFile.Name)
-                {
-                    totalDownloadSize += downloadableFile.Size;
-                }
-            });
-        });
+        OnFullScanCompleted?.Invoke();
 
-        await HttpHandler.DownloadFilesFromListAsync(fileList, config.Servers![config.ActiveServer].GameLocation!, totalDownloadSize);
+        await HttpHandler.DownloadFilesFromListAsync(fileList, config.GameLocation!, fileList.Count);
     }
 
     public static async Task AttemptCopyFilesFromListAsync(List<string> fileList, string copyLocation, bool isDirChange = false, string previousDir = "")

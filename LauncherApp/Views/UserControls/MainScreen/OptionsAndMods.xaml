@@ -196,9 +196,8 @@
                         Options &amp; Modifications
                     </TextBlock>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Margin="0,0,12,0">Full Scan</Button>
-                        <Button Style="{DynamicResource NavButton}" FontSize="12" Margin="0,0,12,0" Padding="15,5,15,5">Revert</Button>
-                        <Button Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5">Save Changes</Button>
+                        <Button Command="{Binding FullScanButton}" IsEnabled="{Binding FullScanEnabled}" IsHitTestVisible="{Binding FullScanEnabled}" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Margin="0,0,12,0">Full Scan</Button>
+                        <Button Command="{Binding SaveChangesButton}" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5">Save Changes</Button>
                     </StackPanel>
                 </DockPanel>
             </Border>
@@ -230,8 +229,8 @@
                                         Installation Directory
                                     </TextBlock>
                                     <DockPanel FlowDirection="RightToLeft">
-                                        <Button Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Height="30" VerticalAlignment="Top">Change</Button>
-                                        <TextBox Style="{DynamicResource TextBoxTransparent}" Height="30" Margin="8,0,0,0" IsEnabled="False" VerticalAlignment="Top" />
+                                        <Button Command="{Binding ChangeInstallationDirectoryButton}" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Height="30" VerticalAlignment="Top">Change</Button>
+                                        <TextBox Text="{Binding InstallationDirectoryTextbox}" IsHitTestVisible="False" Style="{DynamicResource TextBoxTransparent}" Height="30" Margin="8,0,0,0" IsEnabled="False" VerticalAlignment="Top" />
                                     </DockPanel>
                                 </StackPanel>
                             </UniformGrid>
@@ -255,7 +254,7 @@
                                     <TextBlock Style="{DynamicResource h3}">
                                         Server Selection
                                     </TextBlock>
-                                    <ComboBox SelectedIndex="1" Style="{DynamicResource ComboBoxTransparent}" />
+                                    <ComboBox SelectedIndex="{Binding SelectedServer}" ItemsSource="{Binding ServerList}"  Style="{DynamicResource ComboBoxTransparent}" />
                                 </StackPanel>
                             </UniformGrid>
                         </StackPanel>
@@ -263,6 +262,7 @@
                     </UniformGrid>
                 </StackPanel>
 
+                <!--
                 <StackPanel Style="{DynamicResource SettingsColumn}" Grid.Row="1">
                     <Border BorderThickness="0,0,0,1" Margin="0,0,0,4">
                         <Border.BorderBrush>
@@ -294,6 +294,7 @@
                         </DockPanel>
                     </UniformGrid>
                 </StackPanel>
+                -->
             </Grid>
         </StackPanel>
     </Grid>

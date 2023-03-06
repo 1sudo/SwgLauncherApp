@@ -13,10 +13,12 @@ namespace LauncherApp.ViewModels;
 internal class SettingsViewModel : SettingsViewModelProperties
 {
     public IAsyncRelayCommand SaveSettingsButton { get; }
+    public IRelayCommand RevertSettingsButton { get; }
 
     public SettingsViewModel()
     {
         SaveSettingsButton = new AsyncRelayCommand(SaveSettings);
+        RevertSettingsButton = new RelayCommand(RevertSettings);
 
         Task.Run(SetConfigOptions);
     }
@@ -178,6 +180,33 @@ internal class SettingsViewModel : SettingsViewModelProperties
         await FileHandler.SaveOptionsCfg(config, properties);
     }
 
+    public void RevertSettings()
+    {
+        MemoryComboIndex = 1;
+        FpsComboIndex = 2;
+        MaxZoomComboIndex = 2;
+        UseSafeRendererCheckbox = false;
+        BorderlessWindowCheckbox = false;
+        WindowModeCheckbox = false;
+        UseLowDetailCharactersCheckbox = false;
+        UseLowDetailNormalMapsCheckbox = false;
+        DisableVsyncCheckbox = true;
+        DisableFastMouseCursorCheckbox = false;
+        SkipIntroCheckbox = true;
+        DisableAudioCheckbox = false;
+        DisableWorldPreloadingCheckbox = true;
+        DisableLodManagerCheckbox = true;
+        DisableTextureBakingCheckbox = false;
+        DisableFileCachingCheckbox = true;
+        DisableAsynchronousLoaderCheckbox = false;
+        UseLowDetailMeshesCheckbox = false;
+        DisableBumpMappingCheckbox = false;
+        DisableMultiPassRenderingCheckbox = false;
+        DisableHardwareMouseCursorCheckbox = false;
+        ShaderComboIndex = 0;
+        SelectedResolution = "1024x768@60";
+    }
+
     public async Task SetConfigOptions()
     {
         List<string> resolutions = DisplayResolutions.GetResolutions();
@@ -235,15 +264,12 @@ internal class SettingsViewModel : SettingsViewModelProperties
             switch (property.Key)
             {
                 case "\tscreenWidth":
-                    Trace.WriteLine(property.Value);
                     screenWidth = property.Value ?? ""; 
                     break;
                 case "\tscreenHeight":
-                    Trace.WriteLine(property.Value);
                     screenHeight = property.Value ?? ""; 
                     break;
                 case "\tfullscreenRefreshRate":
-                    Trace.WriteLine(property.Value);
                     refreshRate = property.Value ?? ""; 
                     break;
                 case "\tuseSafeRenderer": 
