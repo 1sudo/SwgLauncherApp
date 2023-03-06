@@ -41,6 +41,9 @@ internal class MainSidebarViewModel : ObservableObject
         HttpHandler.OnCurrentFileDownloading += OnCurrentFileDownloading;
         HttpHandler.OnDownloadProgressUpdated += OnDownloadProgressUpdated;
         HttpHandler.OnDownloadRateUpdated += OnDownloadRateUpdated;
+        FileHandler.OnFullScanFileCheck += OnFullScanFileCheck;
+        FileHandler.OnFullScanStarted += OnFullScanStarted;
+        FileHandler.OnFullScanCompleted += OnFullScanCompleted;
         DeveloperButtonVisibility = Visibility.Collapsed;
     }
 
@@ -84,7 +87,7 @@ internal class MainSidebarViewModel : ObservableObject
             PlayButtonEnabled = false;
             PlayButtonText = "UPDATING";
             await FileHandler.CheckFilesAsync();
-
+            
             _updateAvailable = false;
         }
         else
@@ -108,8 +111,8 @@ internal class MainSidebarViewModel : ObservableObject
 
     private async void OnLoggedIn(List<string> characters, string username, bool autoLogin)
     {
+        PlayButtonEnabled = false;
         PlayButtonText = "UPDATE";
-        PlayButtonEnabled = true;
 
         CharacterList = new ObservableCollection<string>(characters);
 
@@ -129,10 +132,13 @@ internal class MainSidebarViewModel : ObservableObject
             // Shortcut for enabling play button
             OnDownloadCompleted();
         }
+
+        PlayButtonEnabled = true;
     }
 
     private void OnDownloadStarted()
     {
+        PlayButtonEnabled = false;
         CharacterSelectVisibility = Visibility.Collapsed;
         DownloadProgressVisibility = Visibility.Visible;
         ProgressTextBottomLeft = "Downloading Game Files";
@@ -160,6 +166,29 @@ internal class MainSidebarViewModel : ObservableObject
     private void OnDownloadRateUpdated(double downloadRate)
     {
         ProgressTextBottomRight = downloadRate.ToString() + " Mbps";
+    }
+
+    private void OnFullScanFileCheck(string fileName, int currentFile, int totalFiles)
+    {
+        ProgressTextBottomRight = $"({currentFile} / {totalFiles})";
+        ProgressBarBottomValue = ((double)currentFile / (double)totalFiles) * 1000;
+    }
+
+    private void OnFullScanStarted()
+    {
+        PlayButtonEnabled = false;
+        PlayButtonText = "SCANNING";
+        CharacterSelectVisibility = Visibility.Collapsed;
+        DownloadProgressVisibility = Visibility.Visible;
+        ProgressTextBottomLeft = "Scanning Files... Please Wait...";
+    }
+
+    private void OnFullScanCompleted()
+    {
+        PlayButtonEnabled = true;
+        PlayButtonText = "PLAY";
+        CharacterSelectVisibility = Visibility.Visible;
+        DownloadProgressVisibility = Visibility.Collapsed;
     }
 
     private bool? _playButtonEnabled;
