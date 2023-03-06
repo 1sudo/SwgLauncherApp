@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -80,6 +81,6 @@ public static class DisplayResolutions
 
         resolutions.Reverse();
 
-        return resolutions;
+        return resolutions.Distinct().ToList();
     }
 }
