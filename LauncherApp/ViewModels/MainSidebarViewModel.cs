@@ -5,8 +5,9 @@ using System.Linq;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using LauncherApp.Models.Handlers;
-using LauncherApp.Models.Properties;
+using LibLauncherUtil.Properties;
+using LibLauncherUtil.gRPC;
+using LauncherApp.Models;
 
 namespace LauncherApp.ViewModels;
 
@@ -35,7 +36,7 @@ internal class MainSidebarViewModel : ObservableObject
         DeveloperButton = new RelayCommand(() => ScreenContainerViewModel.EnableScreen(Screen.Developer));
         EnableDeveloperButton = new RelayCommand(EnableDeveloper);
         PlayButton = new RelayCommand(Play);
-        LibgRPC.Requests.LoggedIn += OnLoggedIn;
+        Requests.LoggedIn += OnLoggedIn;
         HttpHandler.OnDownloadStarted += OnDownloadStarted;
         HttpHandler.OnDownloadCompleted += OnDownloadCompleted;
         HttpHandler.OnCurrentFileDownloading += OnCurrentFileDownloading;

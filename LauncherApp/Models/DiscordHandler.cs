@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using DiscordRPC;
 
-namespace LauncherApp.Models.Handlers;
+namespace LauncherApp.Models;
 
 public class DiscordHandler
 {
@@ -17,9 +17,9 @@ public class DiscordHandler
             client = new("929878372975263784");
 
             //Subscribe to events
-            client.OnReady += async (sender, e) => await LogHandler.Log(LogType.INFO, "| Discord Rich Presense | " + e.User.Username);
-            client.OnPresenceUpdate += async (sender, e) => await LogHandler.Log(LogType.INFO, "| Discord Rich Presense | " + e.Presence);
-            client.OnError += async (sender, e) => await LogHandler.Log(LogType.ERROR, "| Discord Rich Presense |" + e.Message);
+            client.OnReady += (sender, e) => Logger.Instance.Log("Discord Rich Presense Ready -> " + e.User.Username, INFO);
+            client.OnPresenceUpdate += (sender, e) => Logger.Instance.Log("Discord Rich Presense Updated -> " + e.Presence, INFO);
+            client.OnError += (sender, e) => Logger.Instance.Log("Discord Rich Presense Error ->" + e.Message, ERROR);
 
             //Connect to the RPC
             client.Initialize();

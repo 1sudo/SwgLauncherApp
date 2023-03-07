@@ -7,13 +7,12 @@ using System.Net.Security;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using LauncherApp.Models.Properties;
+using LibLauncherUtil.Properties;
 
-namespace LauncherApp.Models.Handlers;
+namespace LauncherApp.Models;
 
 public class HttpHandler
 {
-    private readonly static bool _primaryServerOffline = false;
     public static double DownloadSpeed { get; private set; }
     public static bool IsDownloading { get; private set; }
     public static Action? OnDownloadStarted { get; set; }
@@ -54,9 +53,10 @@ public class HttpHandler
 
             return versionFile;
         }
-        catch
+        catch (Exception e)
         {
             OnCannotReachWebserver?.Invoke();
+            Logger.Instance.Log(e, ERROR);
             return new VersionFile { Version = 1 };
         }
     }
@@ -86,43 +86,12 @@ public class HttpHandler
 
             return await JsonSerializer.DeserializeAsync<List<DownloadableFile>>(contentStream) ?? new List<DownloadableFile>();
         }
-        catch
-        {
-            OnCannotReachWebserver?.Invoke();
-            return new List<DownloadableFile>();
-        }
-    }
-
-    internal static async Task<List<string>> DownloadTreList()
-    {
-        var config = ConfigFile.GetConfig();
-
-        var primaryUrl = Path.Join(config?.Servers?[config.ActiveServer]?.ServiceUrl, "files");
-        var backupUrl = Path.Join(config?.Servers?[config.ActiveServer]?.BackupServiceUrl, "files");
-        string? manifestFilePath = config!.Servers![config.ActiveServer].ManifestFilePath;
-        string? address = _primaryServerOffline ? backupUrl ?? primaryUrl : primaryUrl ?? backupUrl;
-
-        string? liveCfgAddress = manifestFilePath?.Split('/')?[0];
-        liveCfgAddress = address + $"{liveCfgAddress}/livecfg.json" ?? "";
-
-        using var handler = new HttpClientHandler();
-        handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
-
-        using var client = new HttpClient(handler);
-        client.DefaultRequestVersion = new Version(2, 0);
-
-        List<string>? treList = new();
-
-        try
-        {
-            treList = JsonSerializer.Deserialize<List<string>>(await client.GetStringAsync(new Uri(liveCfgAddress)) ?? "");
-        }
         catch (Exception e)
         {
-            await LogHandler.Log(LogType.ERROR, "| DownloadTreList | " + e.Message.ToString());
+            OnCannotReachWebserver?.Invoke();
+            Logger.Instance.Log(e, ERROR);
+            return new List<DownloadableFile>();
         }
-
-        return treList ?? new List<string>();
     }
 
     private static void NotifyDownloadSpeed()
@@ -169,9 +138,9 @@ public class HttpHandler
 
                         if (elapsedSeconds > 0)
                         {
-                            var downloadRate = (double)totalBytesDownloaded / elapsedSeconds;
+                            var downloadRate = totalBytesDownloaded / elapsedSeconds;
 
-                            OnDownloadProgressUpdated?.Invoke(((double)totalBytesDownloaded / (double)totalDownloadSize) * 1000);
+                            OnDownloadProgressUpdated?.Invoke(totalBytesDownloaded / (double)totalDownloadSize * 1000);
                             DownloadSpeed = Math.Round(downloadRate / 125000, 2);
                         }
                     });
@@ -231,7 +200,10 @@ public class HttpHandler
                 await DoStreamWriteAsync(contentStream, fileStream, downloadProgressCallback);
             }
         }
-        catch { }
+        catch (Exception e)
+        {
+            Logger.Instance.Log(e, ERROR);
+        }
     }
 
     private static async Task DoStreamWriteAsync(Stream contentStream, Stream fileStream, Action<long> downloadProgressCallback)
@@ -259,69 +231,5 @@ public class HttpHandler
                 }
             }
         }
-    }
-
-    static async Task CheckSpecialCircumstances(string modName, string gamePath)
-    {
-        try
-        {
-            if (modName == "reshade")
-            {
-                Directory.Delete(Path.Join(gamePath, "reshade-shaders"), true);
-                File.Delete(Path.Join(gamePath, "d3d9.log"));
-            }
-        }
-        catch (Exception e)
-        {
-            await LogHandler.Log(LogType.ERROR, "| CheckSpecialCircumstances |" + e.Message);
-        }
-    }
-
-    public async static Task DeleteNonTreMod(string modName)
-    {
-        var config = ConfigFile.GetConfig();
-
-        string? manifestFilePath = config!.Servers![config.ActiveServer].ManifestFilePath;
-
-        List<DownloadableFile> downloadableFiles = new();
-
-        if (manifestFilePath is not null)
-        {
-            downloadableFiles = await DownloadManifestAsync();
-        }
-
-        string? gamePath = config!.Servers![config.ActiveServer].GameLocation;
-
-        try
-        {
-            foreach (DownloadableFile file in downloadableFiles)
-            {
-                string filePath = Path.Join(gamePath, file.Name).Replace("\\", "/");
-
-                if (File.Exists(filePath))
-                {
-                    File.Delete(filePath);
-                }
-            }
-
-            foreach (DownloadableFile file in downloadableFiles)
-            {
-                string filePath = Path.Join(gamePath, file.Name).Replace("\\", "/");
-                string? dir = "";
-
-                dir = Path.GetDirectoryName(filePath);
-
-                if (Directory.Exists(dir))
-                {
-                    if (Directory.GetFiles(dir).Length == 0 && Directory.GetDirectories(dir).Length == 0)
-                    {
-                        Directory.Delete(dir);
-                    }
-                }
-            }
-        }
-        catch { }
-
-        await CheckSpecialCircumstances(modName, gamePath!);
     }
 }

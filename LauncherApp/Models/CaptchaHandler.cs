@@ -1,7 +1,7 @@
 ﻿using System;
-using LauncherApp.Models.Properties;
+using LibLauncherUtil.Properties;
 
-namespace LauncherApp.Models.Handlers;
+namespace LauncherApp.Models;
 
 public static class CaptchaHandler
 {

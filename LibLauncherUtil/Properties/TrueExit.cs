@@ -1,4 +1,4 @@
-﻿namespace LauncherApp.Models.Util;
+﻿namespace LibLauncherUtil.Properties;
 
 public static class TrueExit
 {

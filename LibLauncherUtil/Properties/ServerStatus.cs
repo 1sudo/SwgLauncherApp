@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace LauncherApp.Models.Properties;
+namespace LibLauncherUtil.Properties;
 
 public class ServerStatus
 {

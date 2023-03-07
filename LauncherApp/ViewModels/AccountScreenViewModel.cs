@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using CommunityToolkit.Mvvm.Input;
-using LauncherApp.Models.Properties;
-using LauncherApp.Views.UserControls;
-using LibgRPC.Models;
+using LibLauncherUtil.Properties;
+using LibLauncherUtil.gRPC;
+using LibLauncherUtil.gRPC.Models;
 
 namespace LauncherApp.ViewModels;
 
@@ -30,10 +29,10 @@ internal class AccountScreenViewModel : AccountScreenViewModelProperties
         AccountSidebarCreateAccountButton = new RelayCommand(GoToAccountCreationScreen);
         AccountCreationCreateAccountButton = new RelayCommand(CreateAccount);
         AccountCreationCancelButton = new RelayCommand(GoToAccountLoginScreen);
-        LibgRPC.Requests.LoggedIn += OnLoggedIn;
-        LibgRPC.Requests.LoginFailed += OnLoginFailed;
-        LibgRPC.Requests.AccountCreated += OnAccountCreated;
-        LibgRPC.Requests.AccountCreationFailed += OnAccountCreationFailed;
+        Requests.LoggedIn += OnLoggedIn;
+        Requests.LoginFailed += OnLoginFailed;
+        Requests.AccountCreated += OnAccountCreated;
+        Requests.AccountCreationFailed += OnAccountCreationFailed;
         Views.UserControls.AccountScreen.AccountLogin.OnAutoLogin += OnAutoLogin;
 
         AccountLoginUsernameWatermark = "Username";
@@ -129,7 +128,7 @@ internal class AccountScreenViewModel : AccountScreenViewModelProperties
         {
             if (config.Username is not null && config.Password is not null)
             {
-                await LibgRPC.Requests.RequestLogin(config.Username,
+                await Requests.RequestLogin(config.Username,
                     new System.Net.NetworkCredential(string.Empty, config.Password).Password, true);
             }
         }
@@ -139,7 +138,7 @@ internal class AccountScreenViewModel : AccountScreenViewModelProperties
     {
         if (AccountLoginUsernameTextBox is null) return;
 
-        await LibgRPC.Requests.RequestLogin(AccountLoginUsernameTextBox, 
+        await Requests.RequestLogin(AccountLoginUsernameTextBox,
             new System.Net.NetworkCredential(string.Empty, AccountLoginPasswordBox).Password, false);
     }
 
@@ -165,7 +164,7 @@ internal class AccountScreenViewModel : AccountScreenViewModelProperties
 
         if (password1 == password2)
         {
-            await LibgRPC.Requests.RequestAccount(new AccountModel
+            await Requests.RequestAccount(new AccountModel
             {
                 username = AccountCreationUsernameTextBox,
                 password = password1,

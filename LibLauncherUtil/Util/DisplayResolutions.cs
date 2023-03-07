@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
+﻿using System.Runtime.InteropServices;
 
-namespace LauncherApp.Models.Util;
+namespace LibLauncherUtil.Util;
 
 public static class DisplayResolutions
 {

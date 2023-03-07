@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LauncherApp.Models.Handlers;
+namespace LauncherApp.Models;
 
 public class CipherHandler
 {
@@ -24,7 +24,7 @@ public class CipherHandler
             {
                 x = (char)(c - 13);
             }
-            shift[(int)c] = x;
+            shift[c] = x;
         }
         for (char c = 'a'; c <= 'z'; c++)
         {
@@ -37,7 +37,7 @@ public class CipherHandler
             {
                 x = (char)(c - 13);
             }
-            shift[(int)c] = x;
+            shift[c] = x;
         }
     }
 
@@ -47,7 +47,7 @@ public class CipherHandler
 
         for (int i = 0; i < a.Length; i++)
         {
-            int t = (int)a[i];
+            int t = a[i];
             a[i] = shift[t];
         }
 

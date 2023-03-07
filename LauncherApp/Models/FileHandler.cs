@@ -6,9 +6,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using LauncherApp.Models.Properties;
+using LibLauncherUtil.Properties;
 
-namespace LauncherApp.Models.Handlers;
+namespace LauncherApp.Models;
 
 public class FileHandler
 {
@@ -26,7 +26,7 @@ public class FileHandler
         "38feda8e17042a5bc9edf7d9959bdbfe"  // 240 FPS
     };
 
-    public async static Task<bool> CheckBaseInstallation(string location)
+    public static bool CheckBaseInstallation(string location)
     {
         try
         {
@@ -66,7 +66,7 @@ public class FileHandler
         }
         catch (Exception e)
         {
-            await LogHandler.Log(LogType.ERROR, "| CheckBaseInstallation | " + e.Message.ToString());
+            Logger.Instance.Log(e, ERROR);
             OnInstallCheckFailed?.Invoke(e.Message.ToString());
         }
 
@@ -95,7 +95,7 @@ public class FileHandler
 
         UpdateCheckComplete?.Invoke();
 
-        return (versionFile.Version != remoteVersionFile.Version) || (fileList.Count > 0);
+        return versionFile.Version != remoteVersionFile.Version || fileList.Count > 0;
     }
 
     internal static async Task<List<string>> GetBadFilesAsync(string downloadLocation, List<DownloadableFile> fileList, bool isFullScan = false)
@@ -132,9 +132,10 @@ public class FileHandler
                         }
                     }
                     // Some other dumb shit happened, add file to list
-                    catch
+                    catch (Exception e)
                     {
                         newFileList.Add(file.Name);
+                        Logger.Instance.Log(e, ERROR);
                     }
 
                     ++i;
@@ -182,9 +183,10 @@ public class FileHandler
                         }
                     }
                     // Some other dumb shit happened, add file to list
-                    catch
+                    catch (Exception e)
                     {
                         newFileList.Add(file.Name);
+                        Logger.Instance.Log(e, ERROR);
                     }
                 }
             }
@@ -327,7 +329,7 @@ public class FileHandler
             }
             catch (Exception e)
             {
-                await LogHandler.Log(LogType.ERROR, "| GenerateMissingFiles |" + e.Message);
+                Logger.Instance.Log(e, ERROR);
             }
         }
     }
@@ -373,16 +375,16 @@ public class FileHandler
     {
         StringBuilder sb = new();
 
-        List<string> propertyHeadings = new() 
-        { 
-            "ClientGraphics", 
-            "Direct3d9", 
-            "ClientGame", 
-            "ClientUserInterface", 
-            "ClientAudio", 
-            "ClientSkeletalAnimation", 
-            "ClientTextureRenderer", 
-            "SharedUtility", 
+        List<string> propertyHeadings = new()
+        {
+            "ClientGraphics",
+            "Direct3d9",
+            "ClientGame",
+            "ClientUserInterface",
+            "ClientAudio",
+            "ClientSkeletalAnimation",
+            "ClientTextureRenderer",
+            "SharedUtility",
             "ClientObject/DetailAppearanceTemplate",
             "SharedFile",
             "ClientTerrain",
@@ -393,7 +395,7 @@ public class FileHandler
 
         propertyHeadings.ForEach(heading =>
         {
-            if (properties.Where(property => property.Category == heading).Count() > 0 || heading == "SharedUtility" || heading == "ClientAudio")
+            if (properties.Where(property => property.Category == heading).Any() || heading == "SharedUtility" || heading == "ClientAudio")
             {
                 sb.AppendLine($"\n[{heading}]");
             }
@@ -447,7 +449,7 @@ public class FileHandler
         }
         catch (Exception e)
         {
-            await LogHandler.Log(LogType.ERROR, "| SaveOptionsCfg |" + e.Message);
+            Logger.Instance.Log(e, ERROR);
         }
     }
 

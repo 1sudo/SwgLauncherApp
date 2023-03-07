@@ -4,15 +4,16 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using LauncherApp.Models.Properties;
+using LibLauncherUtil.Properties;
+using LibLauncherUtil.Util;
 
-namespace LauncherApp.Models.Handlers;
+namespace LauncherApp.Models;
 
 public class AppHandler
 {
     static readonly bool _cuClient = false;
 
-    public static async Task StartGameAsync(string password = "", string username = "", 
+    public static async Task StartGameAsync(string password = "", string username = "",
         string charactername = "", bool autoEnterZone = false)
     {
         var config = ConfigFile.GetConfig();
@@ -107,17 +108,17 @@ public class AppHandler
                 }
                 else
                 {
-                    await LogHandler.Log(LogType.ERROR, "Error writing to login.cfg!");
+                    Logger.Instance.Log("Error writing to login.cfg!", ERROR);
                 }
             }
             catch (Exception e)
             {
-                await LogHandler.Log(LogType.ERROR, "| StartGameAsync | " + e.Message.ToString());
+                Logger.Instance.Log(e, ERROR);
             }
         });
     }
 
-    public static async void WriteMissingConfigs(string gameLocation)
+    public static void WriteMissingConfigs(string gameLocation)
     {
         string[] configs =
         {
@@ -137,7 +138,7 @@ public class AppHandler
                 }
                 catch (Exception e)
                 {
-                    await LogHandler.Log(LogType.ERROR, "| WriteMissingConfigs | " + e.Message.ToString());
+                    Logger.Instance.Log(e, ERROR);
                 }
             }
         }
@@ -168,7 +169,7 @@ public class AppHandler
             }
             catch (Exception e)
             {
-                await LogHandler.Log(LogType.ERROR, "| WriteConfigAsync | " + e.Message.ToString());
+                Logger.Instance.Log(e, ERROR);
             }
 
             try
@@ -180,7 +181,7 @@ public class AppHandler
             }
             catch (Exception e)
             {
-                await LogHandler.Log(LogType.ERROR, "| WriteConfigAsync | " + e.Message.ToString());
+                Logger.Instance.Log(e, ERROR);
             }
         }
 
@@ -202,61 +203,6 @@ public class AppHandler
         await WriteConfigAsync(config, "launcher", cfgText);
     }
 
-    static async Task WriteLiveConfigAsync(ConfigFile? config)
-    {
-        List<string> treList = await HttpHandler.DownloadTreList();
-
-        StringBuilder sb = new();
-
-        string header = "[SharedFile]\n" +
-            "\tmaxSearchPriority=99\n";
-
-        sb.Append(header);
-
-        List<TreModProperties>? modList = config!.Servers![config.ActiveServer].TreMods;
-
-        int count = treList.Count;
-        int modFileCount = 0;
-
-        foreach (TreModProperties mod in modList!)
-        {
-            modFileCount += mod.FileList!.Count;
-        }
-
-        modFileCount += count;
-
-        foreach (TreModProperties mod in modList)
-        {
-            mod.FileList!.Reverse();
-
-            foreach (string treFile in mod.FileList)
-            {
-                sb.Append($"\tsearchTree_00_{modFileCount}={treFile}\n");
-                modFileCount -= 1;
-            }
-        }
-
-        foreach (string treFile in treList)
-        {
-            sb.Append($"\tsearchTree_00_{count}={treFile}\n");
-            count -= 1;
-        }
-
-        string footer = "\n[SharedNetwork]\n" +
-            "\tnetworkHandlerDispatchThrottle=true\n\n" +
-            "[ClientUserInterface]\n" +
-            "\tmessageOfTheDayTable=live_motd\n\n" +
-            "[SwgClientUserInterface/SwgCuiService]\n" +
-            "\tknownIssuesArticle=10424\n\n" +
-            "[Station]\n" +
-            "\tsubscriptionFeatures=1\n" +
-            "\tgameFeatures=65535\n";
-
-        sb.Append(footer);
-
-        await WriteConfigAsync(config, "live", sb.ToString());
-    }
-
     static async Task<bool> WriteLoginConfigAsync(ConfigFile? config)
     {
         string? host = config!.Servers![config.ActiveServer].SWGLoginHost;
@@ -271,7 +217,7 @@ public class AppHandler
         return await WriteConfigAsync(config, "login", cfgText);
     }
 
-    public async static void StartGameConfig(string serverPath)
+    public static void StartGameConfig(string serverPath)
     {
         try
         {
@@ -294,11 +240,11 @@ public class AppHandler
         }
         catch (Exception e)
         {
-            await LogHandler.Log(LogType.ERROR, "| StartGameConfig | " + e.Message.ToString());
+            Logger.Instance.Log(e, ERROR);
         }
     }
 
-    public static async void OpenDefaultBrowser(string url)
+    public static void OpenDefaultBrowser(string url)
     {
         Process myProcess = new();
 
@@ -310,7 +256,7 @@ public class AppHandler
         }
         catch (Exception e)
         {
-            await LogHandler.Log(LogType.ERROR, "| OpenDefaultBrowser | " + e.Message.ToString());
+            Logger.Instance.Log(e, ERROR);
         }
     }
 }

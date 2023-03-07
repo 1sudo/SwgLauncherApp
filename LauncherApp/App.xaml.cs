@@ -1,7 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Windows;
-using LauncherApp.Models.Properties;
+using LibLauncherUtil.gRPC;
+using LibLauncherUtil.Properties;
 
 namespace LauncherApp;
 
@@ -17,7 +18,9 @@ public partial class App : Application
 
         ConfigFile? config = ConfigFile.GetConfig();
 
-        LibgRPC.Requests.GrpcUrl = config?.Servers?[config.ActiveServer].ServiceUrl;
+        Requests.GrpcUrl = config?.Servers?[config.ActiveServer].ServiceUrl;
+
+        LibLauncherUtil.Util.Logger logger = new();
 
         base.OnStartup(e);
     }

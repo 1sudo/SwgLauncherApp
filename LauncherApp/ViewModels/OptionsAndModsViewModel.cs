@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using LauncherApp.Models.Handlers;
+using LauncherApp.Models;
 using System.Threading.Tasks;
 
 namespace LauncherApp.ViewModels;

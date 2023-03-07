@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using LauncherApp.Models.Handlers;
 
-namespace LauncherApp.Models.Properties;
+namespace LibLauncherUtil.Properties;
 
 public class ConfigFile
 {
@@ -88,9 +82,9 @@ public class ConfigFile
         {
             await sw.WriteAsync(JsonSerializer.Serialize(config, options));
         }
-        catch (IOException e)
+        catch (Exception e)
         {
-            Trace.WriteLine("Unable to write config file: " + e.Message);
+            Logger.Instance.Log(e, ERROR);
         }
     }
 
@@ -127,24 +121,6 @@ public class ConfigFile
         var config = GetConfig();
 
         return config?.Servers?[config.ActiveServer] ?? null;
-    }
-
-    public static void SaveCredentials(ConfigFile config)
-    {
-        CipherHandler cipher = new();
-        config.Servers![config.ActiveServer].Username = CipherHandler.Encode(cipher.Transform(config.Servers![config.ActiveServer].Username!.ToLower()));
-        config.Servers![config.ActiveServer].Password = CipherHandler.Encode(cipher.Transform(config.Servers![config.ActiveServer].Password!));
-
-        SetConfig(config);
-    }
-
-    public static Tuple<string, string> GetAccountCredentials(ConfigFile config)
-    {
-        CipherHandler cipher = new();
-        var username = cipher.Transform(CipherHandler.Decode(config.Servers![config.ActiveServer].Username!));
-        var password = cipher.Transform(CipherHandler.Decode(config.Servers![config.ActiveServer].Password!));
-
-        return Tuple.Create(username, password);
     }
 
     public static void SaveCharacters(List<string> characters, ConfigFile config)

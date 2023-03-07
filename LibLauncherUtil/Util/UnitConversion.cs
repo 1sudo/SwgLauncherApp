@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace LauncherApp.Models.Util;
+﻿namespace LibLauncherUtil.Util;
 
 public static class UnitConversion
 {

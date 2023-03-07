@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows.Controls;
-using LauncherApp.Models.Properties;
+using LibLauncherUtil.Properties;
 using LauncherApp.ViewModels;
 
 namespace LauncherApp.Views.UserControls.AccountScreen

@@ -4,8 +4,7 @@ using System.Drawing;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
-using LauncherApp.Models.Properties;
-using LauncherApp.Models.Util;
+using LibLauncherUtil.Properties;
 using LauncherApp.ViewModels;
 
 namespace LauncherApp;
@@ -122,9 +121,12 @@ public partial class MainWindow
 
             try
             {
-                await ManifestGenerator.GenerateManifestAsync(generateFromFolder);
+                await LibLauncherUtil.Util.ManifestGenerator.GenerateManifestAsync(generateFromFolder);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Logger.Instance.Log(ex, ERROR);
+            }
         }
     }
 }

@@ -1,22 +1,21 @@
-﻿using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Forms;
 using CommunityToolkit.Mvvm.Input;
-using LauncherApp.Models.Properties;
-using LauncherApp.Models.Util;
+using LauncherApp.Models;
+using LibLauncherUtil.Properties;
 
 namespace LauncherApp.ViewModels;
 
 internal class SetupScreenViewModel : SetupScreenViewModelProperties
 {
-    public IAsyncRelayCommand? RulesAndRegulationsNextButton { get; }
+    public IRelayCommand? RulesAndRegulationsNextButton { get; }
     public IRelayCommand? EasySetupButton { get; }
     public IRelayCommand? AdvancedSetupButton { get; }
     public IRelayCommand? InstallDirectoryBackButton { get; }
-    public IAsyncRelayCommand? InstallDirectoryNextButton { get; }
+    public IRelayCommand? InstallDirectoryNextButton { get; }
     public IRelayCommand? AdvancedSetupBrowseButton { get; }
     public IRelayCommand? BaseGameVerificationBrowseButton { get; }
-    public IAsyncRelayCommand? BaseGameVerificationNextButton { get; }
+    public IRelayCommand? BaseGameVerificationNextButton { get; }
     public IRelayCommand? BaseGameVerificationBackButton { get; }
     public IRelayCommand? RulesCancelButton { get; }
     public IRelayCommand? InstallDirectoryCancelButton { get; }
@@ -30,14 +29,14 @@ internal class SetupScreenViewModel : SetupScreenViewModelProperties
         BaseGameVerificationDetails = Visibility.Collapsed;
         SelectedSetupType = (int)SetupType.Easy;
 
-        RulesAndRegulationsNextButton = new AsyncRelayCommand(GoToNextScreen);
+        RulesAndRegulationsNextButton = new RelayCommand(GoToNextScreen);
         EasySetupButton = new RelayCommand(SetEasySetup);
         AdvancedSetupButton = new RelayCommand(SetAdvancedSetup);
         InstallDirectoryBackButton = new RelayCommand(GoToPreviousScreen);
-        InstallDirectoryNextButton = new AsyncRelayCommand(GoToNextScreen);
+        InstallDirectoryNextButton = new RelayCommand(GoToNextScreen);
         AdvancedSetupBrowseButton = new RelayCommand(AdvancedSetupBrowse);
         BaseGameVerificationBrowseButton = new RelayCommand(BaseGameVerificationBrowse);
-        BaseGameVerificationNextButton = new AsyncRelayCommand(GoToNextScreen);
+        BaseGameVerificationNextButton = new RelayCommand(GoToNextScreen);
         BaseGameVerificationBackButton = new RelayCommand(GoToPreviousScreen);
         RulesCancelButton = new RelayCommand(CloseApplication);
         InstallDirectoryCancelButton = new RelayCommand(CloseApplication);
@@ -56,7 +55,7 @@ internal class SetupScreenViewModel : SetupScreenViewModelProperties
         }
     } 
 
-    private async Task GoToNextScreen()
+    private void GoToNextScreen()
     {
         if (CurrentScreen == (int)Screen.RulesAndRegulations)
         {
@@ -70,7 +69,7 @@ internal class SetupScreenViewModel : SetupScreenViewModelProperties
         }
         else if (CurrentScreen == (int) Screen.BaseGameVerification)
         {
-            if (await Models.Handlers.FileHandler.CheckBaseInstallation(BaseGameVerificationSelectedDirectoryTextBox!))
+            if (FileHandler.CheckBaseInstallation(BaseGameVerificationSelectedDirectoryTextBox!))
             {
                 ConfigFile? config = ConfigFile.GetConfig()!;
 

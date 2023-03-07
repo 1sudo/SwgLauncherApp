@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text.Json;
-using System.Threading.Tasks;
-using LauncherApp.Models.Properties;
+using LibLauncherUtil.Properties;
 
-namespace LauncherApp.Models.Util;
+namespace LibLauncherUtil.Util;
 
 public static class ManifestGenerator
 {
