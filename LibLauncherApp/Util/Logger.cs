@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace LibLauncherUtil.Util;
+namespace LibLauncherApp.Util;
 
 public enum LogType
 {

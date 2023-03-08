@@ -1,4 +1,4 @@
-﻿namespace LibLauncherUtil.gRPC.Models;
+﻿namespace LibLauncherApp.gRPC.Models;
 
 public class AccountModel
 {

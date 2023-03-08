@@ -113,7 +113,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LibLauncherUtil\LibLauncherUtil.csproj" />
+    <ProjectReference Include="..\LibLauncherApp\LibLauncherApp.csproj" />
   </ItemGroup>
 
 </Project>

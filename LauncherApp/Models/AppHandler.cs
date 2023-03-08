@@ -4,8 +4,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using LibLauncherUtil.Properties;
-using LibLauncherUtil.Util;
+using LibLauncherApp.Properties;
+using LibLauncherApp.Util;
 
 namespace LauncherApp.Models;
 

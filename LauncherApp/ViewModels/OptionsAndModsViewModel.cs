@@ -1,8 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LauncherApp.Models;
-using LibLauncherUtil.Properties;
+using LibLauncherApp.Properties;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
@@ -18,16 +20,40 @@ internal class OptionsAndModsViewModel : ObservableObject
 
     public OptionsAndModsViewModel()
     {
-        var config = ConfigFile.GetConfig();
         _fileHandler= new FileHandler();
-
         FullScanEnabled = false;
         ChangeInstallationDirectoryButton = new AsyncRelayCommand(ChangeInstallationDirectory);
         FullScanButton = new AsyncRelayCommand(FullScan);
         SaveChangesButton = new RelayCommand(SaveChanges);
         FileHandler.UpdateCheckComplete += UpdateCheckComplete;
 
+        SetDefaults();
+    }
+
+    private void SetDefaults()
+    {
+        var config = ConfigFile.GetConfig();
+
         InstallationDirectoryTextbox = config?.Servers?[config.ActiveServer].GameLocation;
+
+        List<string> servers = new();
+
+        if (config?.Servers is not null)
+        {
+            int i = 0;
+            foreach (var server in config.Servers)
+            {
+                if (server.Value.ServerSelection is not null)
+                {
+                    servers.Add(server.Value.ServerSelection);
+                }
+                i++;
+            }
+
+            ServerList = new ObservableCollection<string>(servers);
+
+            SelectedServer = config.ActiveServer;
+        }
     }
 
     private async Task ChangeInstallationDirectory()
@@ -115,7 +141,15 @@ internal class OptionsAndModsViewModel : ObservableObject
 
     private void SaveChanges()
     {
+        var config = ConfigFile.GetConfig();
 
+        if (config is not null)
+        {
+            config.ActiveServer = SelectedServer;
+            ConfigFile.SetConfig(config);
+            System.Windows.Forms.Application.Restart();
+            Environment.Exit(0);
+        }
     }
 
     private void UpdateCheckComplete(object? sender, EventArgs args)
@@ -127,6 +161,7 @@ internal class OptionsAndModsViewModel : ObservableObject
     private int _selectedServer;
     private bool? _fullScanEnabled;
     private bool? _changeInstallationDirectoryButtonEnabled;
+    private ObservableCollection<string>? _serverList;
 
     public string? InstallationDirectoryTextbox
     {
@@ -150,5 +185,11 @@ internal class OptionsAndModsViewModel : ObservableObject
     {
         get => _changeInstallationDirectoryButtonEnabled;
         set => SetProperty(ref _changeInstallationDirectoryButtonEnabled, value);
+    }
+
+    public ObservableCollection<string>? ServerList 
+    { 
+        get => _serverList; 
+        set => SetProperty(ref _serverList, value);
     }
 }

@@ -1,3 +1,3 @@
-﻿global using LibLauncherUtil;
-global using LibLauncherUtil.Util;
-global using static LibLauncherUtil.Util.LogType;
+﻿global using LibLauncherApp;
+global using LibLauncherApp.Util;
+global using static LibLauncherApp.Util.LogType;

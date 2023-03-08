@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using ViewModels;
-using LibLauncherUtil.Properties;
+using LibLauncherApp.Properties;
 using LauncherApp.Models;
 
 namespace LauncherApp.ViewModels;
@@ -207,7 +207,7 @@ internal class SettingsViewModel : SettingsViewModelProperties
 
     public async Task SetConfigOptions()
     {
-        List<string> resolutions = LibLauncherUtil.Util.DisplayResolutions.GetResolutions();
+        List<string> resolutions = LibLauncherApp.Util.DisplayResolutions.GetResolutions();
         AvailableResolutions = new ObservableCollection<string>();
 
         // Population resolutions

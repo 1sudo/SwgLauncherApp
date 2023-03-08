@@ -4,8 +4,8 @@ using System.Linq;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using LibLauncherUtil.Properties;
-using LibLauncherUtil.gRPC;
+using LibLauncherApp.Properties;
+using LibLauncherApp.gRPC;
 using LauncherApp.Models;
 using System;
 

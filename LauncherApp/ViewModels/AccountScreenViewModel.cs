@@ -4,9 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using CommunityToolkit.Mvvm.Input;
-using LibLauncherUtil.Properties;
-using LibLauncherUtil.gRPC;
-using LibLauncherUtil.gRPC.Models;
+using LibLauncherApp.Properties;
+using LibLauncherApp.gRPC;
+using LibLauncherApp.gRPC.Models;
 using LauncherApp.Models;
 
 namespace LauncherApp.ViewModels;

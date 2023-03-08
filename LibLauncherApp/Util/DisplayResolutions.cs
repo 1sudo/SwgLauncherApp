@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace LibLauncherUtil.Util;
+namespace LibLauncherApp.Util;
 
 public static class DisplayResolutions
 {

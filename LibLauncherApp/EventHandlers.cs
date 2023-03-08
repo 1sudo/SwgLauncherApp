@@ -1,4 +1,4 @@
-﻿namespace LibLauncherUtil;
+﻿namespace LibLauncherApp;
 
 public class OnLoggedInEventArgs : EventArgs
 {

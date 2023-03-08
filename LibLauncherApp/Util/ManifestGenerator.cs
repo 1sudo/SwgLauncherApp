@@ -1,8 +1,8 @@
 ﻿using System.Security.Cryptography;
 using System.Text.Json;
-using LibLauncherUtil.Properties;
+using LibLauncherApp.Properties;
 
-namespace LibLauncherUtil.Util;
+namespace LibLauncherApp.Util;
 
 public static class ManifestGenerator
 {

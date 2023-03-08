@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
-using LibLauncherUtil.Properties;
+using LibLauncherApp.Properties;
 
 namespace LauncherApp.ViewModels;
 

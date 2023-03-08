@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace LibLauncherUtil.gRPC;
+namespace LibLauncherApp.gRPC;
 
 public class LoginResponse
 {

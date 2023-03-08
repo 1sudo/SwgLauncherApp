@@ -1,4 +1,4 @@
-﻿namespace LibLauncherUtil.Util;
+﻿namespace LibLauncherApp.Util;
 
 public static class UnitConversion
 {

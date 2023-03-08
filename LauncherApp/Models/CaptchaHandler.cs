@@ -1,5 +1,5 @@
 ﻿using System;
-using LibLauncherUtil.Properties;
+using LibLauncherApp.Properties;
 
 namespace LauncherApp.Models;
 

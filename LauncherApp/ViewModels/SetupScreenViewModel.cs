@@ -2,7 +2,7 @@
 using System.Windows.Forms;
 using CommunityToolkit.Mvvm.Input;
 using LauncherApp.Models;
-using LibLauncherUtil.Properties;
+using LibLauncherApp.Properties;
 
 namespace LauncherApp.ViewModels;
 

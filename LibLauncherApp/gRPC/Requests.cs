@@ -3,7 +3,7 @@ using Grpc.Core;
 using Grpc.Net.Client;
 using LauncherWebService.Services;
 
-namespace LibLauncherUtil.gRPC;
+namespace LibLauncherApp.gRPC;
 
 public class Requests
 {

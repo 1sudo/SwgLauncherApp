@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace LibLauncherUtil.Properties;
+namespace LibLauncherApp.Properties;
 
 public class ConfigFile
 {
@@ -66,10 +66,7 @@ public class ConfigFile
             MaxZoom = 5,
             Admin = false,
             DebugExamine = false,
-            Reshade = false,
-            HDTextures = false,
             AdditionalSettings = additionalSettings,
-            TreMods = new List<TreModProperties>()
         };
 
         config.Servers = new Dictionary<int, AccountProperties>() { { 0, accountProperties } };
@@ -203,17 +200,8 @@ public class AccountProperties
     [JsonPropertyName("debugExamine")]
     public bool DebugExamine { get; set; }
 
-    [JsonPropertyName("reshade")]
-    public bool Reshade { get; set; }
-
-    [JsonPropertyName("hdTextures")]
-    public bool HDTextures { get; set; }
-
     [JsonPropertyName("additionalSettings")]
     public List<AdditionalSettingProperties>? AdditionalSettings { get; set; }
-
-    [JsonPropertyName("treMods")]
-    public List<TreModProperties>? TreMods { get; set; }
 }
 
 public class AdditionalSettingProperties
@@ -226,13 +214,4 @@ public class AdditionalSettingProperties
 
     [JsonPropertyName("value")]
     public string? Value { get; set; }
-}
-
-public class TreModProperties
-{
-    [JsonPropertyName("modName")]
-    public string? ModName { get; set; }
-
-    [JsonPropertyName("fileList")]
-    public List<string>? FileList { get; set; }
 }

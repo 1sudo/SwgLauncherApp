@@ -7,7 +7,7 @@ using System.Net.Security;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using LibLauncherUtil.Properties;
+using LibLauncherApp.Properties;
 
 namespace LauncherApp.Models;
 
