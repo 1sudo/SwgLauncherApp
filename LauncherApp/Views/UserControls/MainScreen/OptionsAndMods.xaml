@@ -229,7 +229,7 @@
                                         Installation Directory
                                     </TextBlock>
                                     <DockPanel FlowDirection="RightToLeft">
-                                        <Button Command="{Binding ChangeInstallationDirectoryButton}" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Height="30" VerticalAlignment="Top">Change</Button>
+                                        <Button Command="{Binding ChangeInstallationDirectoryButton}" IsEnabled="{Binding ChangeInstallationDirectoryButtonEnabled}" IsHitTestVisible="{Binding ChangeInstallationDirectoryButtonEnabled}" Style="{DynamicResource NavButton}" FontSize="12" Padding="15,5,15,5" Height="30" VerticalAlignment="Top">Change</Button>
                                         <TextBox Text="{Binding InstallationDirectoryTextbox}" IsHitTestVisible="False" Style="{DynamicResource TextBoxTransparent}" Height="30" Margin="8,0,0,0" IsEnabled="False" VerticalAlignment="Top" />
                                     </DockPanel>
                                 </StackPanel>

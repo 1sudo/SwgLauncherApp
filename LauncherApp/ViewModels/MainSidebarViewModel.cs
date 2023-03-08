@@ -46,6 +46,8 @@ internal class MainSidebarViewModel : ObservableObject
         FileHandler.OnFullScanFileCheck += OnFullScanFileCheck;
         FileHandler.OnFullScanStarted += OnFullScanStarted;
         FileHandler.OnFullScanCompleted += OnFullScanCompleted;
+        FileHandler.OnCopyingFilesStart += OnCopyingFilesStart;
+        FileHandler.OnCopyingFilesProgressUpdated += OnCopyingFilesProgressUpdated;
         DeveloperButtonVisibility = Visibility.Collapsed;
     }
 
@@ -189,6 +191,20 @@ internal class MainSidebarViewModel : ObservableObject
         PlayButtonText = "PLAY";
         CharacterSelectVisibility = Visibility.Visible;
         DownloadProgressVisibility = Visibility.Collapsed;
+    }
+
+    private void OnCopyingFilesStart(object? sender, EventArgs args)
+    {
+        PlayButtonEnabled = false;
+        PlayButtonText = "COPYING";
+        CharacterSelectVisibility = Visibility.Collapsed;
+        DownloadProgressVisibility = Visibility.Visible;
+        ProgressTextBottomLeft = "Copying Files... Please Wait...";
+    }
+
+    private void OnCopyingFilesProgressUpdated(object? sender, OnCopyingFilesProgressUpdatedEventArgs args)
+    {
+        ProgressBarBottomValue = ((double)args.CurrentFile / (double)args.TotalFiles) * 1000;
     }
 
     private bool? _playButtonEnabled;

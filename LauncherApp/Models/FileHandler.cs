@@ -10,12 +10,21 @@ using LibLauncherUtil.Properties;
 
 namespace LauncherApp.Models;
 
+public enum CopyEligibility
+{
+    SAMEDIR,
+    NOTEMPTY,
+    CANCOPY
+}
+
 public class FileHandler
 {
     public static event EventHandler<FullScanFileCheckEventArgs>? OnFullScanFileCheck;
     public static event EventHandler? OnFullScanStarted;
     public static event EventHandler? OnFullScanCompleted;
     public static event EventHandler? UpdateCheckComplete;
+    public static event EventHandler? OnCopyingFilesStart;
+    public static event EventHandler<OnCopyingFilesProgressUpdatedEventArgs>? OnCopyingFilesProgressUpdated;
     public static string? BaseGameLocation { get; set; }
     private static readonly List<string> ClientChecksums = new()
     {
@@ -470,5 +479,65 @@ public class FileHandler
             $"\t0fd345d9={config.Servers[config.ActiveServer].Admin}\n\n" +
             "[ClientUserInterface]\n" +
             $"\tdebugExamine={config.Servers[config.ActiveServer].DebugExamine}");
+    }
+
+    // Copy all files and subdirectories from the source folder to the destination folder
+    public async Task<CopyEligibility> CopyFolder(string sourceFolder, string destinationFolder, bool force = false)
+    {
+        if (sourceFolder == destinationFolder)
+        {
+            return CopyEligibility.SAMEDIR;
+        }
+
+        // Get the subdirectories for the specified directory
+        var destinationFiles = Directory.EnumerateFiles(destinationFolder, "*.*", SearchOption.AllDirectories);
+        var sourceFiles = Directory.EnumerateFiles(sourceFolder, "*.*", SearchOption.AllDirectories);
+        var count = sourceFiles.ToList().Count;
+
+        var destinationEmpty = true;
+
+        destinationFiles.ToList().ForEach((file) =>
+        {
+            destinationEmpty = false;
+            return;
+        });
+
+        // Return false if files exist in destination folder
+        if (!destinationEmpty && !force)
+        {
+            return CopyEligibility.NOTEMPTY;
+        }
+
+        // If the destination folder doesn't exist, create it
+        if (!Directory.Exists(destinationFolder))
+        {
+            Directory.CreateDirectory(destinationFolder);
+        }
+
+        OnCopyingFilesStart?.Invoke(this, EventArgs.Empty);
+
+        int i = 1;
+        foreach (var file in sourceFiles)
+        {
+            var relativeFilePath = Path.GetRelativePath(sourceFolder, file);
+            var destinationPath = Path.Join(destinationFolder, relativeFilePath);
+
+            if (!string.IsNullOrEmpty(destinationPath))
+            {
+                // Create directory if it doesn't exist
+                new FileInfo(destinationPath).Directory!.Create();
+            }
+
+            // Prevent dividing by zero
+            if (i > 0 && count > 0)
+            {
+                OnCopyingFilesProgressUpdated?.Invoke(this, new OnCopyingFilesProgressUpdatedEventArgs(i, count));
+            }
+
+            await CopyFileAsync(file, destinationPath);
+            i++;
+        }
+
+        return CopyEligibility.CANCOPY;
     }
 }

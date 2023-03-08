@@ -45,3 +45,15 @@ public class OnSetUsernameEventArgs : EventArgs
         Username = username;
     }
 }
+
+public class OnCopyingFilesProgressUpdatedEventArgs : EventArgs
+{
+    public int CurrentFile { get; set; }
+    public int TotalFiles { get; set; }
+
+    public OnCopyingFilesProgressUpdatedEventArgs(int currentFile, int totalFiles)
+    {
+        CurrentFile = currentFile;
+        TotalFiles = totalFiles;
+    }
+}
