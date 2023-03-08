@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using LibLauncherUtil.Properties;
 using LibLauncherUtil.gRPC;
 using LibLauncherUtil.gRPC.Models;
+using LauncherApp.Models;
 
 namespace LauncherApp.ViewModels;
 
@@ -18,10 +19,12 @@ internal class AccountScreenViewModel : AccountScreenViewModelProperties
     public IRelayCommand? AccountCreationCreateAccountButton { get; }
     public IRelayCommand? AccountCreationCancelButton { get; }
     private const int ErrorSleepTime = 5000;
-    public static Action<string>? SetUsername { get; set; }
+    public static event EventHandler<OnSetUsernameEventArgs>? OnSetUsername;
+    private readonly Requests _requests;
 
     public AccountScreenViewModel()
     {
+        _requests = new Requests();
         AccountLoginFailedTextBlockVisibility = Visibility.Collapsed;
 
         AccountLoginButton = new AsyncRelayCommand(AccountLogin);
@@ -29,10 +32,10 @@ internal class AccountScreenViewModel : AccountScreenViewModelProperties
         AccountSidebarCreateAccountButton = new RelayCommand(GoToAccountCreationScreen);
         AccountCreationCreateAccountButton = new RelayCommand(CreateAccount);
         AccountCreationCancelButton = new RelayCommand(GoToAccountLoginScreen);
-        Requests.LoggedIn += OnLoggedIn;
-        Requests.LoginFailed += OnLoginFailed;
-        Requests.AccountCreated += OnAccountCreated;
-        Requests.AccountCreationFailed += OnAccountCreationFailed;
+        Requests.OnLoggedIn += OnLoggedIn;
+        Requests.OnLoginFailed += OnLoginFailed;
+        Requests.OnAccountCreated += OnAccountCreated;
+        Requests.OnAccountCreateFailed += OnAccountCreationFailed;
         Views.UserControls.AccountScreen.AccountLogin.OnAutoLogin += OnAutoLogin;
 
         AccountLoginUsernameWatermark = "Username";
@@ -52,16 +55,16 @@ internal class AccountScreenViewModel : AccountScreenViewModelProperties
         }
     }
 
-    private void OnAccountCreated(string status)
+    private void OnAccountCreated(object? sender, OnAccountCreatedEventArgs args)
     {
         ClearAllTextBoxes();
         ScreenContainerViewModel.EnableScreen(Screen.AccountLogin);
     }
 
-    private void OnAccountCreationFailed(string status)
+    private void OnAccountCreationFailed(object? sender, OnAccountCreateFailedEventArgs args)
     {
         AccountCreationFailedTextBlockVisibility = Visibility.Visible;
-        AccountCreationFailedTextBlock = status;
+        AccountCreationFailedTextBlock = args.Reason;
 
         Thread t = new(() =>
         {
@@ -73,13 +76,13 @@ internal class AccountScreenViewModel : AccountScreenViewModelProperties
         t.Start();
     }
 
-    private void OnLoggedIn(List<string> characters, string username, bool autoLogin)
+    private void OnLoggedIn(object? sender, OnLoggedInEventArgs args)
     {
         var config = ConfigFile.GetConfig();
 
         var currentServer = config?.Servers?[config.ActiveServer];
 
-        if (currentServer is not null && !autoLogin)
+        if (currentServer is not null && !args.AutoLogin)
         {
             currentServer.AutoLogin = AccountKeepLoggedInCheckbox;
             currentServer.Username = AccountLoginUsernameTextBox;
@@ -87,22 +90,25 @@ internal class AccountScreenViewModel : AccountScreenViewModelProperties
             currentServer.Password = password;
         }
 
-        if (config is not null)
+        if (config is not null && args.Characters is not null)
         {
-            ConfigFile.SaveCharacters(characters, config);
+            ConfigFile.SaveCharacters(args.Characters, config);
             ConfigFile.SetConfig(config);
         }
 
         ScreenContainerViewModel.EnableScreen(Screen.Updates);
         ClearAllTextBoxes();
 
-        SetUsername?.Invoke(username);
+        if (args.Username is not null)
+        {
+            OnSetUsername?.Invoke(this, new OnSetUsernameEventArgs(args.Username));
+        }
     }
 
-    private void OnLoginFailed(string reason)
+    private void OnLoginFailed(object? sender, OnLoginFailedEventArgs args)
     {
         AccountLoginFailedTextBlockVisibility = Visibility.Visible;
-        AccountLoginFailedTextBlock = reason;
+        AccountLoginFailedTextBlock = args.Reason;
 
         Thread t = new(() =>
         {
@@ -120,7 +126,7 @@ internal class AccountScreenViewModel : AccountScreenViewModelProperties
         CurrentScreen = (int)Screen.AccountCreation;
     }
 
-    private async void OnAutoLogin()
+    private async void OnAutoLogin(object? sender, EventArgs args)
     {
         var config = ConfigFile.GetCurrentServer();
 
@@ -128,7 +134,7 @@ internal class AccountScreenViewModel : AccountScreenViewModelProperties
         {
             if (config.Username is not null && config.Password is not null)
             {
-                await Requests.RequestLogin(config.Username,
+                await _requests.RequestLogin(config.Username,
                     new System.Net.NetworkCredential(string.Empty, config.Password).Password, true);
             }
         }
@@ -138,7 +144,7 @@ internal class AccountScreenViewModel : AccountScreenViewModelProperties
     {
         if (AccountLoginUsernameTextBox is null) return;
 
-        await Requests.RequestLogin(AccountLoginUsernameTextBox,
+        await _requests.RequestLogin(AccountLoginUsernameTextBox,
             new System.Net.NetworkCredential(string.Empty, AccountLoginPasswordBox).Password, false);
     }
 
@@ -164,7 +170,7 @@ internal class AccountScreenViewModel : AccountScreenViewModelProperties
 
         if (password1 == password2)
         {
-            await Requests.RequestAccount(new AccountModel
+            await _requests.RequestAccount(new AccountModel
             {
                 username = AccountCreationUsernameTextBox,
                 password = password1,

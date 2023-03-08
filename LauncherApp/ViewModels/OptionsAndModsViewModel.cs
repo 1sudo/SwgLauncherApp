@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LauncherApp.Models;
+using System;
 using System.Threading.Tasks;
 
 namespace LauncherApp.ViewModels;
@@ -10,9 +11,12 @@ internal class OptionsAndModsViewModel : ObservableObject
     public IRelayCommand ChangeInstallationDirectoryButton { get; }
     public IAsyncRelayCommand FullScanButton { get; }
     public IRelayCommand SaveChangesButton { get; }
+    private readonly FileHandler _fileHandler;
 
     public OptionsAndModsViewModel()
     {
+        _fileHandler= new FileHandler();
+
         FullScanEnabled = false;
         ChangeInstallationDirectoryButton = new RelayCommand(ChangeInstallationDirectory);
         FullScanButton = new AsyncRelayCommand(FullScan);
@@ -27,7 +31,7 @@ internal class OptionsAndModsViewModel : ObservableObject
 
     private async Task FullScan()
     {
-        await FileHandler.CheckFilesAsync(true);
+        await _fileHandler.CheckFilesAsync(true);
     }
 
     private void SaveChanges()
@@ -35,7 +39,7 @@ internal class OptionsAndModsViewModel : ObservableObject
 
     }
 
-    private void UpdateCheckComplete()
+    private void UpdateCheckComplete(object? sender, EventArgs args)
     {
         FullScanEnabled = true;
     }

@@ -12,19 +12,24 @@ namespace LauncherApp.Models;
 
 public class FileHandler
 {
-    public static Action<string, int, int>? OnFullScanFileCheck { get; set; }
-    public static Action? OnFullScanStarted { get; set; }
-    public static Action? OnFullScanCompleted { get; set; }
-    public static Action? UpdateCheckComplete { get; set; }
-    public static Action<string>? OnInstallCheckFailed { get; set; }
+    public static event EventHandler<FullScanFileCheckEventArgs>? OnFullScanFileCheck;
+    public static event EventHandler? OnFullScanStarted;
+    public static event EventHandler? OnFullScanCompleted;
+    public static event EventHandler? UpdateCheckComplete;
     public static string? BaseGameLocation { get; set; }
-    static readonly List<string> ClientChecksums = new()
+    private static readonly List<string> ClientChecksums = new()
     {
         "a487bcf7abe27ba9c02e3121ba44367e", // 30 FPS
         "50692684e090b200ea28681e7ae7da5b", // 60 FPS
         "2a55323f8774c43231331cb00014a011", // 144 FPS
         "38feda8e17042a5bc9edf7d9959bdbfe"  // 240 FPS
     };
+    readonly private HttpHandler _httpHandler;
+
+    public FileHandler()
+    {
+        _httpHandler = new HttpHandler();
+    }
 
     public static bool CheckBaseInstallation(string location)
     {
@@ -67,13 +72,12 @@ public class FileHandler
         catch (Exception e)
         {
             Logger.Instance.Log(e, ERROR);
-            OnInstallCheckFailed?.Invoke(e.Message.ToString());
         }
 
         return false;
     }
 
-    public static async Task<bool> UpdateIsAvailable()
+    public async Task<bool> UpdateIsAvailable()
     {
         ConfigFile? config = ConfigFile.GetConfig();
 
@@ -85,20 +89,20 @@ public class FileHandler
         if (!File.Exists(versionFilePath)) return true;
 
         var versionFile = JsonSerializer.Deserialize<VersionFile>(await File.ReadAllTextAsync(versionFilePath));
-        var remoteVersionFile = await HttpHandler.DownloadVersionAsync();
+        var remoteVersionFile = await _httpHandler.DownloadVersionAsync();
 
         List<DownloadableFile> downloadableFiles;
 
-        downloadableFiles = await HttpHandler.DownloadManifestAsync();
+        downloadableFiles = await _httpHandler.DownloadManifestAsync();
 
         var fileList = await GetBadFilesAsync(gameLocation ?? "", downloadableFiles);
 
-        UpdateCheckComplete?.Invoke();
+        UpdateCheckComplete?.Invoke(this, EventArgs.Empty);
 
         return versionFile.Version != remoteVersionFile.Version || fileList.Count > 0;
     }
 
-    internal static async Task<List<string>> GetBadFilesAsync(string downloadLocation, List<DownloadableFile> fileList, bool isFullScan = false)
+    internal async Task<List<string>> GetBadFilesAsync(string downloadLocation, List<DownloadableFile> fileList, bool isFullScan = false)
     {
         List<string> newFileList = new();
 
@@ -115,7 +119,7 @@ public class FileHandler
                     {
                         if (File.Exists(Path.Join(downloadLocation, file.Name)))
                         {
-                            OnFullScanFileCheck?.Invoke($"Checking File {file.Name}...", i, listLength);
+                            OnFullScanFileCheck?.Invoke(this, new FullScanFileCheckEventArgs("Checking File {file.Name}...", i, listLength));
 
                             string result = GetMd5Checksum(Path.Join(downloadLocation, file.Name));
 
@@ -203,9 +207,9 @@ public class FileHandler
         return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLowerInvariant();
     }
 
-    public static async Task CheckFilesAsync(bool isFullScan = false)
+    public async Task CheckFilesAsync(bool isFullScan = false)
     {
-        OnFullScanStarted?.Invoke();
+        OnFullScanStarted?.Invoke(this, EventArgs.Empty);
 
         var config = ConfigFile.GetCurrentServer();
 
@@ -214,13 +218,13 @@ public class FileHandler
         long totalDownloadSize = 0;
         List<DownloadableFile> downloadableFiles = new();
 
-        downloadableFiles = await HttpHandler.DownloadManifestAsync();
+        downloadableFiles = await _httpHandler.DownloadManifestAsync();
 
         List<string> fileList;
         if (isFullScan)
         {
             fileList = await GetBadFilesAsync(config.GameLocation!, downloadableFiles, true);
-            OnFullScanCompleted?.Invoke();
+            OnFullScanCompleted?.Invoke(this, EventArgs.Empty);
         }
         else
         {
@@ -240,21 +244,17 @@ public class FileHandler
             });
         });
 
-        await HttpHandler.DownloadFilesFromListAsync(fileList, config.GameLocation!, totalDownloadSize);
+        await _httpHandler.DownloadFilesFromListAsync(fileList, config.GameLocation!, totalDownloadSize);
     }
 
     public static async Task AttemptCopyFilesFromListAsync(List<string> fileList, string copyLocation, bool isDirChange = false, string previousDir = "")
     {
-        double listLength = fileList.Count;
         List<string> newFileList = new();
 
         double i = 1;
         // Key == name, Value == url
         foreach (string file in fileList)
         {
-            // Notify UI of filename
-            HttpHandler.OnCurrentFileDownloading?.Invoke("copy", file, i, listLength);
-
             // Create directory before writing to file if it doesn't exist
             if (copyLocation is not null && file is not null)
             {

@@ -2,17 +2,16 @@
 using Grpc.Core;
 using Grpc.Net.Client;
 using LauncherWebService.Services;
-using LibLauncherUtil.Util;
 
 namespace LibLauncherUtil.gRPC;
 
-public static class Requests
+public class Requests
 {
     private static GrpcChannel? _channel = null;
-    public static Action<List<string>, string, bool>? LoggedIn { get; set; }
-    public static Action<string>? LoginFailed { get; set; }
-    public static Action<string>? AccountCreated { get; set; }
-    public static Action<string>? AccountCreationFailed { get; set; }
+    public static event EventHandler<OnLoggedInEventArgs>? OnLoggedIn;
+    public static event EventHandler<OnLoginFailedEventArgs>? OnLoginFailed;
+    public static event EventHandler<OnAccountCreatedEventArgs>? OnAccountCreated;
+    public static event EventHandler<OnAccountCreateFailedEventArgs>? OnAccountCreateFailed;
     public static string? GrpcUrl { get; set; }
 
     private static void GrpcInit()
@@ -36,7 +35,7 @@ public static class Requests
         });
     }
 
-    public static async Task RequestLogin(string username, string password, bool autoLogin = false)
+    public async Task RequestLogin(string username, string password, bool autoLogin = false)
     {
         if (_channel is null) GrpcInit();
 
@@ -71,26 +70,26 @@ public static class Requests
             {
                 if (autoLogin)
                 {
-                    LoggedIn?.Invoke(response.Characters, response.Username!, true);
+                    OnLoggedIn?.Invoke(this, new OnLoggedInEventArgs(response.Characters, response.Username!, true));
                 }
                 else
                 {
-                    LoggedIn?.Invoke(response.Characters, response.Username!, false);
+                    OnLoggedIn?.Invoke(this, new OnLoggedInEventArgs(response.Characters, response.Username!, false));
                 }
             }
             else
             {
-                LoginFailed?.Invoke(response.Status!);
+                OnLoginFailed?.Invoke(this, new OnLoginFailedEventArgs(response.Status!));
             }
         }
         catch (Exception e)
         {
             Logger.Instance.Log(e, ERROR);
-            LoginFailed?.Invoke("Unable to reach login server.");
+            OnLoginFailed?.Invoke(this, new OnLoginFailedEventArgs("Unable to reach login server."));
         }
     }
 
-    public static async Task RequestAccount(Models.AccountModel account)
+    public async Task RequestAccount(Models.AccountModel account)
     {
         if (_channel is null) GrpcInit();
 
@@ -108,11 +107,11 @@ public static class Requests
 
         if (reply.Status == "ok")
         {
-            AccountCreated?.Invoke("Account Created Successfully.");
+            OnAccountCreated?.Invoke(this, new OnAccountCreatedEventArgs("Account Created Successfully."));
         }
         else
         {
-            AccountCreationFailed?.Invoke(reply.Status);
+            OnAccountCreateFailed?.Invoke(this, new OnAccountCreateFailedEventArgs(reply.Status));
         }
     }
 }

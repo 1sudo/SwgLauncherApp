@@ -13,17 +13,15 @@ namespace LauncherApp.Models;
 
 public class HttpHandler
 {
+    public static event EventHandler? OnDownloadStarted;
+    public static event EventHandler? OnDownloadCompleted;
+    public static event EventHandler<OnDownloadProgressUpdatedEventArgs>? OnDownloadProgressUpdated;
+    public static event EventHandler<OnDownloadRateUpdatedEventArgs>? OnDownloadRateUpdated;
+    public static event EventHandler? OnCannotReachWebserver;
     public static double DownloadSpeed { get; private set; }
     public static bool IsDownloading { get; private set; }
-    public static Action? OnDownloadStarted { get; set; }
-    public static Action? OnDownloadCompleted { get; set; }
-    public static Action<string, string, double, double>? OnCurrentFileDownloading { get; set; }
-    public static Action<double>? OnDownloadProgressUpdated { get; set; }
-    public static Action<double>? OnDownloadRateUpdated { get; set; }
-    public static Action<string>? OnServerError { get; set; }
-    public static Action? OnCannotReachWebserver { get; set; }
 
-    internal static async Task<VersionFile> DownloadVersionAsync()
+    internal async Task<VersionFile> DownloadVersionAsync()
     {
         using var handler = new HttpClientHandler();
         handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
@@ -55,13 +53,13 @@ public class HttpHandler
         }
         catch (Exception e)
         {
-            OnCannotReachWebserver?.Invoke();
+            OnCannotReachWebserver?.Invoke(this, EventArgs.Empty);
             Logger.Instance.Log(e, ERROR);
             return new VersionFile { Version = 1 };
         }
     }
 
-    internal static async Task<List<DownloadableFile>> DownloadManifestAsync()
+    internal async Task<List<DownloadableFile>> DownloadManifestAsync()
     {
         using var handler = new HttpClientHandler();
         handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
@@ -88,27 +86,27 @@ public class HttpHandler
         }
         catch (Exception e)
         {
-            OnCannotReachWebserver?.Invoke();
+            OnCannotReachWebserver?.Invoke(this, EventArgs.Empty);
             Logger.Instance.Log(e, ERROR);
             return new List<DownloadableFile>();
         }
     }
 
-    private static void NotifyDownloadSpeed()
+    private void NotifyDownloadSpeed()
     {
         while (IsDownloading)
         {
             Thread.Sleep(200);
-            OnDownloadRateUpdated?.Invoke(DownloadSpeed);
+            OnDownloadRateUpdated?.Invoke(this, new OnDownloadRateUpdatedEventArgs(DownloadSpeed));
         }
     }
 
-    internal static async Task DownloadFilesFromListAsync(List<string> fileList, string downloadLocation, long totalDownloadSize)
+    internal async Task DownloadFilesFromListAsync(List<string> fileList, string downloadLocation, long totalDownloadSize)
     {
         var config = ConfigFile.GetCurrentServer();
         if (config is null) return;
 
-        OnDownloadStarted?.Invoke();
+        OnDownloadStarted?.Invoke(this, EventArgs.Empty);
         IsDownloading = true;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
@@ -140,7 +138,7 @@ public class HttpHandler
                         {
                             var downloadRate = totalBytesDownloaded / elapsedSeconds;
 
-                            OnDownloadProgressUpdated?.Invoke(totalBytesDownloaded / (double)totalDownloadSize * 1000);
+                            OnDownloadProgressUpdated?.Invoke(this, new OnDownloadProgressUpdatedEventArgs(totalBytesDownloaded / (double)totalDownloadSize * 1000));
                             DownloadSpeed = Math.Round(downloadRate / 125000, 2);
                         }
                     });
@@ -154,7 +152,7 @@ public class HttpHandler
 
         await Task.WhenAll(tasks);
 
-        OnDownloadCompleted?.Invoke();
+        OnDownloadCompleted?.Invoke(this, EventArgs.Empty);
         IsDownloading = false;
     }
 

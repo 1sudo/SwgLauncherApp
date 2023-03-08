@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
@@ -8,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using LibLauncherUtil.Properties;
 using LibLauncherUtil.gRPC;
 using LauncherApp.Models;
+using System;
 
 namespace LauncherApp.ViewModels;
 
@@ -23,9 +23,11 @@ internal class MainSidebarViewModel : ObservableObject
     public IRelayCommand DeveloperButton { get; }
     public IRelayCommand PlayButton { get; }
     public IRelayCommand EnableDeveloperButton { get; }
+    private readonly FileHandler _fileHandler;
 
     public MainSidebarViewModel()
     {
+        _fileHandler = new FileHandler();
         VoteButton = new RelayCommand(() => Trace.WriteLine("Vote button pressed"));
         DonateButton = new RelayCommand(() => Trace.WriteLine("Donate button pressed"));
         ResourcesButton = new RelayCommand(() => Trace.WriteLine("Resources button pressed"));
@@ -36,10 +38,9 @@ internal class MainSidebarViewModel : ObservableObject
         DeveloperButton = new RelayCommand(() => ScreenContainerViewModel.EnableScreen(Screen.Developer));
         EnableDeveloperButton = new RelayCommand(EnableDeveloper);
         PlayButton = new RelayCommand(Play);
-        Requests.LoggedIn += OnLoggedIn;
+        Requests.OnLoggedIn += OnLoggedIn;
         HttpHandler.OnDownloadStarted += OnDownloadStarted;
         HttpHandler.OnDownloadCompleted += OnDownloadCompleted;
-        HttpHandler.OnCurrentFileDownloading += OnCurrentFileDownloading;
         HttpHandler.OnDownloadProgressUpdated += OnDownloadProgressUpdated;
         HttpHandler.OnDownloadRateUpdated += OnDownloadRateUpdated;
         FileHandler.OnFullScanFileCheck += OnFullScanFileCheck;
@@ -87,7 +88,7 @@ internal class MainSidebarViewModel : ObservableObject
         {
             PlayButtonEnabled = false;
             PlayButtonText = "UPDATING";
-            await FileHandler.CheckFilesAsync();
+            await _fileHandler.CheckFilesAsync();
             
             _updateAvailable = false;
         }
@@ -110,19 +111,22 @@ internal class MainSidebarViewModel : ObservableObject
         }
     }
 
-    private async void OnLoggedIn(List<string> characters, string username, bool autoLogin)
+    private async void OnLoggedIn(object? sender, OnLoggedInEventArgs args)
     {
         PlayButtonEnabled = false;
         PlayButtonText = "UPDATE";
 
-        CharacterList = new ObservableCollection<string>(characters);
+        if (args.Characters is not null)
+        {
+            CharacterList = new ObservableCollection<string>(args.Characters);
+        }
 
         GetLastSelectedCharacter();
 
         CharacterSelectVisibility = Visibility.Visible;
         DownloadProgressVisibility = Visibility.Collapsed;
 
-        if (await FileHandler.UpdateIsAvailable())
+        if (await _fileHandler.UpdateIsAvailable())
         {
             _updateAvailable = true;
             PlayButtonText = "UPDATE";
@@ -131,13 +135,13 @@ internal class MainSidebarViewModel : ObservableObject
         else
         {
             // Shortcut for enabling play button
-            OnDownloadCompleted();
+            OnDownloadCompleted(this, new EventArgs());
         }
 
         PlayButtonEnabled = true;
     }
 
-    private void OnDownloadStarted()
+    private void OnDownloadStarted(object? sender, EventArgs args)
     {
         PlayButtonEnabled = false;
         CharacterSelectVisibility = Visibility.Collapsed;
@@ -145,7 +149,7 @@ internal class MainSidebarViewModel : ObservableObject
         ProgressTextBottomLeft = "Downloading Game Files";
     }
 
-    private void OnDownloadCompleted()
+    private void OnDownloadCompleted(object? sender, EventArgs args)
     {
         _updateAvailable = false;
         PlayButtonText = "PLAY";
@@ -154,28 +158,23 @@ internal class MainSidebarViewModel : ObservableObject
         DownloadProgressVisibility = Visibility.Collapsed;
     }
 
-    private void OnCurrentFileDownloading(string action, string fileName, double currentFile, double totalFiles)
+    private void OnDownloadProgressUpdated(object? sender, OnDownloadProgressUpdatedEventArgs args)
     {
-
+        ProgressBarBottomValue = args.ProgressPercentage;
     }
 
-    private void OnDownloadProgressUpdated(double progressPercentage)
+    private void OnDownloadRateUpdated(object? sender, OnDownloadRateUpdatedEventArgs args)
     {
-        ProgressBarBottomValue = progressPercentage;
+        ProgressTextBottomRight = args.DownloadRate.ToString() + " Mbps";
     }
 
-    private void OnDownloadRateUpdated(double downloadRate)
+    private void OnFullScanFileCheck(object? sender, FullScanFileCheckEventArgs args)
     {
-        ProgressTextBottomRight = downloadRate.ToString() + " Mbps";
+        ProgressTextBottomRight = $"({args.CurrentFile} / {args.TotalFiles})";
+        ProgressBarBottomValue = ((double)args.CurrentFile / (double)args.TotalFiles) * 1000;
     }
 
-    private void OnFullScanFileCheck(string fileName, int currentFile, int totalFiles)
-    {
-        ProgressTextBottomRight = $"({currentFile} / {totalFiles})";
-        ProgressBarBottomValue = ((double)currentFile / (double)totalFiles) * 1000;
-    }
-
-    private void OnFullScanStarted()
+    private void OnFullScanStarted(object? sender, EventArgs args)
     {
         PlayButtonEnabled = false;
         PlayButtonText = "SCANNING";
@@ -184,7 +183,7 @@ internal class MainSidebarViewModel : ObservableObject
         ProgressTextBottomLeft = "Scanning Files... Please Wait...";
     }
 
-    private void OnFullScanCompleted()
+    private void OnFullScanCompleted(object? sender, EventArgs args)
     {
         PlayButtonEnabled = true;
         PlayButtonText = "PLAY";

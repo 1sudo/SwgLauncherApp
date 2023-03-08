@@ -1,5 +1,7 @@
-﻿using System.Windows;
+﻿using System.Runtime.CompilerServices;
+using System.Windows;
 using CommunityToolkit.Mvvm.Input;
+using LauncherApp.Models;
 
 namespace LauncherApp.ViewModels;
 
@@ -19,13 +21,18 @@ internal class MainWindowViewModel : MainWindowViewModelProperties
         CloseButton = new RelayCommand(() => Application.Current.MainWindow!.Close());
         UpdatesButton = new RelayCommand(() => ScreenContainerViewModel.EnableScreen(Screen.Updates));
         LogoutButton = new RelayCommand(OnLogout);
-        AccountScreenViewModel.SetUsername += OnLogin;
+        AccountScreenViewModel.OnSetUsername += OnSetUsername;
     }
 
-    private void OnLogin(string username)
+    private void OnSetUsername(object? sender, OnSetUsernameEventArgs args)
     {
         UpdatesButtonIsEnabled = true;
-        MainWindowUsernameTextBlock = username.ToUpper();
+
+        if (args.Username is not null)
+        {
+            MainWindowUsernameTextBlock = args.Username.ToUpper();
+        }
+
         MainWindowUsernameTextBlockVisibility = Visibility.Visible;
         MainWindowLogoutButton = Visibility.Visible;
     }

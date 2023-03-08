@@ -13,7 +13,7 @@ public enum LogType
 
 public class Logger
 {
-    public static Action<string>? OnLoggedMessage { get; set; }
+    public static event EventHandler<OnLoggedInMessageEventArgs>? OnLoggedInMessage;
 
     private static Logger? instance = null;
 
@@ -21,12 +21,7 @@ public class Logger
     {
         get
         {
-            if (instance == null)
-            {
-                instance = new Logger();
-            }
-
-            return instance;
+            return instance ??= new Logger();
         }
     }
 
@@ -81,6 +76,6 @@ public class Logger
 
         Trace.Flush();
 
-        OnLoggedMessage?.Invoke($"{header}\n {message}\n\n");
+        OnLoggedInMessage?.Invoke(this, new OnLoggedInMessageEventArgs($"{header}\n {message}\n\n"));
     }
 }
