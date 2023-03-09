@@ -1,12 +1,19 @@
 ﻿using System.Windows;
 using System.Windows.Forms;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LauncherApp.Models;
 using LibLauncherApp.Properties;
 
 namespace LauncherApp.ViewModels;
 
-internal class SetupScreenViewModel : SetupScreenViewModelProperties
+public enum SetupType
+{
+    Easy = 0,
+    Advanced = 1
+}
+
+internal class SetupScreenViewModel : ObservableObject
 {
     public IRelayCommand? RulesAndRegulationsNextButton { get; }
     public IRelayCommand? EasySetupButton { get; }
@@ -43,15 +50,15 @@ internal class SetupScreenViewModel : SetupScreenViewModelProperties
         BaseGameVerificationCancelButton = new RelayCommand(CloseApplication);
     }
 
-    internal static void ToggleNextButton(SetupScreenViewModelProperties vmp, bool enabled, int nextButton)
+    internal void ToggleNextButton(bool enabled, int nextButton)
     {
         if (nextButton == (int)NextButton.Rules)
         {
-            vmp.RulesAndRegulationsNextButtonToggle = enabled;
+            RulesAndRegulationsNextButtonToggle = enabled;
         }
         else if (nextButton == (int)NextButton.BaseGameVerification)
         {
-            vmp.BaseGameVerificationNextButtonToggle = enabled;
+            BaseGameVerificationNextButtonToggle = enabled;
         }
     } 
 
@@ -153,15 +160,15 @@ internal class SetupScreenViewModel : SetupScreenViewModelProperties
         }
     }
 
-    internal static void ToggleGameValidationDetails(SetupScreenViewModelProperties vmp, bool enabled)
+    internal void ToggleGameValidationDetails(bool enabled)
     {
         if (enabled)
         {
-            vmp.BaseGameVerificationDetails = Visibility.Visible;
+            BaseGameVerificationDetails = Visibility.Visible;
         }
         else
         {
-            vmp.BaseGameVerificationDetails = Visibility.Collapsed;
+            BaseGameVerificationDetails = Visibility.Collapsed;
         }
     }
 
@@ -169,5 +176,91 @@ internal class SetupScreenViewModel : SetupScreenViewModelProperties
     {
         TrueExit.Value = true;
         System.Windows.Application.Current.MainWindow!.Close();
+    }
+
+    private bool _rulesAndRegulationsCheckbox;
+    private bool _rulesAndRegulationsNextButtonToggle;
+    private bool _baseGameVerificationNextButtonToggle;
+    private bool _gameValidationCheckbox;
+    private Visibility _easySetupBubble;
+    private Visibility _advancedSetupBubble;
+    private Visibility _advancedSetupDetails;
+    private Visibility _baseGameVerificationDetails;
+    private string? _advancedSetupTextBox;
+    private string? _baseGameVerificationSelectedDirectoryTextBox;
+
+    public int SelectedSetupType { get; set; }
+    public int CurrentScreen { get; set; }
+
+    public Visibility EasySetupBubble
+    {
+        get => _easySetupBubble;
+        set => SetProperty(ref _easySetupBubble, value);
+    }
+
+    public Visibility AdvancedSetupBubble
+    {
+        get => _advancedSetupBubble;
+        set => SetProperty(ref _advancedSetupBubble, value);
+    }
+
+    public Visibility AdvancedSetupDetails
+    {
+        get => _advancedSetupDetails;
+        set => SetProperty(ref _advancedSetupDetails, value);
+    }
+
+    public Visibility BaseGameVerificationDetails
+    {
+        get => _baseGameVerificationDetails;
+        set => SetProperty(ref _baseGameVerificationDetails, value);
+    }
+
+    public bool RulesAndRegulationsCheckbox
+    {
+        get => _rulesAndRegulationsCheckbox;
+        set
+        {
+            SetProperty(ref _rulesAndRegulationsCheckbox, value);
+            ToggleNextButton(value, (int)NextButton.Rules);
+        }
+    }
+
+    public bool RulesAndRegulationsNextButtonToggle
+    {
+        get => _rulesAndRegulationsNextButtonToggle;
+        set => SetProperty(ref _rulesAndRegulationsNextButtonToggle, value);
+    }
+
+    public bool BaseGameVerificationNextButtonToggle
+    {
+        get => _baseGameVerificationNextButtonToggle;
+        set => SetProperty(ref _baseGameVerificationNextButtonToggle, value);
+    }
+
+    public bool GameValidationCheckbox
+    {
+        get => _gameValidationCheckbox;
+        set
+        {
+            SetProperty(ref _gameValidationCheckbox, value);
+            ToggleGameValidationDetails(value);
+        }
+    }
+
+    public string? AdvancedSetupTextBox
+    {
+        get => _advancedSetupTextBox!;
+        set => SetProperty(ref _advancedSetupTextBox, value);
+    }
+
+    public string? BaseGameVerificationSelectedDirectoryTextBox
+    {
+        get => _baseGameVerificationSelectedDirectoryTextBox;
+        set
+        {
+            SetProperty(ref _baseGameVerificationSelectedDirectoryTextBox, value);
+            ToggleNextButton((value != string.Empty), (int)NextButton.BaseGameVerification);
+        }
     }
 }

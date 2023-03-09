@@ -146,6 +146,7 @@ internal class MainSidebarViewModel : ObservableObject
     private void OnDownloadStarted(object? sender, EventArgs args)
     {
         PlayButtonEnabled = false;
+        PlayButtonText = "DOWNLOADING";
         CharacterSelectVisibility = Visibility.Collapsed;
         DownloadProgressVisibility = Visibility.Visible;
         ProgressTextBottomLeft = "Downloading Game Files";
@@ -182,7 +183,7 @@ internal class MainSidebarViewModel : ObservableObject
         PlayButtonText = "SCANNING";
         CharacterSelectVisibility = Visibility.Collapsed;
         DownloadProgressVisibility = Visibility.Visible;
-        ProgressTextBottomLeft = "Scanning Files... Please Wait...";
+        ProgressTextBottomLeft = "Scanning Game Files";
     }
 
     private void OnFullScanCompleted(object? sender, EventArgs args)
@@ -199,7 +200,7 @@ internal class MainSidebarViewModel : ObservableObject
         PlayButtonText = "COPYING";
         CharacterSelectVisibility = Visibility.Collapsed;
         DownloadProgressVisibility = Visibility.Visible;
-        ProgressTextBottomLeft = "Copying Files... Please Wait...";
+        ProgressTextBottomLeft = "Copying Game Files";
     }
 
     private void OnCopyingFilesProgressUpdated(object? sender, OnCopyingFilesProgressUpdatedEventArgs args)

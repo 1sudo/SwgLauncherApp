@@ -1,11 +1,11 @@
-﻿using System.Runtime.CompilerServices;
-using System.Windows;
+﻿using System.Windows;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LauncherApp.Models;
 
 namespace LauncherApp.ViewModels;
 
-internal class MainWindowViewModel : MainWindowViewModelProperties
+internal class MainWindowViewModel : ObservableObject
 {
     public IRelayCommand MinimizeButton { get; set; }
     public IRelayCommand CloseButton { get; set; }
@@ -43,5 +43,34 @@ internal class MainWindowViewModel : MainWindowViewModelProperties
         MainWindowUsernameTextBlockVisibility = Visibility.Collapsed;
         MainWindowLogoutButton = Visibility.Collapsed;
         ScreenContainerViewModel.EnableScreen(Screen.AccountLogin);
+    }
+
+    private string? _mainWindowUsernameTextBlock;
+    private Visibility? _mainWindowUsernameTextBlockVisibility;
+    private Visibility? _mainWindowLogoutButton;
+    private bool? _updatesButtonIsEnabled;
+
+    public string? MainWindowUsernameTextBlock
+    {
+        get => _mainWindowUsernameTextBlock;
+        set => SetProperty(ref _mainWindowUsernameTextBlock, value);
+    }
+
+    public Visibility? MainWindowUsernameTextBlockVisibility
+    {
+        get => _mainWindowUsernameTextBlockVisibility;
+        set => SetProperty(ref _mainWindowUsernameTextBlockVisibility, value);
+    }
+
+    public Visibility? MainWindowLogoutButton
+    {
+        get => _mainWindowLogoutButton;
+        set => SetProperty(ref _mainWindowLogoutButton, value);
+    }
+
+    public bool? UpdatesButtonIsEnabled
+    {
+        get => _updatesButtonIsEnabled;
+        set => SetProperty(ref _updatesButtonIsEnabled, value);
     }
 }
